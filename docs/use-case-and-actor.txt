@@ -1,0 +1,21 @@
+Function
+- Login, logout
+- Add item with price, quantity, type, ...
+- Create bid
+- Can find the match bid (step bid).
+- Deposit amount.
+- View bid history
+Non function
+- No conflict.
+- Realtime update.
+
+Actor
+- Admin
++ Add item
++ Remove item
++ Create bid session
+- User
++ DEposit
++ Join a bid session
++ Make bid
++ View bid history
