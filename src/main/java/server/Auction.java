@@ -8,14 +8,24 @@ public class Auction {
     private String auctionID;
     private Item item;
     private List<BidTransaction> bidTransactionHistory;
-    private User winnerID;
-    private String status;
+    private User currentWinner;
+    private AuctionState state = AuctionState.OPEN;
+    private long currentPrice;
 
-    public Auction(String auctionID, Item item, List<BidTransaction> bidTransactionHistory, User winnerID, String status) {
+
+    public Auction(String auctionID, Item item) {
         this.auctionID = auctionID;
         this.item = item;
         this.bidTransactionHistory = new ArrayList<>();
-        this.winnerID = winnerID;
-        this.status = "OPEN";
+        this.currentWinner = currentWinner;
+        this.currentPrice = item.getStartPrice();
+    }
+
+    public AuctionState getState(){
+        return state;
+    }
+
+    public void setState(AuctionState state){
+        this.state = state;
     }
 }
