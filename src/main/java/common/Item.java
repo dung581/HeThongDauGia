@@ -3,7 +3,7 @@ package common;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public abstract class Item {
+public abstract class Item extends Entity{
     private String IID;
     private String type;
     private String itemName;
@@ -17,7 +17,7 @@ public abstract class Item {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     public Item(String IID, String type, String itemName, String description, long startPrice, long currentPrice, LocalDateTime startTime, LocalDateTime endTime, long minIncrement) {
-        this.IID = IID;
+        super(IID);
         this.type = type;
         this.itemName = itemName;
         this.description = description;
@@ -74,6 +74,12 @@ public abstract class Item {
 
     public long getMinIncrement() {
         return minIncrement;
+    }
+    public void setItemName(String itemName){
+        this.itemName = itemName;
+    }
+    public void setDescription(String description){
+        this.description = description;
     }
 
     public void updatePrice(long newPrice) {
