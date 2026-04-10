@@ -9,7 +9,7 @@ public class BidTransaction {
     private long bidAmount; //số tiền đặt giá
     private LocalDateTime timestamp; //thời gian đặt
 
-    public BidTransaction(String transactionID, User bidder, Item item, long bidAmount, LocalDateTime timestamp) {
+    public BidTransaction(User bidder,long bidAmount, LocalDateTime timestamp) {
         this.transactionID = transactionID;
         this.bidder = bidder;
         this.item = item;
