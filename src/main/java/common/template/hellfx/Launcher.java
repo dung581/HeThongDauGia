@@ -1,4 +1,4 @@
-package com.template.hellfx;
+package com.template.hellofx;
 
 import javafx.application.Application;
 
