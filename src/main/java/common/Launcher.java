@@ -1,4 +1,4 @@
-package Client;
+package common;
 
 import javafx.application.Application;
 
