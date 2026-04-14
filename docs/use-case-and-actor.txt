@@ -37,8 +37,7 @@ Non function
 Actor
 
 1. Admin
-   - Thêm sản phẩm
-   - Xóa sản phẩm
+   - Thêm, sửa, xóa, nâng cấp sản phẩm (CRUD)
    - Tạo phiên đấu giá
 
 2. User
