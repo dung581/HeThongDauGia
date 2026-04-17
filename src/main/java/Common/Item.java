@@ -1,7 +1,8 @@
-package common;
+package Common;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import Exceptions.InvalidBidException;
 
 public abstract class Item extends Entity{
     private String IID;
@@ -82,10 +83,16 @@ public abstract class Item extends Entity{
         this.description = description;
     }
 
-    public void updatePrice(long newPrice) {
+    // them thoi gian khi co gia moi vao y giay cuoi
+    public void extendEndTime(long extraSeconds) {
+        this.endTime = this.endTime.plusSeconds(extraSeconds);
+    }
+    // Thêm throws InvalidBidException vào khai báo hàm
+    public void updatePrice(long newPrice) throws InvalidBidException {
         long minAllowed = this.currentPrice + this.minIncrement;
         if (newPrice < minAllowed) {
-            throw new IllegalArgumentException("Bid must be >= " + minAllowed + ", but got: " + newPrice);
+            // Ném ra lỗi cụ thể kèm thông báo chi tiết
+            throw new InvalidBidException("Giá đặt (" + newPrice + ") không hợp lệ! Mức giá tối thiểu để đặt lúc này là: " + minAllowed);
         }
         this.currentPrice = newPrice;
     }

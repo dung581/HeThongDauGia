@@ -1,4 +1,4 @@
-package common;
+package Common;
 
 public abstract class User {
     private String UID;
