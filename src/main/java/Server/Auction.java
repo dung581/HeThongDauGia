@@ -82,7 +82,7 @@ public class Auction {
     public long getCurrentPrice() {
         return currentPrice;
     }
-    
+
     public LocalDateTime getEndTime() {
         return this.item.getEndTime();
     }
