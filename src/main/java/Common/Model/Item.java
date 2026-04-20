@@ -1,10 +1,11 @@
-package Common;
+package Common.Model;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
 import Exceptions.InvalidBidException;
 
-public abstract class Item extends Entity{
+public abstract class Item extends Entity {
     private String IID;
     private String type;
     private String itemName;

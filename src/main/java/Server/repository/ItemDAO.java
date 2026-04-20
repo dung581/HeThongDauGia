@@ -1,5 +1,9 @@
-package Common;
+package Server.repository;
 
+import Common.Model.Item;
+import Common.Model.item.Art;
+import Common.Model.item.Electronics;
+import Common.Model.item.Vehicle;
 import com.google.gson.Gson;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

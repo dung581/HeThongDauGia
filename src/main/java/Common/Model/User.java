@@ -1,4 +1,4 @@
-package Common;
+package Common.Model;
 
 public abstract class User {
     private String UID;

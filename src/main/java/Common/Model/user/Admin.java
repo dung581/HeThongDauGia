@@ -1,6 +1,8 @@
-package Common;
+package Common.Model.user;
 
-public class Admin extends User{
+import Common.Model.User;
+
+public class Admin extends User {
     public Admin(String UID, String name, String username, String password, String role, long money) {
         super(UID, name, username, password, "ADMIN", money);
     }

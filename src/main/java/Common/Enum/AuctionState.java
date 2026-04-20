@@ -1,4 +1,4 @@
-package Common;
+package Common.Enum;
 // tránh sai trạng thái của phiên đấu giá
 public enum AuctionState {
     OPEN,

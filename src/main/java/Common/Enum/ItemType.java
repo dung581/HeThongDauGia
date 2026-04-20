@@ -1,4 +1,4 @@
-package Common;
+package Common.Enum;
 
 public enum ItemType {
     VEHICLE,

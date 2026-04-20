@@ -1,11 +1,15 @@
-package Server;
+package Server.core;
 
-import Common.*;
+import Common.Enum.AuctionState;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Random;
+
+import Common.Model.BidTransaction;
+import Common.Model.Item;
+import Common.Model.User;
 import Exceptions.AuctionClosedException;
 import Exceptions.InvalidBidException;
 import Exceptions.NotEnoughMoneyException;
@@ -67,20 +71,6 @@ public class Auction {
             System.out.println("Phiên đấu giá được gia hạn thêm 60s.");
         }
     }
-
-    public void startAuction(Auction auction){
-       if (auction.getState() == AuctionState.OPEN){
-           auction.setState(AuctionState.RUNNING);
-           System.out.println("Bắt đầu phiên đấu giá 🎉🎉");
-       }
-    }
-    public void endAuction(Auction auction){
-        if (auction.getState() != AuctionState.FINISH){
-            auction.setState(AuctionState.FINISH);
-            System.out.println("Phiên đấu giá đã hoàn thành");
-        }
-    }
-
     public String getAuctionID() {
         return auctionID;
     }

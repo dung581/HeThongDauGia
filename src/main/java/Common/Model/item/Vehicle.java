@@ -1,8 +1,10 @@
-package Common;
+package Common.Model.item;
+
+import Common.Model.Item;
 
 import java.time.LocalDateTime;
 
-public class Vehicle extends Item{
+public class Vehicle extends Item {
     private String licensePlate;
     private String engineType;
     private int mileage;
