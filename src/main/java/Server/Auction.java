@@ -43,12 +43,12 @@ public class Auction {
     }
     // tránh nhiều người đặt cùng lúc (synchronized) và cập nhật phiên đấu giá
     public synchronized void placeBid(User bidder, long bidAmount) throws AuctionClosedException, InvalidBidException, NotEnoughMoneyException {
-        // 1. Kiểm tra trạng thái
+        // Kiểm tra trạng thái
         if (this.getState() != AuctionState.RUNNING) {
             throw new AuctionClosedException("Thất bại! Phiên đấu giá cho sản phẩm '" + item.getItemName() + "' hiện không mở.");
         }
+        // lỗi số dư ko đủ
         if (!bidder.canBid(bidAmount)) {
-            // Ném lỗi kèm theo số dư hiện tại để thông báo cho người dùng biết
             throw new NotEnoughMoneyException("Từ chối: Tài khoản của bạn (" + bidder.getMoney() + " VND) không đủ để đặt mức giá " + bidAmount + " VND.");
         }
 
@@ -57,13 +57,27 @@ public class Auction {
 
         // Cập nhật người dẫn đầu và lịch sử
         this.currentWinner = bidder;
-        bidTransactionHistory.add(new BidTransaction(bidder, bidAmount, LocalDateTime.now()));        String msg = successMessage[random.nextInt(successMessage.length)];
+        bidTransactionHistory.add(new BidTransaction(bidder, bidAmount, LocalDateTime.now()));
+        String msg = successMessage[random.nextInt(successMessage.length)];
         System.out.println(bidder.getName() + msg + " | Giá hiện tại: " + currentPrice);
         // Nếu bid trong 30 giây cuối cùng, cộng thêm 60 giây vào Item
         long secondsLeft = java.time.temporal.ChronoUnit.SECONDS.between(LocalDateTime.now(), item.getEndTime());
         if (secondsLeft >= 0 && secondsLeft <= 30) {
             item.extendEndTime(60);
             System.out.println("Phiên đấu giá được gia hạn thêm 60s.");
+        }
+    }
+
+    public void startAuction(Auction auction){
+       if (auction.getState() == AuctionState.OPEN){
+           auction.setState(AuctionState.RUNNING);
+           System.out.println("Bắt đầu phiên đấu giá 🎉🎉");
+       }
+    }
+    public void endAuction(Auction auction){
+        if (auction.getState() != AuctionState.FINISH){
+            auction.setState(AuctionState.FINISH);
+            System.out.println("Phiên đấu giá đã hoàn thành");
         }
     }
 
