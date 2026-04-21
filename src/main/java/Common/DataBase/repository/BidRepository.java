@@ -1,7 +1,8 @@
 package Common.DataBase.repository;
 
-import org.ducanh.btl.ConnectionDatabase;
-import org.ducanh.btl.entities.bid;
+import Common.DataBase.ConnectionDatabase;
+import Common.DataBase.entities.Item;
+import Common.DataBase.entities.bid;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

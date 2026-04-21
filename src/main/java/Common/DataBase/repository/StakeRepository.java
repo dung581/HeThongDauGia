@@ -1,8 +1,9 @@
 package Common.DataBase.repository;
 
-import org.ducanh.btl.ConnectionDatabase;
-import org.ducanh.btl.entities.ItemStatus;
-import org.ducanh.btl.entities.Stake;
+
+import Common.DataBase.ConnectionDatabase;
+import Common.DataBase.entities.ItemStatus;
+import Common.DataBase.entities.Stake;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
