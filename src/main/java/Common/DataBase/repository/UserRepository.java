@@ -1,9 +1,9 @@
 package Common.DataBase.repository;
 
 
-import org.ducanh.btl.ConnectionDatabase;
-import org.ducanh.btl.entities.User;
-import org.ducanh.btl.entities.UserStatus;
+import Common.DataBase.ConnectionDatabase;
+import Common.DataBase.entities.User;
+import Common.DataBase.entities.UserStatus;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
