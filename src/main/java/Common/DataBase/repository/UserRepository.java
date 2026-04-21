@@ -3,7 +3,7 @@ package Common.DataBase.repository;
 
 import Common.DataBase.ConnectionDatabase;
 import Common.DataBase.entities.User;
-import Common.DataBase.entities.UserStatus;
+import Common.Enum.UserStatus;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

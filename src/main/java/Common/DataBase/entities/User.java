@@ -1,5 +1,6 @@
 package Common.DataBase.entities;
 
+import Common.Enum.UserStatus;
 import lombok.Getter;
 import lombok.Setter;
 @Getter

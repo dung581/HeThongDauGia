@@ -4,7 +4,7 @@ package Common.DataBase.repository;
 
 import Common.DataBase.ConnectionDatabase;
 import Common.DataBase.entities.Item;
-import Common.DataBase.entities.ItemStatus;
+import Common.Enum.ItemStatus;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

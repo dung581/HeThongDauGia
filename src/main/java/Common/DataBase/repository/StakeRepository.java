@@ -2,7 +2,7 @@ package Common.DataBase.repository;
 
 
 import Common.DataBase.ConnectionDatabase;
-import Common.DataBase.entities.ItemStatus;
+import Common.Enum.ItemStatus;
 import Common.DataBase.entities.Stake;
 
 import java.sql.Connection;
