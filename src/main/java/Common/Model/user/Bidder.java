@@ -8,7 +8,7 @@ public class Bidder extends User {
     }
 
     @Override
-    String getRole() {
+    public String getRole() {
         return "BIDDER";
     }
 }

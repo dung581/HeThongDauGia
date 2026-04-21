@@ -8,7 +8,7 @@ public class Admin extends User {
     }
 
     @Override
-    String getRole() {
+    public String getRole() {
         return "ADMIN";
     }
 }

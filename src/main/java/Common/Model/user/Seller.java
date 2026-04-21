@@ -8,7 +8,7 @@ public class Seller extends User {
     }
 
     @Override
-    String getRole() {
+    public String getRole() {
         return "SELLER";
     }
 }

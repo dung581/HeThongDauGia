@@ -41,5 +41,5 @@ public abstract class User {
         return money >= price;
     }
 
-    abstract String getRole();
+    public abstract String getRole();
 }
