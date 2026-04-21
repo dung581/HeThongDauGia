@@ -8,6 +8,6 @@ import lombok.Setter;
 public class User {
     private long id;
     private String username;
-    private long password;
-    private UserStatus roll;
+    private String password;
+    private UserStatus role;
 }
