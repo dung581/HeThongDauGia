@@ -1,6 +1,7 @@
 package Server.db;
 
 import Exceptions.DataAccessException;
+import Exceptions.ReturnMessage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,7 +58,7 @@ public final class DbConnection {
         try {
             return DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
-            throw new DataAccessException("Không thể kết nối tới database: " + e.getMessage(), e);
+            throw new DataAccessException(ReturnMessage.DATA_ACCESS, e);
         }
     }
 

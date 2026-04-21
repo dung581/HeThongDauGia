@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import Exceptions.InvalidBidException;
+import Exceptions.ReturnMessage;
 
 
 public abstract class Item extends Entity {
@@ -104,10 +105,7 @@ public abstract class Item extends Entity {
     public void updatePrice(long newPrice) throws InvalidBidException {
         long minAllowed = this.currentPrice + this.minIncrement;
         if (newPrice < minAllowed) {
-            throw new InvalidBidException(
-                    "Giá đặt (" + newPrice
-                            + ") không hợp lệ! Mức giá tối thiểu để đặt lúc này là: "
-                            + minAllowed);
+            throw new InvalidBidException(ReturnMessage.INVALID_BID);
         }
         this.currentPrice = newPrice;
     }
