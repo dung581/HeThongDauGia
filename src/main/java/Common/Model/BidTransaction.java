@@ -1,18 +1,29 @@
 package Common.Model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
-public class BidTransaction {
-    private String transactionID;
-    private User bidder;
-    private Item item;
-    private long bidAmount; //số tiền đặt giá
-    private LocalDateTime timestamp; //thời gian đặt
+/**
+ * Giao dịch đặt giá - mỗi lần Bidder đặt giá thành công sẽ tạo 1 BidTransaction.
+ *
+ * FIX so với bản cũ:
+ *   Constructor cũ thiếu tham số transactionID và item, dẫn đến gán null vào null.
+ *   Phiên bản mới: tự sinh transactionID bằng UUID, nhận đủ bidder + item + amount + timestamp.
+ */
+public class BidTransaction implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-    public BidTransaction(User bidder,long bidAmount, LocalDateTime timestamp) {
-        this.transactionID = transactionID;
-        this.bidder = bidder;
-        this.item = item;
+    private final String transactionID;
+    private final String bidderUID;     // chỉ lưu UID để nhẹ khi serialize qua Socket
+    private final String itemIID;       // tương tự
+    private final long bidAmount;
+    private final LocalDateTime timestamp;
+
+    public BidTransaction(User bidder, Item item, long bidAmount, LocalDateTime timestamp) {
+        this.transactionID = UUID.randomUUID().toString();
+        this.bidderUID = bidder.getUID();
+        this.itemIID = item.getIID();
         this.bidAmount = bidAmount;
         this.timestamp = timestamp;
     }
@@ -21,12 +32,12 @@ public class BidTransaction {
         return transactionID;
     }
 
-    public User getBidder() {
-        return bidder;
+    public String getBidderUID() {
+        return bidderUID;
     }
 
-    public Item getItem() {
-        return item;
+    public String getItemIID() {
+        return itemIID;
     }
 
     public long getBidAmount() {

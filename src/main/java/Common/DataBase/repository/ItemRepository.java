@@ -4,7 +4,7 @@ package Common.DataBase.repository;
 
 import Common.DataBase.ConnectionDatabase;
 import Common.DataBase.entities.Item;
-import Common.DataBase.entities.ItemStatus;
+import Common.Enum.ItemStatus;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,5 +33,17 @@ public class ItemRepository {
             e.printStackTrace();
         }
         return items;
+    }
+    public void saveItem(Item item) {
+        ConnectionDatabase db = new ConnectionDatabase();
+        String sql = "INSERT INTO Item (winner_id, beginPrice, status) VALUES (?, ?, ?)";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, item.getWinner_id());
+            ps.setLong(2, item.getBeginPrice());
+            ps.setString(3, item.getStatus().toString());
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
     }
 }

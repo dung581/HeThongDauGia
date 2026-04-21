@@ -6,7 +6,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 @Setter
 @Getter
-public class session {
+public class Aution {
     private long id;
     private long item_id;
     private long current_user_id;

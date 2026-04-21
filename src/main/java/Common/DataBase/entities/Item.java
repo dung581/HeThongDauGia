@@ -1,7 +1,10 @@
 package Common.DataBase.entities;
 
+import Common.Enum.ItemStatus;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter

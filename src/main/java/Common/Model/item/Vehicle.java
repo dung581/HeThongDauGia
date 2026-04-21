@@ -5,14 +5,33 @@ import Common.Model.Item;
 import java.time.LocalDateTime;
 
 public class Vehicle extends Item {
-    private String licensePlate;
-    private String engineType;
-    private int mileage;
-    public Vehicle(String licensePlate, String IID, String itemName, String description, long startPrice, long currentPrice, LocalDateTime startTime, LocalDateTime endTime, long minIncrement, String engineType, int mileage) {
-        super(IID, "VEHICLE", itemName, description, startPrice, currentPrice, startTime, endTime, minIncrement);
+    private static final long serialVersionUID = 1L;
+
+    private final String licensePlate;
+    private final String engineType;
+    private final int mileage;
+
+    public Vehicle(String IID,
+                   String sellerId,
+                   String itemName,
+                   String description,
+                   long startPrice,
+                   long currentPrice,
+                   LocalDateTime startTime,
+                   LocalDateTime endTime,
+                   long minIncrement,
+                   String licensePlate,
+                   String engineType,
+                   int mileage) {
+        super(IID, sellerId, itemName, description, startPrice, currentPrice,
+                startTime, endTime, minIncrement);
+        this.licensePlate = licensePlate;
         this.engineType = engineType;
         this.mileage = mileage;
-        this.licensePlate = licensePlate;
+    }
+
+    public String getLicensePlate() {
+        return licensePlate;
     }
 
     public String getEngineType() {
@@ -21,10 +40,6 @@ public class Vehicle extends Item {
 
     public int getMileage() {
         return mileage;
-    }
-
-    public String getLicensePlate() {
-        return licensePlate;
     }
 
     @Override

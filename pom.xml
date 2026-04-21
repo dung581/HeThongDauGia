@@ -32,6 +32,12 @@
             <version>1.18.30</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.30</version>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- JavaFX Controls (Button, TableView, UI cơ bản) -->
         <dependency>
@@ -59,6 +65,11 @@
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
             <!-- jre11 vẫn chạy OK trên Java 21 -->
+            <version>12.6.1.jre11</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
             <version>12.6.1.jre11</version>
         </dependency>
 

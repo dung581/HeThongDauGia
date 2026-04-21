@@ -1,4 +1,4 @@
-package Common.DataBase.entities;
+package Common.Enum;
 
 public enum ItemStatus {
     SOLD, PENDING

@@ -31,4 +31,17 @@ public class AccountRepository {
         }
         return accounts;
     }
+    public void saveAccount(Account account) {
+        // Khởi tạo ngay trong hàm
+        ConnectionDatabase db = new ConnectionDatabase();
+        String sql = "INSERT INTO Account (user_id, balance, locked_balance) VALUES (?, ?, ?)";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, account.getUser_id());
+            ps.setLong(2, account.getBalance());
+            ps.setLong(3, account.getLocked_balance());
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
 }
