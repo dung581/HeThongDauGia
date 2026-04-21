@@ -5,9 +5,11 @@ import java.time.format.DateTimeFormatter;
 
 import Exceptions.InvalidBidException;
 
+
 public abstract class Item extends Entity {
-    private String IID;
-    private String type;
+    private static final long serialVersionUID = 1L;
+
+    private final String sellerId;          // UID của Seller sở hữu item
     private String itemName;
     private String description;
     private long startPrice;
@@ -16,26 +18,26 @@ public abstract class Item extends Entity {
     private LocalDateTime endTime;
     private long minIncrement;
 
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+    private static final DateTimeFormatter FORMATTER =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-    public Item(String IID, String type, String itemName, String description, long startPrice, long currentPrice, LocalDateTime startTime, LocalDateTime endTime, long minIncrement) {
+    public Item(String IID, String sellerId, String itemName, String description, long startPrice, long currentPrice, LocalDateTime startTime, LocalDateTime endTime, long minIncrement) {
         super(IID);
-        this.type = type;
+        this.sellerId = sellerId;
         this.itemName = itemName;
         this.description = description;
         this.startPrice = startPrice;
-        this.currentPrice = startPrice;
+        // Nếu load item đang bid dở từ DB thì currentPrice != startPrice.
+        this.currentPrice = currentPrice;
         this.startTime = startTime;
         this.endTime = endTime;
         this.minIncrement = minIncrement;
     }
 
-    public String getIID() {
-        return IID;
-    }
+    // ===== Getters =====
 
-    public String getType() {
-        return type;
+    public String getSellerId() {
+        return sellerId;
     }
 
     public String getItemName() {
@@ -59,7 +61,7 @@ public abstract class Item extends Entity {
     }
 
     public String getFormattedStartTime() {
-        return startTime.format(formatter);
+        return startTime.format(FORMATTER);
     }
 
     public LocalDateTime getEndTime() {
@@ -67,37 +69,49 @@ public abstract class Item extends Entity {
     }
 
     public String getFormattedEndTime() {
-        return endTime.format(formatter);
+        return endTime.format(FORMATTER);
+    }
+
+    public long getMinIncrement() {
+        return minIncrement;
     }
 
     public boolean timeOut() {
         return LocalDateTime.now().isAfter(endTime);
     }
 
-    public long getMinIncrement() {
-        return minIncrement;
-    }
-    public void setItemName(String itemName){
+    // ===== Setters hợp lệ =====
+
+    public void setItemName(String itemName) {
         this.itemName = itemName;
     }
-    public void setDescription(String description){
+
+    public void setDescription(String description) {
         this.description = description;
     }
 
-    // them thoi gian khi co gia moi vao y giay cuoi
+    // ===== Hành vi =====
+
+    /** Gia hạn phiên đấu giá (cho Anti-sniping). */
     public void extendEndTime(long extraSeconds) {
         this.endTime = this.endTime.plusSeconds(extraSeconds);
     }
-    // Thêm throws InvalidBidException vào khai báo hàm
+
+    /**
+     * Cập nhật giá hiện tại. Ném InvalidBidException nếu giá mới
+     * thấp hơn currentPrice + minIncrement.
+     */
     public void updatePrice(long newPrice) throws InvalidBidException {
         long minAllowed = this.currentPrice + this.minIncrement;
         if (newPrice < minAllowed) {
-            // Ném ra lỗi cụ thể kèm thông báo chi tiết
-            throw new InvalidBidException("Giá đặt (" + newPrice + ") không hợp lệ! Mức giá tối thiểu để đặt lúc này là: " + minAllowed);
+            throw new InvalidBidException(
+                    "Giá đặt (" + newPrice
+                            + ") không hợp lệ! Mức giá tối thiểu để đặt lúc này là: "
+                            + minAllowed);
         }
         this.currentPrice = newPrice;
     }
 
+    /** Mỗi subclass phải trả về loại cụ thể (ART, VEHICLE, ELECTRONICS). */
     public abstract String getItemType();
-
 }

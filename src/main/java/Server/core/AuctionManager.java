@@ -13,16 +13,26 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Singleton quản lý toàn bộ phiên đấu giá đang chạy trên server.
+ *
+ * FIX so với bản cũ:
+ *   1. Đổi FINISH -> FINISHED theo enum mới.
+ *   2. Catch gộp 3 custom exceptions bằng multi-catch (giảm boilerplate).
+ */
 public class AuctionManager {
+
     private static AuctionManager instance;
-    private final Map<String, Auction> activeAuctions;
+
+    private final Map<String, Server.core.Auction> activeAuctions;
     private final ScheduledExecutorService timerService;
+
     private AuctionManager() {
-        activeAuctions = new ConcurrentHashMap<>();
-        timerService = Executors.newScheduledThreadPool(1);
+        this.activeAuctions = new ConcurrentHashMap<>();
+        this.timerService = Executors.newScheduledThreadPool(1);
         startTimer();
     }
-    // singleton pattern
+
     public static synchronized AuctionManager getInstance() {
         if (instance == null) {
             instance = new AuctionManager();
@@ -30,76 +40,82 @@ public class AuctionManager {
         return instance;
     }
 
-    public void startAuction(Auction auction){
-        if (auction.getState() == AuctionState.OPEN){
+    public void startAuction(Server.core.Auction auction) {
+        if (auction.getState() == AuctionState.OPEN) {
             auction.setState(AuctionState.RUNNING);
             activeAuctions.put(auction.getAuctionID(), auction);
             System.out.println("Bắt đầu phiên đấu giá 🎉🎉");
         }
     }
-    //Đóng phiên đấu giá, tìm người thắng và TRỪ TIỀN
-    private void endAuction(Auction auction) {
-        // synchronized để tránh vừa đóng auction vừa nhận bid ở giây cuối cùng
+
+    /** Đóng phiên, xác định người thắng, thanh toán. */
+    private void endAuction(Server.core.Auction auction) {
         synchronized (auction) {
-            // Đảm bảo không đóng 2 lần
+            // Tránh đóng 2 lần
             if (auction.getState() != AuctionState.RUNNING) return;
-            auction.setState(AuctionState.FINISH);
+
+            auction.setState(AuctionState.FINISHED);
             System.out.println("Phiên đấu giá [" + auction.getAuctionID() + "] đã KẾT THÚC!");
+
             User winner = auction.getCurrentWinner();
             if (winner != null) {
                 long finalPrice = auction.getItem().getCurrentPrice();
-                System.out.println("Người chiến thắng: " + winner.getName() + " với giá " + finalPrice + " VND 😍😍");
-                // Trừ tiền người thắng cuộc (Truyền số âm vào updateMoney)
+                System.out.println("Người chiến thắng: " + winner.getName()
+                        + " với giá " + finalPrice + " VND 😍😍");
                 winner.updateMoney(-finalPrice);
-                System.out.println("Đã thanh toán! Số dư còn lại của " + winner.getName() + ": " + winner.getMoney() + " VND" +"💸💸");
+                System.out.println("Đã thanh toán! Số dư còn lại của "
+                        + winner.getName() + ": " + winner.getMoney() + " VND 💸💸");
                 auction.setState(AuctionState.PAID);
             } else {
-                System.out.println("Không có ai trả giá cho sản phẩm này. 😔 ");
+                System.out.println("Không có ai trả giá cho sản phẩm này. 😔");
                 auction.setState(AuctionState.CANCELED);
             }
-            // Gỡ khỏi bộ nhớ quản lý thời gian
+
             activeAuctions.remove(auction.getAuctionID());
-            // TODO (Mạng): Gửi thông báo kết thúc phiên kèm tên người thắng về cho mọi Client
+            // TODO (Mạng): broadcast event AUCTION_FINISHED cho tất cả client
         }
     }
+
     public void handleClientBidRequest(String auctionID, User bidder, long amount) {
-        Auction auction = activeAuctions.get(auctionID);
+        Server.core.Auction auction = activeAuctions.get(auctionID);
         if (auction == null) {
             System.out.println("Không tìm thấy phiên đấu giá [" + auctionID + "].");
             return;
         }
+
         try {
-            // Gọi hàm placeBid (đã chứa logic kiểm tra tiền, giá, trạng thái)
             auction.placeBid(bidder, amount);
-            System.out.println("Thành công: " + bidder.getName() + " đặt giá hợp lệ " + amount + " VND!");
+            System.out.println("Thành công: " + bidder.getName()
+                    + " đặt giá hợp lệ " + amount + " VND!");
+            // TODO (Mạng): broadcast event NEW_BID cho tất cả client đang xem phiên này
 
-            // TODO (Mạng): Kích hoạt Observer đẩy thông báo giá mới qua Socket cho toàn bộ Client
-
-        } catch (AuctionClosedException e) {
-            System.out.println("Lỗi: " + e.getMessage());
-        } catch (InvalidBidException e) {
-            System.out.println("Lỗi: " + e.getMessage());
-        } catch (NotEnoughMoneyException e) {
+        } catch (AuctionClosedException | InvalidBidException | NotEnoughMoneyException e) {
+            // Multi-catch: 3 lỗi nghiệp vụ xử lý giống nhau
             System.out.println("Lỗi: " + e.getMessage());
         } catch (Exception e) {
-            System.out.println("Lỗi(Server Error): " + e.getMessage());
+            System.out.println("Lỗi (Server Error): " + e.getMessage());
         }
     }
-    // 1 giây quét 1 lần xem có phiên nào hết giờ không ( hetcuu nếu quá nhiều auction :)))))
+
+    /** Timer quét 1 lần/giây để đóng các phiên hết hạn. */
     private void startTimer() {
         timerService.scheduleAtFixedRate(() -> {
-            LocalDateTime now = LocalDateTime.now();
-            // Duyệt qua tất cả phiên đang chạy
-            for (Auction auction : activeAuctions.values()) {
-                if (auction.getState() == AuctionState.RUNNING) {
-                    if (now.isAfter(auction.getEndTime())) {
+            try {
+                LocalDateTime now = LocalDateTime.now();
+                for (Auction auction : activeAuctions.values()) {
+                    if (auction.getState() == AuctionState.RUNNING
+                            && now.isAfter(auction.getEndTime())) {
                         endAuction(auction);
                     }
                 }
+            } catch (Exception e) {
+                // Phải catch mọi Exception trong ScheduledExecutorService,
+                // nếu không task sẽ bị silently cancel.
+                System.err.println("Lỗi trong timer: " + e.getMessage());
             }
         }, 0, 1, TimeUnit.SECONDS);
     }
-    //Hàm gọi khi tắt Server để giải phóng luồng
+
     public void shutdown() {
         if (timerService != null && !timerService.isShutdown()) {
             timerService.shutdown();
