@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class bid {
     private long id;
-    private long session_id;
+    private long aution_id;
     private long user_id;
     private long item_id;
     private long price;
