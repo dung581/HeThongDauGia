@@ -1,0 +1,35 @@
+package Common.DataBase.repository;
+
+import org.ducanh.btl.ConnectionDatabase;
+import org.ducanh.btl.entities.bid;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
+public class BidRepository {
+    public List<bid> getAllBid() {
+        List<bid> bids = new ArrayList<>();
+        String sql = "SELECT * FROM bid";
+        ConnectionDatabase db = new ConnectionDatabase();
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                bid b = new bid();
+                b.setId(rs.getLong("id"));
+                b.setSession_id(rs.getLong("session_id"));
+                b.setUser_id(rs.getLong("user_id"));
+                b.setItem_id(rs.getLong("item_id"));
+                b.setPrice(rs.getLong("price"));
+                bids.add(b);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return bids;
+    }
+}
