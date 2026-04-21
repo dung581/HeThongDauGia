@@ -62,7 +62,10 @@
             <version>12.6.1.jre11</version>
         </dependency>
 
+
+
     </dependencies>
+
 
     <!-- Plugin để chạy JavaFX bằng Maven -->
     <build>
@@ -77,6 +80,14 @@
                     <mainClass>org.example.Main</mainClass>
                 </configuration>
 
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>25</source>
+                    <target>25</target>
+                </configuration>
             </plugin>
 
         </plugins>
