@@ -3,7 +3,11 @@ package Server.controller;
 import Common.Model.User;
 import Server.service.AuctionService;
 import Server.repository.AuctionRepository;
-import Exceptions.*;
+import Server.service.Exceptions.AuctionClosedException;
+import Server.service.Exceptions.InvalidBidException;
+import Server.service.Exceptions.NotEnoughMoneyException;
+
+import static com.sun.tools.classfile.Attribute.Exceptions;
 
 public class AuctionController {
 

@@ -1,7 +1,7 @@
 package Common.DataBase.repository;
 
 
-import Common.DataBase.ConnectionDatabase;
+import Common.DataBase.DbConnection;
 import Common.Enum.ItemStatus;
 import Common.DataBase.entities.Stake;
 
@@ -12,10 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StakeRepository {
-    public List<Stake> getAllStake() {
+    public static List<Stake> getAllStake() {
         List<Stake> stakes = new ArrayList<>();
         String sql = "SELECT * FROM Stake";
-        ConnectionDatabase db = new ConnectionDatabase();
+        DbConnection db = new DbConnection();
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -36,7 +36,7 @@ public class StakeRepository {
         return stakes;
     }
     public void saveStake(Stake stake) {
-        ConnectionDatabase db = new ConnectionDatabase(); // Biến db trong hàm
+        DbConnection db = new DbConnection(); // Biến db trong hàm
         String sql = "INSERT INTO Stake (session_id, locked_item_id, user_id, amount, status) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

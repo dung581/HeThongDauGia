@@ -1,5 +1,4 @@
-package Server.db;
-
+package Common.DataBase;
 import Exceptions.DataAccessException;
 import Exceptions.ReturnMessage;
 
@@ -30,7 +29,7 @@ public final class DbConnection {
     private final String username;
     private final String password;
 
-    private DbConnection() {
+    public DbConnection() {
         Properties props = loadProperties();
         this.url      = props.getProperty("db.url");
         this.username = props.getProperty("db.username");

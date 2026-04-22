@@ -1,6 +1,6 @@
 package Common.DataBase.repository;
 
-import Common.DataBase.ConnectionDatabase;
+import Common.DataBase.DbConnection;
 import Common.DataBase.entities.Item;
 import Common.DataBase.entities.bid;
 
@@ -14,7 +14,7 @@ public class BidRepository {
     public List<bid> getAllBid() {
         List<bid> bids = new ArrayList<>();
         String sql = "SELECT * FROM bid";
-        ConnectionDatabase db = new ConnectionDatabase();
+        DbConnection db = new DbConnection();
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -34,7 +34,7 @@ public class BidRepository {
         return bids;
     }
     public void saveBid(bid b) {
-        ConnectionDatabase db = new ConnectionDatabase();
+        DbConnection db = new DbConnection();
         String sql = "INSERT INTO bid (session_id, user_id, item_id, price) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = db.getConnection();

@@ -2,11 +2,12 @@ package Server.service;
 
 import Common.Enum.AuctionState;
 import Common.Model.*;
-import Exceptions.AuctionClosedException;
-import Exceptions.InvalidBidException;
-import Exceptions.NotEnoughMoneyException;
-import Exceptions.ReturnMessage;
+
 import Server.model.Auction;
+import Server.service.Exceptions.AuctionClosedException;
+import Server.service.Exceptions.InvalidBidException;
+import Server.service.Exceptions.NotEnoughMoneyException;
+import Server.service.Exceptions.ReturnMessage;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
