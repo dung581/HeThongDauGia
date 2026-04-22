@@ -1,5 +1,5 @@
 package Common.Enum;
 
-public enum UserStatus {
+public enum UserRole {
     ADMIN, BIDDER, SELLER
 }

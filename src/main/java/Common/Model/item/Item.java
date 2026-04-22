@@ -1,8 +1,9 @@
-package Common.Model;
+package Common.Model.item;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import Common.Model.entity.Entity;
 import Exceptions.InvalidBidException;
 import Exceptions.ReturnMessage;
 

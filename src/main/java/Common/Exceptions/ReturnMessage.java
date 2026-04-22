@@ -1,4 +1,4 @@
-package Server.service.Exceptions;
+package Common.Exceptions;
 
 public class ReturnMessage {
     // Auction

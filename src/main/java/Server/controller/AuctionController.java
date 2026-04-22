@@ -1,20 +1,18 @@
 package Server.controller;
 
-import Common.Model.User;
+import Common.Model.user.User;
 import Server.service.AuctionService;
-import Server.repository.AuctionRepository;
-import Server.service.Exceptions.AuctionClosedException;
-import Server.service.Exceptions.InvalidBidException;
-import Server.service.Exceptions.NotEnoughMoneyException;
-
-import static com.sun.tools.classfile.Attribute.Exceptions;
+import Server.service.AuctionManager;
+import Common.Exceptions.AuctionClosedException;
+import Common.Exceptions.InvalidBidException;
+import Common.Exceptions.NotEnoughMoneyException;
 
 public class AuctionController {
 
-    private final AuctionRepository repo;
+    private final AuctionManager repo;
     private final AuctionService service;
 
-    public AuctionController(AuctionRepository repo, AuctionService service) {
+    public AuctionController(AuctionManager repo, AuctionService service) {
         this.repo = repo;
         this.service = service;
     }

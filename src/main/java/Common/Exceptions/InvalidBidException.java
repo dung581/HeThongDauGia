@@ -1,4 +1,4 @@
-package Server.service.Exceptions;
+package Common.Exceptions;
 
 public class InvalidBidException extends Exception {
     public InvalidBidException(String message) {

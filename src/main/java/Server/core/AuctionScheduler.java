@@ -2,17 +2,16 @@ package Server.core;
 
 import Common.Enum.AuctionState;
 import Server.model.Auction;
-import Server.repository.AuctionRepository;
 import Server.service.AuctionService;
 import java.time.LocalDateTime;
 import java.util.concurrent.*;
 
-public class AuctionManager {
-    private final AuctionRepository repo = new AuctionRepository();
+public class AuctionScheduler {
+    private final Server.service.AuctionManager repo = new Server.service.AuctionManager();
     private final AuctionService service = new AuctionService();
     private final ScheduledExecutorService timer = Executors.newScheduledThreadPool(1);
 
-    public AuctionManager() {
+    public AuctionScheduler() {
         startTimer();
     }
 

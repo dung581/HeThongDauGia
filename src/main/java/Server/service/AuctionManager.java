@@ -1,10 +1,10 @@
-package Server.repository;
+package Server.service;
 
 import Server.model.Auction;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class AuctionRepository {
+public class AuctionManager {
 
     private final Map<String, Auction> auctions = new ConcurrentHashMap<>();
 
