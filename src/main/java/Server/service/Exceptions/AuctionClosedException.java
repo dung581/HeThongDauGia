@@ -1,4 +1,4 @@
-package Exceptions;
+package Server.service.Exceptions;
 
 public class AuctionClosedException extends Exception {
     public AuctionClosedException(String message) {

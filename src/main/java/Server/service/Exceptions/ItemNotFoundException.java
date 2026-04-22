@@ -1,4 +1,4 @@
-package Exceptions;
+package Server.service.Exceptions;
 
 public class ItemNotFoundException extends RuntimeException {
     public ItemNotFoundException(String itemId) {

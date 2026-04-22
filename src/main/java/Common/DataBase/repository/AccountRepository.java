@@ -1,6 +1,6 @@
 package Common.DataBase.repository;
 
-import Common.DataBase.ConnectionDatabase;
+import Common.DataBase.DbConnection;
 import Common.DataBase.entities.Account;
 
 import java.sql.Connection;
@@ -13,7 +13,7 @@ public class AccountRepository {
     public List<Account> getAllAccount() {
         List<Account> accounts = new ArrayList<>();
         String sql = "SELECT * FROM Account";
-        ConnectionDatabase db = new ConnectionDatabase();
+        DbConnection db = new DbConnection();
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -33,7 +33,7 @@ public class AccountRepository {
     }
     public void saveAccount(Account account) {
         // Khởi tạo ngay trong hàm
-        ConnectionDatabase db = new ConnectionDatabase();
+        DbConnection db = new DbConnection();
         String sql = "INSERT INTO Account (user_id, balance, locked_balance) VALUES (?, ?, ?)";
 
         try (Connection conn = db.getConnection();

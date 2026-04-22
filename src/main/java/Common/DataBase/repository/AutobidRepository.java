@@ -1,6 +1,6 @@
 package Common.DataBase.repository;
 
-import Common.DataBase.ConnectionDatabase;
+import Common.DataBase.DbConnection;
 import Common.DataBase.entities.autobid;
 
 import java.sql.Connection;
@@ -13,7 +13,7 @@ public class AutobidRepository {
     public List<autobid> getAllAutobid() {
         List<autobid> autobids = new ArrayList<>();
         String sql = "SELECT * FROM autobid";
-        ConnectionDatabase db = new ConnectionDatabase();
+        DbConnection db = new DbConnection();
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -34,7 +34,7 @@ public class AutobidRepository {
         return autobids;
     }
     public void saveAutobid(autobid a) {
-        ConnectionDatabase db = new ConnectionDatabase(); // Biến db trong hàm
+        DbConnection db = new DbConnection(); // Biến db trong hàm
         String sql = "INSERT INTO autobid (session_id, user_id, item_id, max_price, is_active) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

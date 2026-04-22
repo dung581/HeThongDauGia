@@ -2,7 +2,7 @@ package Common.DataBase.repository;
 
 
 
-import Common.DataBase.ConnectionDatabase;
+import Common.DataBase.DbConnection;
 import Common.DataBase.entities.Item;
 import Common.Enum.ItemStatus;
 
@@ -16,7 +16,7 @@ public class ItemRepository {
     public List<Item> getAllItem() {
         List<Item> items = new ArrayList<>();
         String sql = "SELECT * FROM Item";
-        ConnectionDatabase db = new ConnectionDatabase();
+        DbConnection db = new DbConnection();
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -35,7 +35,7 @@ public class ItemRepository {
         return items;
     }
     public void saveItem(Item item) {
-        ConnectionDatabase db = new ConnectionDatabase();
+        DbConnection db = new DbConnection();
         String sql = "INSERT INTO Item (winner_id, beginPrice, status) VALUES (?, ?, ?)";
 
         try (Connection conn = db.getConnection();
