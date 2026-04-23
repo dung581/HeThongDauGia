@@ -1,7 +1,7 @@
 package Server.core;
 
 import Common.Enum.ItemType;
-import Common.Model.Item;
+import Common.Model.item.Item;
 import Common.Model.item.Art;
 import Common.Model.item.Electronics;
 import Common.Model.item.Vehicle;

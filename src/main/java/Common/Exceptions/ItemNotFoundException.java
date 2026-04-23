@@ -1,4 +1,4 @@
-package Exceptions;
+package Common.Exceptions;
 
 public class ItemNotFoundException extends RuntimeException {
     public ItemNotFoundException(String itemId) {

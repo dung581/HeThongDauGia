@@ -1,4 +1,7 @@
-package Common.Model;
+package Common.Model.transaction;
+
+import Common.Model.item.Item;
+import Common.Model.user.User;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

@@ -1,6 +1,6 @@
 package Common.DataBase.repository;
 
-import Common.DataBase.ConnectionDatabase;
+import Common.DataBase.DbConnection;
 import Common.DataBase.entities.Aution;
 
 import java.sql.Connection;
@@ -14,7 +14,7 @@ public class AutionRepository {
     public List<Aution> getAllSession() {
         List<Aution> sessions = new ArrayList<>();
         String sql = "SELECT * FROM session";
-        ConnectionDatabase db = new ConnectionDatabase();
+        DbConnection db = new DbConnection();
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -39,7 +39,7 @@ public class AutionRepository {
         return sessions;
     }
     public void savAution(Aution s) {
-        ConnectionDatabase db = new ConnectionDatabase(); // Biến db trong hàm
+        DbConnection db = new DbConnection(); // Biến db trong hàm
         String sql = "INSERT INTO session (item_id, current_user_id, current_price, availability_time) VALUES (?, ?, ?, ?)";
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

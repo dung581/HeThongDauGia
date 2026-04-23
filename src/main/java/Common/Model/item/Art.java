@@ -1,7 +1,5 @@
 package Common.Model.item;
 
-import Common.Model.Item;
-
 import java.time.LocalDateTime;
 
 public class Art extends Item {

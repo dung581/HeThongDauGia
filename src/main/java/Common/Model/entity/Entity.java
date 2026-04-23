@@ -1,4 +1,4 @@
-package Common.Model;
+package Common.Model.entity;
 
 import java.io.Serializable;
 
