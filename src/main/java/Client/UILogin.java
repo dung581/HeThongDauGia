@@ -10,7 +10,7 @@ import java.io.IOException;
 public class UILogin extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/template/hellofx/main.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/template/hellfx/UILogin.fxml"));
         Scene scene1 = new Scene(loader.load());
 
         stage.setTitle("Đấu giá online 😎");
