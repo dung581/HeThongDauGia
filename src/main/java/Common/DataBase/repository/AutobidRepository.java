@@ -46,4 +46,31 @@ public class AutobidRepository {
             ps.executeUpdate();
         } catch (Exception e) { e.printStackTrace(); }
     }
+    public autobid getAutobidById(long id) {
+        String sql = "SELECT * FROM autobid WHERE id = ?";
+        DbConnection db = new DbConnection();
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                autobid a = new autobid();
+                a.setId(rs.getLong("id"));
+                a.setAution_id(rs.getLong("session_id"));
+                a.setUser_id(rs.getLong("user_id"));
+                a.setItem_id(rs.getLong("item_id"));
+                a.setMax_price(rs.getLong("max_price"));
+                a.set_active(rs.getBoolean("is_active"));
+                return a;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null; // không tìm thấy
+    }
 }

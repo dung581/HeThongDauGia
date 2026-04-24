@@ -1,4 +1,4 @@
-package Common.Exceptions;
+package Server.service.Exceptions;
 
 public class UnauthorizedItemAccessException extends RuntimeException {
     public UnauthorizedItemAccessException(String message) {
