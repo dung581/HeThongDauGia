@@ -4,8 +4,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import Common.Model.entity.Entity;
-import Common.Exceptions.InvalidBidException;
-import Common.Exceptions.ReturnMessage;
+import Server.service.Exceptions.InvalidBidException;
+import Server.service.Exceptions.ReturnMessage;
 
 
 public abstract class Item extends Entity {

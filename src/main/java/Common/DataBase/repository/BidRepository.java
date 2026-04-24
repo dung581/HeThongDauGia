@@ -22,7 +22,7 @@ public class BidRepository {
             while (rs.next()) {
                 bid b = new bid();
                 b.setId(rs.getLong("id"));
-                b.setAution_id(rs.getLong("session_id"));
+                b.setAuction_id(rs.getLong("session_id"));
                 b.setUser_id(rs.getLong("user_id"));
                 b.setItem_id(rs.getLong("item_id"));
                 b.setPrice(rs.getLong("price"));
@@ -39,7 +39,7 @@ public class BidRepository {
 
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setLong(1, b.getAution_id());
+            ps.setLong(1, b.getAuction_id());
             ps.setLong(2, b.getUser_id());
             ps.setLong(3, b.getItem_id());
             ps.setLong(4, b.getPrice());

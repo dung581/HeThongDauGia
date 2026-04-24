@@ -21,7 +21,7 @@ public class AutobidRepository {
             while (rs.next()) {
                 autobid a = new autobid();
                 a.setId(rs.getLong("id"));
-                a.setAution_id(rs.getLong("session_id"));
+                a.setAuction_id(rs.getLong("session_id"));
                 a.setUser_id(rs.getLong("user_id"));
                 a.setItem_id(rs.getLong("item_id"));
                 a.setMax_price(rs.getLong("max_price"));
@@ -38,7 +38,7 @@ public class AutobidRepository {
         String sql = "INSERT INTO autobid (session_id, user_id, item_id, max_price, is_active) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setLong(1, a.getAution_id());
+            ps.setLong(1, a.getAuction_id());
             ps.setLong(2, a.getUser_id());
             ps.setLong(3, a.getItem_id());
             ps.setLong(4, a.getMax_price());
@@ -59,7 +59,7 @@ public class AutobidRepository {
             if (rs.next()) {
                 autobid a = new autobid();
                 a.setId(rs.getLong("id"));
-                a.setAution_id(rs.getLong("session_id"));
+                a.setAuction_id(rs.getLong("session_id"));
                 a.setUser_id(rs.getLong("user_id"));
                 a.setItem_id(rs.getLong("item_id"));
                 a.setMax_price(rs.getLong("max_price"));

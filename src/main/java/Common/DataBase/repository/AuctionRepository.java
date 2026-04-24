@@ -1,7 +1,7 @@
 package Common.DataBase.repository;
 
 import Common.DataBase.DbConnection;
-import Common.DataBase.entities.Aution;
+import Common.DataBase.entities.Auction;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,9 +10,9 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AutionRepository {
-    public List<Aution> getAllSession() {
-        List<Aution> sessions = new ArrayList<>();
+public class AuctionRepository {
+    public List<Auction> getAllSession() {
+        List<Auction> sessions = new ArrayList<>();
         String sql = "SELECT * FROM session";
         DbConnection db = new DbConnection();
         try (Connection conn = db.getConnection();
@@ -20,7 +20,7 @@ public class AutionRepository {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                Aution s = new Aution();
+                Auction s = new Auction();
                 s.setId(rs.getLong("id"));
                 s.setItem_id(rs.getLong("item_id"));
                 s.setCurrent_user_id(rs.getLong("current_user_id"));
@@ -38,7 +38,7 @@ public class AutionRepository {
         }
         return sessions;
     }
-    public void savAution(Aution s) {
+    public void savAution(Auction s) {
         DbConnection db = new DbConnection(); // Biến db trong hàm
         String sql = "INSERT INTO session (item_id, current_user_id, current_price, availability_time) VALUES (?, ?, ?, ?)";
         try (Connection conn = db.getConnection();

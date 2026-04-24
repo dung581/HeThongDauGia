@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 public class autobid {
     private long id;
-    private long aution_id;
+    private long auction_id;
     private long user_id;
     private long item_id;
     private long max_price;
