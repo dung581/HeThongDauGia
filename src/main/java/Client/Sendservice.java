@@ -2,7 +2,7 @@ package Client;
 
 import Common.DataBase.entities.User;
 import Common.DataBase.repository.UserRepository;
-import Common.Enum.UserStatus;
+import Common.Enum.UserRole;
 
 public class Sendservice {
     UserRepository userRepository;
@@ -14,7 +14,7 @@ public class Sendservice {
         User user = new User();
         user.setUsername(username);
         user.setPassword(password);
-        user.setRole(UserStatus.BIDDER);
+        user.setRole(UserRole.BIDDER);
         userRepository.saveUser(user);
     }
 }

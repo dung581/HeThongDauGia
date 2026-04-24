@@ -2,7 +2,7 @@ package Client;
 import Common.DataBase.entities.User;
 import Common.DataBase.repository.UserRepository;
 
-import Common.Enum.UserStatus;
+import Common.Enum.UserRole;
 
 // vai tro gui thong tin de xac thuc
 
