@@ -44,4 +44,27 @@ public class AccountRepository {
             ps.executeUpdate();
         } catch (Exception e) { e.printStackTrace(); }
     }
+    public Account getAccountById(long id) {
+        String sql = "SELECT * FROM account WHERE id = ?";
+        DbConnection db = new DbConnection();
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Account a = new Account();
+                a.setId(rs.getLong("id"));
+                a.setUser_id(rs.getLong("user_id"));
+                a.setBalance(rs.getLong("balance"));
+                a.setLocked_balance(rs.getLong("locked_balance"));
+                return a;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
