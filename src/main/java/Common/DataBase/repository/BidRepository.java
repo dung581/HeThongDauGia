@@ -46,4 +46,28 @@ public class BidRepository {
             ps.executeUpdate();
         } catch (Exception e) { e.printStackTrace(); }
     }
+    public bid getBidById(long id) {
+        String sql = "SELECT * FROM bid WHERE id = ?";
+        DbConnection db = new DbConnection();
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                bid b = new bid();
+                b.setId(rs.getLong("id"));
+                b.setAuction_id(rs.getLong("auction_id"));
+                b.setUser_id(rs.getLong("user_id"));
+                b.setItem_id(rs.getLong("item_id"));
+                b.setPrice(rs.getLong("price"));
+                return b;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

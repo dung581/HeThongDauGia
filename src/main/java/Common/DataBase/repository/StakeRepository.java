@@ -48,4 +48,29 @@ public class StakeRepository {
             ps.executeUpdate();
         } catch (Exception e) { e.printStackTrace(); }
     }
+    public Stake getStakeById(long id) {
+        String sql = "SELECT * FROM stake WHERE id = ?";
+        DbConnection db = new DbConnection();
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Stake s = new Stake();
+                s.setId(rs.getLong("id"));
+                s.setAution_id(rs.getLong("aution_id"));
+                s.setLocked_item_id(rs.getLong("locked_item_id"));
+                s.setUser_id(rs.getLong("user_id"));
+                s.setAmount(rs.getLong("amount"));
+                s.setStatus(ItemStatus.valueOf(rs.getString("status")));
+                return s;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
