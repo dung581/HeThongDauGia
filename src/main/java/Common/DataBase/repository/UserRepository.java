@@ -52,5 +52,28 @@ public class UserRepository {
             e.printStackTrace();
         }
     }
+    public User getUserById(long id) {
+        String sql = "SELECT * FROM user WHERE id = ?";
+        DbConnection db = new DbConnection();
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                User u = new User();
+                u.setId(rs.getLong("id"));
+                u.setUsername(rs.getString("username"));
+                u.setPassword(rs.getString("password"));
+                u.setRole(UserRole.valueOf(rs.getString("role")));
+                return u;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
 
