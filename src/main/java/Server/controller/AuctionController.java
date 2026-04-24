@@ -17,7 +17,7 @@ public class AuctionController {
         this.service = service;
     }
 
-    public void handleBid(String auctionID, User user, long amount) {
+    public void handleBid(long auctionID, User user, long amount) {
         var auction = repo.findById(auctionID);
         if (auction == null) {
             System.out.println("Không tồn tại auction");

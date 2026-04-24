@@ -8,18 +8,18 @@ import java.time.LocalDateTime;
 
 public class Auction {
 
-    private final String auctionID;
+    private final long auctionID;
     private final Item item;
 
     private User currentWinner;
     private AuctionState state = AuctionState.OPEN;
 
-    public Auction(String auctionID, Item item) {
+    public Auction(long auctionID, Item item) {
         this.auctionID = auctionID;
         this.item = item;
     }
 
-    public String getAuctionID() { return auctionID; }
+    public long getAuctionID() { return auctionID; }
     public Item getItem() { return item; }
 
     public User getCurrentWinner() { return currentWinner; }
