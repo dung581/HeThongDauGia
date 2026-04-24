@@ -3,9 +3,9 @@ package Server.controller;
 import Common.Model.user.User;
 import Server.service.AuctionService;
 import Server.service.AuctionManager;
-import Common.Exceptions.AuctionClosedException;
-import Common.Exceptions.InvalidBidException;
-import Common.Exceptions.NotEnoughMoneyException;
+import Server.service.Exceptions.AuctionClosedException;
+import Server.service.Exceptions.InvalidBidException;
+import Server.service.Exceptions.NotEnoughMoneyException;
 
 public class AuctionController {
 

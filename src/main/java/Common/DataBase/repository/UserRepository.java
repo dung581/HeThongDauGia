@@ -3,7 +3,7 @@ package Common.DataBase.repository;
 
 import Common.DataBase.DbConnection;
 import Common.DataBase.entities.User;
-import Common.Enum.UserStatus;
+import Common.Enum.UserRole;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,7 +26,7 @@ public class UserRepository {
                 s.setId(rs.getLong("id"));
                 s.setUsername(rs.getString("username"));
                 s.setPassword(rs.getString("password"));
-                s.setRole(UserStatus.valueOf(rs.getString("role")));
+                s.setRole(UserRole.valueOf(rs.getString("role")));
                 users.add(s);
             }
         } catch (Exception e) {
