@@ -5,10 +5,10 @@ import Common.Enum.AuctionState;
 import Common.Model.transaction.BidTransaction;
 import Common.Model.user.User;
 import Server.model.Auction;
-import Common.Exceptions.AuctionClosedException;
-import Common.Exceptions.InvalidBidException;
-import Common.Exceptions.NotEnoughMoneyException;
-import Common.Exceptions.ReturnMessage;
+import Server.service.Exceptions.AuctionClosedException;
+import Server.service.Exceptions.InvalidBidException;
+import Server.service.Exceptions.NotEnoughMoneyException;
+import Server.service.Exceptions.ReturnMessage;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
