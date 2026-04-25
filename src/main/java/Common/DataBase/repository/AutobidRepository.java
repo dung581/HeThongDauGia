@@ -1,7 +1,7 @@
 package Common.DataBase.repository;
 
 import Common.DataBase.DbConnection;
-import Common.DataBase.entities.autobid;
+import Common.DataBase.entities.Autobid;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AutobidRepository {
-    public List<autobid> getAllAutobid() {
-        List<autobid> autobids = new ArrayList<>();
+    public List<Autobid> getAllAutobid() {
+        List<Autobid> autobids = new ArrayList<>();
         String sql = "SELECT * FROM autobid";
         DbConnection db = new DbConnection();
         try (Connection conn = db.getConnection();
@@ -19,7 +19,7 @@ public class AutobidRepository {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                autobid a = new autobid();
+                Autobid a = new Autobid();
                 a.setId(rs.getLong("id"));
                 a.setAuction_id(rs.getLong("session_id"));
                 a.setUser_id(rs.getLong("user_id"));
@@ -33,7 +33,7 @@ public class AutobidRepository {
         }
         return autobids;
     }
-    public void saveAutobid(autobid a) {
+    public void saveAutobid(Autobid a) {
         DbConnection db = new DbConnection(); // Biến db trong hàm
         String sql = "INSERT INTO autobid (session_id, user_id, item_id, max_price, is_active) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = db.getConnection();
@@ -46,7 +46,7 @@ public class AutobidRepository {
             ps.executeUpdate();
         } catch (Exception e) { e.printStackTrace(); }
     }
-    public autobid getAutobidById(long id) {
+    public Autobid getAutobidById(long id) {
         String sql = "SELECT * FROM autobid WHERE id = ?";
         DbConnection db = new DbConnection();
 
@@ -57,7 +57,7 @@ public class AutobidRepository {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                autobid a = new autobid();
+                Autobid a = new Autobid();
                 a.setId(rs.getLong("id"));
                 a.setAuction_id(rs.getLong("session_id"));
                 a.setUser_id(rs.getLong("user_id"));
