@@ -1,7 +1,8 @@
 package Common.DataBase.repository;
 
 import Common.DataBase.DbConnection;
-import Common.DataBase.entities.Bid;
+import Common.DataBase.entities.Item;
+import Common.DataBase.entities.bid;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,8 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BidRepository {
-    public List<Bid> getAllBid() {
-        List<Bid> bids = new ArrayList<>();
+    public List<bid> getAllBid() {
+        List<bid> bids = new ArrayList<>();
         String sql = "SELECT * FROM bid";
         DbConnection db = new DbConnection();
         try (Connection conn = db.getConnection();
@@ -19,7 +20,7 @@ public class BidRepository {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                Bid b = new Bid();
+                bid b = new bid();
                 b.setId(rs.getLong("id"));
                 b.setAuction_id(rs.getLong("session_id"));
                 b.setUser_id(rs.getLong("user_id"));
@@ -32,7 +33,7 @@ public class BidRepository {
         }
         return bids;
     }
-    public void saveBid(Bid b) {
+    public void saveBid(bid b) {
         DbConnection db = new DbConnection();
         String sql = "INSERT INTO bid (session_id, user_id, item_id, price) VALUES (?, ?, ?, ?)";
 
@@ -45,7 +46,7 @@ public class BidRepository {
             ps.executeUpdate();
         } catch (Exception e) { e.printStackTrace(); }
     }
-    public Bid getBidById(long id) {
+    public bid getBidById(long id) {
         String sql = "SELECT * FROM bid WHERE id = ?";
         DbConnection db = new DbConnection();
 
@@ -56,7 +57,7 @@ public class BidRepository {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                Bid b = new Bid();
+                bid b = new bid();
                 b.setId(rs.getLong("id"));
                 b.setAuction_id(rs.getLong("auction_id"));
                 b.setUser_id(rs.getLong("user_id"));

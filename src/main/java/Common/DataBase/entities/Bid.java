@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
-public class Bid implements Serializable {
+public class bid implements Serializable {
     private long id;
     private long auction_id;
     private long user_id;
