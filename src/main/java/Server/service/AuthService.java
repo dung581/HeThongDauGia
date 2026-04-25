@@ -19,7 +19,7 @@ public class AuthService {
         this.accountRepository = new AccountRepository();
     }
 
-
+    // tránh đặt tk, mk là dấu cách
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
     }
@@ -71,7 +71,7 @@ public class AuthService {
 
         Account account = new Account();
         account.setUser_id(created.getId());
-        account.setBalance(0L);
+        account.setBalance(1000_000_000_000L);
         account.setLocked_balance(0L);
         accountRepository.CreateAccount(account);
 
