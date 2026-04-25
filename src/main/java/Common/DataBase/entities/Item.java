@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Item {
     private long id;
-    private long winner_id;
+    private long owner_user_id;
     private long beginPrice;
     private ItemStatus status;
 }
