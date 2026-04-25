@@ -10,7 +10,9 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class BidRepository {
+    private static DbConnection db= new DbConnection();
     public List<bid> getAllBid() {
         List<bid> bids = new ArrayList<>();
         String sql = "SELECT * FROM bid";
@@ -69,5 +71,34 @@ public class BidRepository {
             e.printStackTrace();
         }
         return null;
+    }
+    public void update(bid b) {
+        String sql = """
+        UPDATE bid
+        SET auction_id = ?, 
+            user_id = ?, 
+            item_id = ?, 
+            price = ?
+        WHERE id = ?
+    """;
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, b.getAuction_id());
+            ps.setLong(2, b.getUser_id());
+            ps.setLong(3, b.getItem_id());
+            ps.setLong(4, b.getPrice());
+            ps.setLong(5, b.getId());
+
+            int rows = ps.executeUpdate();
+
+            if (rows == 0) {
+                throw new RuntimeException("Bid not found");
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
