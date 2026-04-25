@@ -1,9 +1,6 @@
 package Server.service;
 
-import Common.DataBase.entities.Account;
-import Common.DataBase.entities.Auction;
-import Common.DataBase.entities.Stake;
-import Common.DataBase.entities.bid;
+import Common.DataBase.entities.*;
 import Common.DataBase.repository.AccountRepository;
 import Common.DataBase.repository.AuctionRepository;
 import Common.DataBase.repository.BidRepository;
@@ -20,6 +17,7 @@ import Server.service.Exceptions.ReturnMessage;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Random;
 
 import static Common.Enum.ItemStatus.PENDING;
@@ -38,6 +36,23 @@ public class AuctionService {
     };
 
     private static final Random RANDOM = new Random();
+    public List<Auction> getActive() {
+        return AucRe.getActive();
+    }
+    public Auction createSession(long itemId, LocalDateTime endTime) {
+        Auction a = new Auction();
+
+        a.setItem_id(itemId);
+        a.setCurrent_user_id(0); // chưa có người bid
+        a.setCurrent_price(0);   // hoặc giá khởi điểm
+        a.setStartTime(LocalDateTime.now());
+        a.setEndTime(endTime);
+        a.setState(AuctionState.RUNNING);
+
+        AucRe.save(a);
+
+        return a; // 🔥 đây chính là "→ Session"
+    }
 
     public synchronized void placeBid(Auction auction, UserAccount bidder, long amount)
             throws AuctionClosedException, InvalidBidException, NotEnoughMoneyException {
@@ -81,7 +96,7 @@ public class AuctionService {
         StaRe.updateUserAmountStatus(auction.getId(), bidder.getUserId(), amount, SOLD);
     }
 
-    public void finalizeAuction(Auction auction) {
+    public void declareWinner(Auction auction) {
         long winnerID = auction.getCurrent_user_id();
 
         if (winnerID != 0) {

@@ -2,6 +2,7 @@ package Common.DataBase.repository;
 
 import Common.DataBase.DbConnection;
 import Common.DataBase.entities.Auction;
+import Common.Enum.AuctionState;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class AuctionRepository {
     private static DbConnection db= new DbConnection();
@@ -138,5 +140,42 @@ public class AuctionRepository {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+    public List<Auction> getActive() {
+        List<Auction> list = new ArrayList<>();
+
+        String sql = "SELECT * FROM auction WHERE state = 'RUNNING'";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Auction a = new Auction();
+
+                a.setId(rs.getLong("id"));
+                a.setItem_id(rs.getLong("item_id"));
+                a.setCurrent_user_id(rs.getLong("current_user_id"));
+                a.setCurrent_price(rs.getLong("current_price"));
+
+                Timestamp start = rs.getTimestamp("start_time");
+                if (start != null) {
+                    a.setStartTime(start.toLocalDateTime());
+                }
+
+                Timestamp end = rs.getTimestamp("end_time");
+                if (end != null) {
+                    a.setEndTime(end.toLocalDateTime());
+                }
+
+                a.setState(AuctionState.valueOf(rs.getString("state")));
+
+                list.add(a);
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return list;
     }
 }
