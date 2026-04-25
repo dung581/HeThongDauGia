@@ -1,5 +1,7 @@
 package Client;
 
+import Common.DataBase.entities.User;
+import Server.service.Exceptions.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,15 +15,11 @@ import javafx.stage.Stage;
 import javax.swing.*;
 import java.io.IOException;
 
-
-
-
 public class UILoginController {
     private Parent root;
-    private Scene scene;
     private Stage stage;
-    private ActionEvent actionEvent;
-    private Sendservice Send;
+    private Authservice authService;
+
     @FXML
     private TextField name;
     @FXML
@@ -35,15 +33,26 @@ public class UILoginController {
     @FXML
     private Label welcomeText;
 
-    public UILoginController(){
-        Send = new Sendservice();
+    public UILoginController() {
+        authService = new Authservice();
     }
 
-    // Hàm login xử lý đăng nhập
-    public void login() throws IOException {
+    // Ham login xu ly dang nhap
+    public void login() throws UsernameIsBlankException, UserNotFoundException, WrongPasswordException, PasswordIsBlankException {
         String ten = name.getText();
         String pass = password.getText();
-        //to do : chuyen sang man hinh menu neu dung tk mk ko thi hien thong bao sai mk
+
+        try {
+            User user = authService.login(ten, pass);
+            JOptionPane.showMessageDialog(null, "Dang nhap thanh cong: " + user.getUsername(), "Thong bao", JOptionPane.INFORMATION_MESSAGE);
+            // TODO: chuyen sang man hinh menu sau khi dang nhap thanh cong
+        } catch (UsernameIsBlankException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Thong bao", JOptionPane.WARNING_MESSAGE);
+        } catch (UserNotFoundException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Thong bao", JOptionPane.ERROR_MESSAGE);
+        } catch (WrongPasswordException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Thong bao", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     public void Register(ActionEvent actionEvent) throws IOException {
@@ -54,14 +63,19 @@ public class UILoginController {
         stage.show();
     }
 
-    public void Register2(ActionEvent actionEvent) throws IOException {
-        String TenDK = regname.getText();
-        String Mkhau = regpass.getText();
-        String Mkhaulai = regpassagain.getText();
+    public void Register2(ActionEvent actionEvent) throws IOException,UsernameIsBlankException, UsernameAlreadyExistsException, PasswordIsBlankException {
+        String tenDK = regname.getText();
+        String mkhau = regpass.getText();
+        String mkhauLai = regpassagain.getText();
 
-        if(Mkhau.equals(Mkhaulai)){
-            // thong bao dang ki thanh cong
-            JOptionPane.showMessageDialog(null, "Đăng ký thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        if (!mkhau.equals(mkhauLai)) {
+            JOptionPane.showMessageDialog(null, "Dang ky that bai: mat khau nhap lai khong khop", "Thong bao", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            authService.register(tenDK, mkhau);
+            JOptionPane.showMessageDialog(null, "Dang ky thanh cong", "Thong bao", JOptionPane.INFORMATION_MESSAGE);
 
             // tro ve man hinh login
             root = FXMLLoader.load(getClass().getResource("/com/template/hellfx/UILogin.fxml"));
@@ -69,7 +83,10 @@ public class UILoginController {
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
-        }else {JOptionPane.showMessageDialog(null, "Đăng ký thất bại!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);}
-
+        } catch (UsernameIsBlankException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Thong bao", JOptionPane.WARNING_MESSAGE);
+        } catch (UsernameAlreadyExistsException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Thong bao", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

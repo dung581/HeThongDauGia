@@ -24,7 +24,7 @@ public class ItemRepository {
             while (rs.next()) {
                 Item i = new Item();
                 i.setId(rs.getLong("id"));
-                i.setOwner_user_id(rs.getLong("winner_id"));
+                i.setWinner_id(rs.getLong("winner_id"));
                 i.setBeginPrice(rs.getLong("beginPrice"));
                 i.setStatus(ItemStatus.valueOf(rs.getString("status")));
                 items.add(i);
@@ -40,7 +40,7 @@ public class ItemRepository {
 
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setLong(1, item.getOwner_user_id());
+            ps.setLong(1, item.getWinner_id());
             ps.setLong(2, item.getBeginPrice());
             ps.setString(3, item.getStatus().toString());
             ps.executeUpdate();
@@ -59,7 +59,7 @@ public class ItemRepository {
             if (rs.next()) {
                 Item i = new Item();
                 i.setId(rs.getLong("id"));
-                i.setOwner_user_id(rs.getLong("winner_id"));
+                i.setWinner_id(rs.getLong("winner_id"));
                 i.setBeginPrice(rs.getLong("begin_price"));
                 i.setStatus(ItemStatus.valueOf(rs.getString("status")));
                 return i;

@@ -1,21 +1,25 @@
 package Client;
+
 import Common.DataBase.entities.User;
-import Common.DataBase.repository.UserRepository;
-
 import Common.Enum.UserRole;
+import Server.service.AuthService;
+import Server.service.Exceptions.*;
 
-// vai tro gui thong tin de xac thuc
-
+// Lop adapter de UI goi backend auth
 public class Authservice {
-    UserRepository userRepository;
+    private final AuthService authService;
 
     public Authservice() {
-        this.userRepository = new UserRepository();
+        this.authService = new AuthService();
     }
 
+    public User login(String username, String password)
+            throws UsernameIsBlankException, UserNotFoundException, WrongPasswordException, PasswordIsBlankException {
+        return authService.login(username, password);
+    }
 
-//    // Hàm đăng nhập: ví dụ kiểm tra dữ liệu
-//    public boolean login(String username, String password) {
-//
-//    }
+    public User register(String username, String password)
+            throws UsernameIsBlankException, UsernameAlreadyExistsException, PasswordIsBlankException {
+        return authService.register(username, password, username, UserRole.BIDDER);
+    }
 }
