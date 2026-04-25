@@ -31,7 +31,7 @@ public class AccountRepository {
         }
         return accounts;
     }
-    public void saveAccount(Account account) {
+    public void CreateAccount(Account account) {
         // Khởi tạo ngay trong hàm
         DbConnection db = new DbConnection();
         String sql = "INSERT INTO Account (user_id, balance, locked_balance) VALUES (?, ?, ?)";
@@ -44,14 +44,14 @@ public class AccountRepository {
             ps.executeUpdate();
         } catch (Exception e) { e.printStackTrace(); }
     }
-    public Account getAccountById(long id) {
-        String sql = "SELECT * FROM account WHERE id = ?";
+    public Account getAccountByUserId(long user_id) {
+        String sql = "SELECT * FROM account WHERE user_id = ?";
         DbConnection db = new DbConnection();
 
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setLong(1, id);
+            ps.setLong(1, user_id);
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -66,5 +66,29 @@ public class AccountRepository {
             e.printStackTrace();
         }
         return null;
+    }
+    public void update(Account a) {
+        String sql = """
+        UPDATE account
+        SET balance = ?, locked_balance = ?
+        WHERE user_id = ?
+    """;
+        DbConnection db= new DbConnection();
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, a.getBalance());
+            ps.setLong(2, a.getLocked_balance());
+            ps.setLong(3, a.getUser_id());
+
+            int rows = ps.executeUpdate();
+
+            if (rows == 0) {
+                throw new RuntimeException("Account not found");
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

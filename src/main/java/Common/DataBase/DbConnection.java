@@ -1,6 +1,7 @@
 package Common.DataBase;
-import Common.Exceptions.DataAccessException;
-import Common.Exceptions.ReturnMessage;
+
+import Server.service.Exceptions.DataAccessException;
+import Server.service.Exceptions.ReturnMessage;
 
 import java.io.IOException;
 import java.io.InputStream;

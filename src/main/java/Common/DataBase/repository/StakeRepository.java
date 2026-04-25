@@ -12,10 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StakeRepository {
+    private static DbConnection db= new DbConnection();
     public static List<Stake> getAllStake() {
         List<Stake> stakes = new ArrayList<>();
         String sql = "SELECT * FROM Stake";
-        DbConnection db = new DbConnection();
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -48,14 +48,13 @@ public class StakeRepository {
             ps.executeUpdate();
         } catch (Exception e) { e.printStackTrace(); }
     }
-    public Stake getStakeById(long id) {
-        String sql = "SELECT * FROM stake WHERE id = ?";
-        DbConnection db = new DbConnection();
+    public Stake getStakeByUserId(long user_id) {
+        String sql = "SELECT * FROM stake WHERE user_id = ?";
 
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setLong(1, id);
+            ps.setLong(1, user_id);
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -72,5 +71,68 @@ public class StakeRepository {
             e.printStackTrace();
         }
         return null;
+    }
+    public Stake getStakeByAuctionId(long aution_id) {
+        String sql = "SELECT * FROM stake WHERE aution_id = ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, aution_id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Stake s = new Stake();
+                s.setId(rs.getLong("id"));
+                s.setAution_id(rs.getLong("aution_id"));
+                s.setLocked_item_id(rs.getLong("locked_item_id"));
+                s.setUser_id(rs.getLong("user_id"));
+                s.setAmount(rs.getLong("amount"));
+                s.setStatus(ItemStatus.valueOf(rs.getString("status")));
+                return s;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    public void updateUserAmountStatus(long auctionID, long userId, long amount, ItemStatus status) {
+        String sql = """
+        UPDATE stake
+        SET user_id = ?, amount = ?, status = ?
+        WHERE auction_id = ?
+    """;
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, userId);
+            ps.setLong(2, amount);
+            ps.setString(3, status.name());
+            ps.setLong(4, auctionID);
+
+            int rows = ps.executeUpdate();
+
+            if (rows == 0) {
+                throw new RuntimeException("Stake not found");
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void updateStatus(long autionId, ItemStatus status) {
+        String sql = "UPDATE stake SET status = ? WHERE auction_id = ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, status.name());
+            ps.setLong(2, autionId);
+
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
