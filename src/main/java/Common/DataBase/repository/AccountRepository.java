@@ -2,18 +2,21 @@ package Common.DataBase.repository;
 
 import Common.DataBase.DbConnection;
 import Common.DataBase.entities.Account;
+import Common.DataBase.entities.Auction;
+import Common.Enum.AuctionState;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AccountRepository {
+    DbConnection db= new DbConnection();
     public List<Account> getAllAccount() {
         List<Account> accounts = new ArrayList<>();
         String sql = "SELECT * FROM Account";
-        DbConnection db = new DbConnection();
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -33,7 +36,6 @@ public class AccountRepository {
     }
     public void CreateAccount(Account account) {
         // Khởi tạo ngay trong hàm
-        DbConnection db = new DbConnection();
         String sql = "INSERT INTO Account (user_id, balance, locked_balance) VALUES (?, ?, ?)";
 
         try (Connection conn = db.getConnection();
@@ -46,7 +48,6 @@ public class AccountRepository {
     }
     public Account getAccountByUserId(long user_id) {
         String sql = "SELECT * FROM account WHERE user_id = ?";
-        DbConnection db = new DbConnection();
 
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -73,7 +74,6 @@ public class AccountRepository {
         SET balance = ?, locked_balance = ?
         WHERE user_id = ?
     """;
-        DbConnection db= new DbConnection();
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -91,4 +91,5 @@ public class AccountRepository {
             throw new RuntimeException(e);
         }
     }
+
 }

@@ -178,4 +178,88 @@ public class AuctionRepository {
 
         return list;
     }
+    public Auction getById(long id) {
+        String sql = "SELECT * FROM auction WHERE id = ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, id);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Auction a = new Auction();
+
+                a.setId(rs.getLong("id"));
+                a.setItem_id(rs.getLong("item_id"));
+                a.setCurrent_user_id(rs.getLong("current_user_id"));
+                a.setCurrent_price(rs.getLong("current_price"));
+
+                Timestamp start = rs.getTimestamp("start_time");
+                if (start != null) {
+                    a.setStartTime(start.toLocalDateTime());
+                }
+
+                Timestamp end = rs.getTimestamp("end_time");
+                if (end != null) {
+                    a.setEndTime(end.toLocalDateTime());
+                }
+
+                String stateStr = rs.getString("state");
+                if (stateStr != null) {
+                    a.setState(AuctionState.valueOf(stateStr));
+                }
+
+                return a;
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return null; // không tìm thấy
+    }
+    public Auction getByItemId(long itemId) {
+        String sql = "SELECT * FROM auction WHERE item_id = ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, itemId);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Auction a = new Auction();
+
+                a.setId(rs.getLong("id"));
+                a.setItem_id(rs.getLong("item_id"));
+                a.setCurrent_user_id(rs.getLong("current_user_id"));
+                a.setCurrent_price(rs.getLong("current_price"));
+
+                Timestamp start = rs.getTimestamp("start_time");
+                if (start != null) {
+                    a.setStartTime(start.toLocalDateTime());
+                }
+
+                Timestamp end = rs.getTimestamp("end_time");
+                if (end != null) {
+                    a.setEndTime(end.toLocalDateTime());
+                }
+
+                String stateStr = rs.getString("state");
+                if (stateStr != null) {
+                    a.setState(AuctionState.valueOf(stateStr));
+                }
+
+                return a;
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return null; // không tìm thấy
+    }
 }

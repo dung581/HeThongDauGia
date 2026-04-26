@@ -135,4 +135,74 @@ public class StakeRepository {
             throw new RuntimeException(e);
         }
     }
+    public Stake getStakeByAuctionIdAndUserId(long auctionId, long userId) {
+        String sql = """
+        SELECT * FROM stake 
+        WHERE auction_id = ? AND user_id = ?
+    """;
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, auctionId);
+            ps.setLong(2, userId);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Stake s = new Stake();
+
+                s.setId(rs.getLong("id"));
+                s.setAution_id(rs.getLong("auction_id"));
+                s.setUser_id(rs.getLong("user_id"));
+                s.setAmount(rs.getLong("amount"));
+
+                String statusStr = rs.getString("status");
+                if (statusStr != null) {
+                    s.setStatus(ItemStatus.valueOf(statusStr));
+                }
+
+                return s;
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return null; // không tìm thấy
+    }
+    public List<Stake> getByAuctionId(long auctionId) {
+        List<Stake> list = new ArrayList<>();
+
+        String sql = "SELECT * FROM stake WHERE auction_id = ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, auctionId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Stake s = new Stake();
+
+                s.setId(rs.getLong("id"));
+                s.setAution_id(rs.getLong("auction_id"));
+                s.setUser_id(rs.getLong("user_id"));
+                s.setAmount(rs.getLong("amount"));
+
+                String statusStr = rs.getString("status");
+                if (statusStr != null) {
+                    s.setStatus(ItemStatus.valueOf(statusStr));
+                }
+
+                list.add(s);
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return list;
+    }
 }

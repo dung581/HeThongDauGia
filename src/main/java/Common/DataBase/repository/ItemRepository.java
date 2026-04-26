@@ -24,7 +24,8 @@ public class ItemRepository {
             while (rs.next()) {
                 Item i = new Item();
                 i.setId(rs.getLong("id"));
-                i.setWinner_id(rs.getLong("winner_id"));
+                i.setFullname(rs.getString("fullname"));
+                i.setOwner_user_id(rs.getLong("owner_user_id"));
                 i.setBeginPrice(rs.getLong("beginPrice"));
                 i.setStatus(ItemStatus.valueOf(rs.getString("status")));
                 items.add(i);
@@ -36,13 +37,14 @@ public class ItemRepository {
     }
     public void saveItem(Item item) {
         DbConnection db = new DbConnection();
-        String sql = "INSERT INTO Item (winner_id, beginPrice, status) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO Item (fullname, owner_user_id, beginPrice, status) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setLong(1, item.getWinner_id());
-            ps.setLong(2, item.getBeginPrice());
-            ps.setString(3, item.getStatus().toString());
+            ps.setString(1, item.getFullname());
+            ps.setLong(2, item.getOwner_user_id());
+            ps.setLong(3, item.getBeginPrice());
+            ps.setString(4, item.getStatus().toString());
             ps.executeUpdate();
         } catch (Exception e) { e.printStackTrace(); }
     }
@@ -59,7 +61,7 @@ public class ItemRepository {
             if (rs.next()) {
                 Item i = new Item();
                 i.setId(rs.getLong("id"));
-                i.setWinner_id(rs.getLong("winner_id"));
+                i.setOwner_user_id(rs.getLong("owner_user_id"));
                 i.setBeginPrice(rs.getLong("begin_price"));
                 i.setStatus(ItemStatus.valueOf(rs.getString("status")));
                 return i;
