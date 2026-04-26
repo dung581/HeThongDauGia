@@ -1,5 +1,5 @@
 package Common.Enum;
 
 public enum ItemStatus {
-    SOLD, PENDING
+    SOLD, PENDING, LOST, LOCKED
 }

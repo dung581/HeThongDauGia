@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AutobidRepository {
+public class AutoBidRepository {
     public List<Autobid> getAllAutobid() {
         List<Autobid> autobids = new ArrayList<>();
         String sql = "SELECT * FROM autobid";

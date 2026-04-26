@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Item {
     private long id;
-    private long winner_id;
+    private String fullname;
+    private long owner_user_id;
     private long beginPrice;
     private ItemStatus status;
 }
