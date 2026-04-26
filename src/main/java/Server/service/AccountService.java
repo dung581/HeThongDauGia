@@ -5,103 +5,45 @@ import Common.DataBase.repository.AccountRepository;
 
 public class AccountService {
 
-    private AccountRepository accountRepo = new AccountRepository();
+    private AccountRepository repo = new AccountRepository();
 
-    // =========================
-    // 1. GET BALANCE (full info)
-    // =========================
     public Account getBalance(long userId) {
-        Account acc = accountRepo.getAccountByUserId(userId);
-
-        if (acc == null) {
-            throw new RuntimeException("Account not found");
-        }
-
+        Account acc = repo.getAccountByUserId(userId);
+        if (acc == null) throw new RuntimeException("Account not found");
         return acc;
     }
 
-    // =========================
-    // 2. DEPOSIT
-    // =========================
     public void deposit(long userId, long amount) {
+        if (amount <= 0) throw new RuntimeException("Invalid amount");
 
-        if (amount <= 0) {
-            throw new RuntimeException("Invalid amount");
-        }
-
-        Account acc = accountRepo.getAccountByUserId(userId);
-
-        if (acc == null) {
-            throw new RuntimeException("Account not found");
-        }
-
+        Account acc = repo.getAccountByUserId(userId);
         acc.setBalance(acc.getBalance() + amount);
-
-        accountRepo.update(acc);
+        repo.update(acc);
     }
 
-    // =========================
-    // 3. LOCK FUNDS (khi bid)
-    // =========================
     public void lockFunds(long userId, long amount) {
-
-        if (amount <= 0) {
-            throw new RuntimeException("Invalid amount");
-        }
-
-        Account acc = accountRepo.getAccountByUserId(userId);
-
-        if (acc == null) {
-            throw new RuntimeException("Account not found");
-        }
+        Account acc = repo.getAccountByUserId(userId);
 
         long available = acc.getBalance() - acc.getLocked_balance();
-
-        if (available < amount) {
-            throw new RuntimeException("Not enough available balance");
-        }
+        if (available < amount) throw new RuntimeException("Not enough money");
 
         acc.setBalance(acc.getBalance() - amount);
         acc.setLocked_balance(acc.getLocked_balance() + amount);
 
-        accountRepo.update(acc);
+        repo.update(acc);
     }
 
-    // =========================
-    // 4. RELEASE FUNDS (khi bị outbid)
-    // =========================
     public void releaseFunds(long userId, long amount) {
-
-        if (amount <= 0) {
-            throw new RuntimeException("Invalid amount");
-        }
-
-        Account acc = accountRepo.getAccountByUserId(userId);
-
-        if (acc == null) {
-            throw new RuntimeException("Account not found");
-        }
-
-        if (acc.getLocked_balance() < amount) {
-            throw new RuntimeException("Locked balance not enough");
-        }
+        Account acc = repo.getAccountByUserId(userId);
 
         acc.setLocked_balance(acc.getLocked_balance() - amount);
         acc.setBalance(acc.getBalance() + amount);
 
-        accountRepo.update(acc);
+        repo.update(acc);
     }
 
-    // =========================
-    // 5. GET AVAILABLE
-    // =========================
     public long getAvailable(long userId) {
-        Account acc = accountRepo.getAccountByUserId(userId);
-
-        if (acc == null) {
-            throw new RuntimeException("Account not found");
-        }
-
+        Account acc = repo.getAccountByUserId(userId);
         return acc.getBalance() - acc.getLocked_balance();
     }
 }

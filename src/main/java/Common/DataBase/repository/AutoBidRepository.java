@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AutoBidRepository {
+    DbConnection db= new DbConnection();
     public List<Autobid> getAllAutobid() {
-        List<Autobid> autobids = new ArrayList<>();
-        String sql = "SELECT * FROM autobid";
-        DbConnection db = new DbConnection();
+        List<Autobid> Autobids = new ArrayList<>();
+        String sql = "SELECT * FROM Autobid";
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -26,16 +26,15 @@ public class AutoBidRepository {
                 a.setItem_id(rs.getLong("item_id"));
                 a.setMax_price(rs.getLong("max_price"));
                 a.set_active(rs.getBoolean("is_active"));
-                autobids.add(a);
+                Autobids.add(a);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return autobids;
+        return Autobids;
     }
     public void saveAutobid(Autobid a) {
-        DbConnection db = new DbConnection(); // Biến db trong hàm
-        String sql = "INSERT INTO autobid (session_id, user_id, item_id, max_price, is_active) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Autobid (session_id, user_id, item_id, max_price, is_active) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, a.getAuction_id());
@@ -46,31 +45,85 @@ public class AutoBidRepository {
             ps.executeUpdate();
         } catch (Exception e) { e.printStackTrace(); }
     }
-    public Autobid getAutobidById(long id) {
-        String sql = "SELECT * FROM autobid WHERE id = ?";
-        DbConnection db = new DbConnection();
+
+    public List<Autobid> getActiveByItemId(long itemId) {
+        List<Autobid> list = new ArrayList<>();
+
+        String sql = """
+        SELECT * FROM Autobid 
+        WHERE item_id = ? AND is_active = true
+    """;
 
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setLong(1, id);
+            ps.setLong(1, itemId);
+
             ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) {
+            while (rs.next()) {
                 Autobid a = new Autobid();
                 a.setId(rs.getLong("id"));
-                a.setAuction_id(rs.getLong("session_id"));
                 a.setUser_id(rs.getLong("user_id"));
                 a.setItem_id(rs.getLong("item_id"));
                 a.setMax_price(rs.getLong("max_price"));
                 a.set_active(rs.getBoolean("is_active"));
-                return a;
+                list.add(a);
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
-        return null; // không tìm thấy
+        return list;
+    }
+    public void updateActive(long id, boolean isActive) {
+        String sql = "UPDATE autobid SET is_active = ? WHERE id = ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setBoolean(1, isActive);
+            ps.setLong(2, id);
+
+            int rows = ps.executeUpdate();
+
+            if (rows == 0) {
+                throw new RuntimeException("AutoBid not found");
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public List<Autobid> getByUserId(long userId) {
+        List<Autobid> list = new ArrayList<>();
+
+        String sql = "SELECT * FROM autobid WHERE user_id = ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, userId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Autobid a = new Autobid();
+
+                a.setId(rs.getLong("id"));
+                a.setUser_id(rs.getLong("user_id"));
+                a.setItem_id(rs.getLong("item_id"));
+                a.setMax_price(rs.getLong("max_price"));
+                a.set_active(rs.getBoolean("is_active"));
+
+                list.add(a);
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return list;
     }
 }
