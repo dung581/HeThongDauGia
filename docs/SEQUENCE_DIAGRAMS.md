@@ -419,10 +419,10 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant BidSvc as BidService
-    participant AutoSvc as AutoBidService
+    participant AutoSvc as AutobidService
     participant StakeSvc as StakeService
     participant AccSvc as AccountService
-    participant AutoRepo as AutoBidRepository
+    participant AutoRepo as AutobidRepository
     participant BidRepo as BidRepository
     participant StakeRepo as StakeRepository
     participant AccRepo as AccountRepository
@@ -433,18 +433,18 @@ sequenceDiagram
 
     Note over BidSvc: Triggered after a manual bid is saved (Diagram 07)
 
-    BidSvc->>AutoSvc: processAutoBids(itemId, newCurrentPrice=3300000)
+    BidSvc->>AutoSvc: processAutobids(itemId, newCurrentPrice=3300000)
 
     AutoSvc->>AutoRepo: findActiveByItem(itemId)
     AutoRepo->>DB: SELECT * FROM auto_bid WHERE item_id = ? AND is_active = true
     DB-->>AutoRepo: ResultSet rows
-    AutoRepo-->>AutoSvc: List<AutoBid>
+    AutoRepo-->>AutoSvc: List<Autobid>
 
-    loop for each active AutoBid (excluding the bidder just placed)
-        AutoSvc->>AutoSvc: check autoBid.getMaxPrice() > newCurrentPrice
+    loop for each active Autobid (excluding the bidder just placed)
+        AutoSvc->>AutoSvc: check Autobid.getMaxPrice() > newCurrentPrice
 
         alt maxPrice allows a counter bid
-            AutoSvc->>AccSvc: getAvailable(autoBid.getUserId())
+            AutoSvc->>AccSvc: getAvailable(Autobid.getUserId())
             AccSvc->>AccRepo: findByUserId(userId)
             AccRepo->>DB: SELECT * FROM account WHERE user_id = ?
             DB-->>AccRepo: ResultSet
@@ -485,7 +485,7 @@ sequenceDiagram
             SessRepo->>DB: UPDATE session SET current_price = ?, current_user_id = ? WHERE id = ?
             DB-->>SessRepo: ok
         else maxPrice exceeded
-            AutoSvc->>AutoRepo: setActive(autoBidId, false)
+            AutoSvc->>AutoRepo: setActive(AutobidId, false)
             AutoRepo->>DB: UPDATE auto_bid SET is_active = false WHERE id = ?
             DB-->>AutoRepo: ok
             Note over AutoSvc: auto bid deactivated — max price reached
@@ -504,17 +504,17 @@ sequenceDiagram
     actor User
     participant View as session-detail.fxml
     participant Controller as SessionDetailController
-    participant AutoSvc as AutoBidService
+    participant AutoSvc as AutobidService
     participant AccSvc as AccountService
-    participant AutoRepo as AutoBidRepository
+    participant AutoRepo as AutobidRepository
     participant AccRepo as AccountRepository
     participant DB as Database
-    participant AutoEntity as AutoBid
+    participant AutoEntity as Autobid
 
     User->>View: enters max price, selects increment
     User->>View: clicks Activate Auto Bid
 
-    View->>Controller: onActivateAutoBidClick(ActionEvent)
+    View->>Controller: onActivateAutobidClick(ActionEvent)
     Controller->>View: autoMaxField.getText()
     View-->>Controller: 5000000
     Controller->>View: incrementComboBox.getValue()
@@ -537,20 +537,20 @@ sequenceDiagram
         DB-->>AutoRepo: ResultSet
 
         alt auto bid record exists
-            AutoRepo-->>AutoSvc: AutoBid
+            AutoRepo-->>AutoSvc: Autobid
             AutoSvc->>AutoRepo: save(updated maxPrice, is_active=true)
             AutoRepo->>DB: UPDATE auto_bid SET max_price = ?, is_active = true WHERE id = ?
             DB-->>AutoRepo: ok
         else no record yet
             AutoRepo-->>AutoSvc: null
-            AutoSvc->>AutoEntity: new AutoBid(userId, itemId, maxPrice=5000000, isActive=true)
-            AutoEntity-->>AutoSvc: autoBid object
-            AutoSvc->>AutoRepo: save(autoBid)
+            AutoSvc->>AutoEntity: new Autobid(userId, itemId, maxPrice=5000000, isActive=true)
+            AutoEntity-->>AutoSvc: Autobid object
+            AutoSvc->>AutoRepo: save(Autobid)
             AutoRepo->>DB: INSERT INTO auto_bid (user_id, item_id, max_price, is_active) VALUES (?, ?, ?, true)
             DB-->>AutoRepo: generated id
         end
 
-        AutoSvc-->>Controller: AutoBid
+        AutoSvc-->>Controller: Autobid
         Controller->>View: AlertUtil.showSuccess("Auto bid activated")
         Controller->>View: update auto bid status display
         View-->>User: auto bid active confirmation

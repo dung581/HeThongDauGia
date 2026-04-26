@@ -63,7 +63,7 @@ bidnow/
 │   │   │           │   ├── Session.java              # id, itemId, currentUserId, currentPrice, availabilityTime
 │   │   │           │   ├── Bid.java                  # id, userId, itemId, price
 │   │   │           │   ├── Stake.java                # id, lockedItemsId, userId, amount
-│   │   │           │   └── AutoBid.java              # id, userId, itemId, maxPrice, isActive
+│   │   │           │   └── Autobid.java              # id, userId, itemId, maxPrice, isActive
 │   │   │           │
 │   │   │           ├── enums/
 │   │   │           │   ├── UserRole.java             # ADMIN, USER, SELLER
@@ -76,22 +76,22 @@ bidnow/
 │   │   │           │   ├── SessionRepository.java    # findAll, findActive, findById, save, updatePrice, close
 │   │   │           │   ├── BidRepository.java        # findBySessionId, findTopBid, findByUserId, save
 │   │   │           │   ├── StakeRepository.java      # findByUserId, findBySessionId, save, delete, release
-│   │   │           │   └── AutoBidRepository.java    # findByUserAndItem, findActiveBySession, save, setActive
+│   │   │           │   └── AutobidRepository.java    # findByUserAndItem, findActiveBySession, save, setActive
 │   │   │           │
 │   │   │           ├── service/                      # Business logic — calls repositories, enforces rules
 │   │   │           │   ├── AuthService.java          # login, register, logout, validateRole
 │   │   │           │   ├── AccountService.java       # getBalance, deposit, lockFunds, releaseFunds, getAvailable
 │   │   │           │   ├── ItemService.java          # upload, approve, reject, listPending, listAll, getById
 │   │   │           │   ├── SessionService.java       # createSession, getActive, getById, closeSession, declareWinner
-│   │   │           │   ├── BidService.java           # placeBid, validateAmount, getHistory, processAutoBids
+│   │   │           │   ├── BidService.java           # placeBid, validateAmount, getHistory, processAutobids
 │   │   │           │   ├── StakeService.java         # createStake, releaseStake, releaseAll, getUserStakes
-│   │   │           │   └── AutoBidService.java       # configure, activate, deactivate, trigger, getByUser
+│   │   │           │   └── AutobidService.java       # configure, activate, deactivate, trigger, getByUser
 │   │   │           │
 │   │   │           ├── controller/                   # JavaFX FXML controllers — one per screen
 │   │   │           │   ├── LoginController.java      # → login.fxml       | AuthService
 │   │   │           │   ├── DashboardController.java  # → dashboard.fxml   | SessionService, AccountService
 │   │   │           │   ├── SessionListController.java     # → session-list.fxml    | SessionService
-│   │   │           │   ├── SessionDetailController.java   # → session-detail.fxml  | BidService, StakeService, AutoBidService
+│   │   │           │   ├── SessionDetailController.java   # → session-detail.fxml  | BidService, StakeService, AutobidService
 │   │   │           │   ├── ItemBrowseController.java      # → item-browse.fxml     | ItemService, SessionService
 │   │   │           │   ├── UploadItemController.java      # → upload-item.fxml     | ItemService
 │   │   │           │   ├── DepositController.java         # → deposit.fxml         | AccountService
@@ -141,7 +141,7 @@ bidnow/
 │                   └── service/
 │                       ├── AuthServiceTest.java       # Unit tests with mocked repos
 │                       ├── BidServiceTest.java        # Stake lock / release logic
-│                       └── AutoBidServiceTest.java    # Auto-bid trigger logic
+│                       └── AutobidServiceTest.java    # Auto-bid trigger logic
 ```
 
 ---
@@ -162,7 +162,7 @@ Plain Java POJOs. No annotations. Fields match database column names (camelCase 
 | `Session.java` | `session` | `int id`, `int itemId`, `int currentUserId`, `long currentPrice`, `LocalDateTime availabilityTime` |
 | `Bid.java` | `bid` | `int id`, `int userId`, `int itemId`, `long price` |
 | `Stake.java` | `stake` | `int id`, `int lockedItemsId`, `int userId`, `long amount` |
-| `AutoBid.java` | `auto_bid` | `int id`, `int userId`, `int itemId`, `long maxPrice`, `boolean isActive` |
+| `Autobid.java` | `auto_bid` | `int id`, `int userId`, `int itemId`, `long maxPrice`, `boolean isActive` |
 
 **Tip:** Add a no-arg constructor and getters/setters to each entity, or use Java Records for read-only data transfer.
 
@@ -182,7 +182,7 @@ Each repository receives a `Connection` (or `DataSource`) from `DatabaseConfig` 
 | `SessionRepository` | `findAll()`, `findActive()`, `findById(int id)`, `save(Session s)`, `updateCurrentPrice(int id, long price, int userId)`, `close(int id)` |
 | `BidRepository` | `findByItemId(int itemId)`, `findTopBid(int itemId)`, `findByUserId(int uid)`, `save(Bid b)` |
 | `StakeRepository` | `findByUserId(int uid)`, `findByItemId(int itemId)`, `save(Stake s)`, `delete(int id)`, `releaseAll(int itemId)` |
-| `AutoBidRepository` | `findByUserAndItem(int uid, int itemId)`, `findActiveByItem(int itemId)`, `save(AutoBid a)`, `setActive(int id, boolean active)` |
+| `AutobidRepository` | `findByUserAndItem(int uid, int itemId)`, `findActiveByItem(int itemId)`, `save(Autobid a)`, `setActive(int id, boolean active)` |
 
 ---
 
@@ -230,7 +230,7 @@ declareWinner(sessionId)       → User       — top bidder at close time
 placeBid(userId, itemId, price)  → Bid      — validate > current price, lock funds via StakeService,
                                               save bid, update session.currentPrice
 getHistory(itemId)               → List<Bid>
-processAutoBids(itemId, newPrice)→ void     — check all active AutoBids, trigger counterbid if maxPrice allows
+processAutobids(itemId, newPrice)→ void     — check all active Autobids, trigger counterbid if maxPrice allows
 ```
 
 #### `StakeService`
@@ -241,13 +241,13 @@ releaseAll(itemId)                  → void   — release all stakes for losing
 getUserStakes(userId)               → List<Stake>
 ```
 
-#### `AutoBidService`
+#### `AutobidService`
 ```
-configure(userId, itemId, maxPrice) → AutoBid — save or update auto_bid record
-activate(autoBidId)                 → void    — set is_active = true
-deactivate(autoBidId)               → void    — set is_active = false
+configure(userId, itemId, maxPrice) → Autobid — save or update auto_bid record
+activate(AutobidId)                 → void    — set is_active = true
+deactivate(AutobidId)               → void    — set is_active = false
 trigger(itemId, currentPrice)       → void    — called by BidService; auto-place next bid if maxPrice allows
-getByUser(userId)                   → List<AutoBid>
+getByUser(userId)                   → List<Autobid>
 ```
 
 ---
@@ -267,7 +267,7 @@ One controller per FXML screen. Each controller:
 | `LoginController` | `login.fxml` | `AuthService` |
 | `DashboardController` | `dashboard.fxml` | `SessionService`, `AccountService` |
 | `SessionListController` | `session-list.fxml` | `SessionService` |
-| `SessionDetailController` | `session-detail.fxml` | `BidService`, `StakeService`, `AutoBidService`, `AccountService` |
+| `SessionDetailController` | `session-detail.fxml` | `BidService`, `StakeService`, `AutobidService`, `AccountService` |
 | `ItemBrowseController` | `item-browse.fxml` | `ItemService`, `SessionService` |
 | `UploadItemController` | `upload-item.fxml` | `ItemService` |
 | `DepositController` | `deposit.fxml` | `AccountService` |
@@ -367,7 +367,7 @@ entity/
   Session.java                — POJO: id, itemId, currentUserId, currentPrice, availabilityTime
   Bid.java                    — POJO: id, userId, itemId, price
   Stake.java                  — POJO: id, lockedItemsId, userId, amount
-  AutoBid.java                — POJO: id, userId, itemId, maxPrice, isActive
+  Autobid.java                — POJO: id, userId, itemId, maxPrice, isActive
 
 enums/
   UserRole.java               — ADMIN, USER, SELLER
@@ -380,7 +380,7 @@ repository/
   SessionRepository.java      — CRUD + active filter + price update
   BidRepository.java          — insert bid, query top bid
   StakeRepository.java        — insert/delete stakes, release by item
-  AutoBidRepository.java      — insert/toggle auto_bid records
+  AutobidRepository.java      — insert/toggle auto_bid records
 
 service/
   AuthService.java            — login, register, role check
@@ -389,7 +389,7 @@ service/
   SessionService.java         — create session, close, declare winner
   BidService.java             — placeBid (validates + locks stake), getHistory, trigger auto-bids
   StakeService.java           — createStake, releaseStake, releaseAll
-  AutoBidService.java         — configure, activate, trigger counterbid
+  AutobidService.java         — configure, activate, trigger counterbid
 
 controller/
   LoginController.java        — handles login.fxml, calls AuthService
