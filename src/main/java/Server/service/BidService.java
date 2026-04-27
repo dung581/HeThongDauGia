@@ -1,16 +1,13 @@
 package Server.service;
 
 import Common.DataBase.entities.Auction;
-import Common.DataBase.entities.Autobid;
 import Common.DataBase.entities.Bid;
 import Common.DataBase.entities.Stake;
 import Common.DataBase.repository.AuctionRepository;
-import Common.DataBase.repository.AutoBidRepository;
 import Common.DataBase.repository.BidRepository;
-import Common.DataBase.repository.StakeRepository;
 import Common.Enum.AuctionState;
-import Common.Enum.ItemStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
 public class BidService {
 
@@ -49,6 +46,7 @@ public class BidService {
         b.setItem_id(itemId);
         b.setUser_id(userId);
         b.setPrice(price);
+        b.setCreated_at(LocalDateTime.now());
         bidRepo.saveBid(b);
 
         // 🔥 update auction

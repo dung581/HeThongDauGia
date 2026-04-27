@@ -2,8 +2,8 @@ package Common.DataBase.repository;
 
 
 import Common.DataBase.DbConnection;
-import Common.Enum.ItemStatus;
 import Common.DataBase.entities.Stake;
+import Common.Enum.StakeStatus;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,7 +28,7 @@ public class StakeRepository {
                 s.setLocked_item_id(rs.getLong("locked_item_id"));
                 s.setUser_id(rs.getLong("user_id"));
                 s.setAmount(rs.getLong("amount"));
-                s.setStatus(ItemStatus.valueOf(rs.getString("status")));
+                s.setStatus(StakeStatus.valueOf(rs.getString("status")));
                 stakes.add(s);
             }
         } catch (Exception e) {
@@ -57,7 +57,7 @@ public class StakeRepository {
 
                 String statusStr = rs.getString("status");
                 if (statusStr != null) {
-                    s.setStatus(ItemStatus.valueOf(statusStr));
+                    s.setStatus(StakeStatus.valueOf(statusStr));
                 }
 
                 return s;
@@ -86,11 +86,11 @@ public class StakeRepository {
         }
     }
 
-    public void updateUserAmountStatus(long auctionID, long userId, long amount, ItemStatus status) {
+    public void updateUserAmountStatus(long auctionID, long userId, long amount, StakeStatus status) {
 
     }
 
-    public void updateStatus(long autionId, ItemStatus status) {
+    public void updateStatus(long autionId, StakeStatus status) {
         String sql = "UPDATE stake SET status = ? WHERE auction_id = ?";
 
         try (Connection conn = db.getConnection();
@@ -127,7 +127,7 @@ public class StakeRepository {
 
                 String statusStr = rs.getString("status");
                 if (statusStr != null) {
-                    s.setStatus(ItemStatus.valueOf(statusStr));
+                    s.setStatus(StakeStatus.valueOf(statusStr));
                 }
 
                 list.add(s);
@@ -139,7 +139,7 @@ public class StakeRepository {
 
         return list;
     }
-    public Stake getByAuctionIdAndUserIdAndStatus(long auctionId, long userId, ItemStatus status) {
+    public Stake getByAuctionIdAndUserIdAndStatus(long auctionId, long userId, StakeStatus status) {
 
         String sql = """
         SELECT * FROM stake 
@@ -168,7 +168,7 @@ public class StakeRepository {
 
                 String statusStr = rs.getString("status");
                 if (statusStr != null) {
-                    s.setStatus(ItemStatus.valueOf(statusStr));
+                    s.setStatus(StakeStatus.valueOf(statusStr));
                 }
 
                 return s;

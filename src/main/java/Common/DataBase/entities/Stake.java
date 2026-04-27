@@ -1,6 +1,7 @@
 package Common.DataBase.entities;
 
-import Common.Enum.ItemStatus;
+import Common.Enum.StakeStatus;
+import Common.Enum.StakeStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,5 +17,5 @@ public class Stake {
     private long locked_item_id;
     private long user_id;
     private long amount;
-    private ItemStatus status;
+    private StakeStatus status;
 }

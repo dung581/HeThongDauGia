@@ -29,10 +29,10 @@ From the ERD image, 7 tables:
 |-------------|-------------------------------------------------------------------|--------------------------------------|
 | `user`      | `id`, `username`, `password`, `role`, `fullname`                 | All user accounts                    |
 | `account`   | `id`, `user_id`, `balance`, `locked_balance`                     | Wallet per user                      |
-| `items`     | `id`, `owner_user_id`, `begin_price`, `status`                   | Items listed for auction             |
+| `StakeS`     | `id`, `owner_user_id`, `begin_price`, `status`                   | StakeS listed for auction             |
 | `session`   | `id`, `item_id`, `current_user_id`, `current_price`, `availability_time` | Active auction session       |
 | `bid`       | `id`, `user_id`, `item_id`, `price`                              | Each manual bid placed               |
-| `stake`     | `id`, `locked_items_id`, `user_id`, `amount`                     | Locked funds when a user bids        |
+| `stake`     | `id`, `locked_StakeS_id`, `user_id`, `amount`                     | Locked funds when a user bids        |
 | `auto_bid`  | `id`, `user_id`, `item_id`, `max_price`, `is_active`             | Auto-bid configuration per user/item |
 
 ---
@@ -62,12 +62,12 @@ bidnow/
 │   │   │           │   ├── Item.java                 # id, ownerUserId, beginPrice, status
 │   │   │           │   ├── Session.java              # id, itemId, currentUserId, currentPrice, availabilityTime
 │   │   │           │   ├── Bid.java                  # id, userId, itemId, price
-│   │   │           │   ├── Stake.java                # id, lockedItemsId, userId, amount
+│   │   │           │   ├── Stake.java                # id, lockedStakeSId, userId, amount
 │   │   │           │   └── Autobid.java              # id, userId, itemId, maxPrice, isActive
 │   │   │           │
 │   │   │           ├── enums/
 │   │   │           │   ├── UserRole.java             # ADMIN, USER, SELLER
-│   │   │           │   └── ItemStatus.java           # PENDING, SOLD
+│   │   │           │   └── StakeStatus.java           # PENDING, SOLD
 │   │   │           │
 │   │   │           ├── repository/                   # Raw JDBC — PreparedStatement only, no business logic
 │   │   │           │   ├── UserRepository.java       # findById, findByUsername, save, update, delete
@@ -81,7 +81,7 @@ bidnow/
 │   │   │           ├── service/                      # Business logic — calls repositories, enforces rules
 │   │   │           │   ├── AuthService.java          # login, register, logout, validateRole
 │   │   │           │   ├── AccountService.java       # getBalance, deposit, lockFunds, releaseFunds, getAvailable
-│   │   │           │   ├── ItemService.java          # upload, approve, reject, listPending, listAll, getById
+│   │   │           │   ├── StakeService.java          # upload, approve, reject, listPending, listAll, getById
 │   │   │           │   ├── SessionService.java       # createSession, getActive, getById, closeSession, declareWinner
 │   │   │           │   ├── BidService.java           # placeBid, validateAmount, getHistory, processAutobids
 │   │   │           │   ├── StakeService.java         # createStake, releaseStake, releaseAll, getUserStakes
@@ -92,8 +92,8 @@ bidnow/
 │   │   │           │   ├── DashboardController.java  # → dashboard.fxml   | SessionService, AccountService
 │   │   │           │   ├── SessionListController.java     # → session-list.fxml    | SessionService
 │   │   │           │   ├── SessionDetailController.java   # → session-detail.fxml  | BidService, StakeService, AutobidService
-│   │   │           │   ├── ItemBrowseController.java      # → item-browse.fxml     | ItemService, SessionService
-│   │   │           │   ├── UploadItemController.java      # → upload-item.fxml     | ItemService
+│   │   │           │   ├── ItemBrowseController.java      # → item-browse.fxml     | StakeService, SessionService
+│   │   │           │   ├── UploadItemController.java      # → upload-item.fxml     | StakeService
 │   │   │           │   ├── DepositController.java         # → deposit.fxml         | AccountService
 │   │   │           │   ├── AccountController.java         # → account.fxml         | AccountService, StakeService
 │   │   │           │   └── WinnerController.java          # → winner.fxml          | SessionService, AccountService
@@ -158,10 +158,10 @@ Plain Java POJOs. No annotations. Fields match database column names (camelCase 
 |------|---------------|--------|
 | `User.java` | `user` | `int id`, `String username`, `String password`, `UserRole role`, `String fullname` |
 | `Account.java` | `account` | `int id`, `int userId`, `long balance`, `long lockedBalance` |
-| `Item.java` | `items` | `int id`, `int ownerUserId`, `long beginPrice`, `ItemStatus status` |
+| `Item.java` | `StakeS` | `int id`, `int ownerUserId`, `long beginPrice`, `StakeStatus status` |
 | `Session.java` | `session` | `int id`, `int itemId`, `int currentUserId`, `long currentPrice`, `LocalDateTime availabilityTime` |
 | `Bid.java` | `bid` | `int id`, `int userId`, `int itemId`, `long price` |
-| `Stake.java` | `stake` | `int id`, `int lockedItemsId`, `int userId`, `long amount` |
+| `Stake.java` | `stake` | `int id`, `int lockedStakeSId`, `int userId`, `long amount` |
 | `Autobid.java` | `auto_bid` | `int id`, `int userId`, `int itemId`, `long maxPrice`, `boolean isActive` |
 
 **Tip:** Add a no-arg constructor and getters/setters to each entity, or use Java Records for read-only data transfer.
@@ -178,7 +178,7 @@ Each repository receives a `Connection` (or `DataSource`) from `DatabaseConfig` 
 |------|-------------|
 | `UserRepository` | `findById(int id)`, `findByUsername(String u)`, `save(User u)`, `update(User u)` |
 | `AccountRepository` | `findByUserId(int uid)`, `updateBalance(int uid, long amount)`, `lockBalance(int uid, long amount)`, `unlockBalance(int uid, long amount)` |
-| `ItemRepository` | `findAll()`, `findByStatus(ItemStatus s)`, `findById(int id)`, `save(Item i)`, `updateStatus(int id, ItemStatus s)` |
+| `ItemRepository` | `findAll()`, `findByStatus(StakeStatus s)`, `findById(int id)`, `save(Item i)`, `updateStatus(int id, StakeStatus s)` |
 | `SessionRepository` | `findAll()`, `findActive()`, `findById(int id)`, `save(Session s)`, `updateCurrentPrice(int id, long price, int userId)`, `close(int id)` |
 | `BidRepository` | `findByItemId(int itemId)`, `findTopBid(int itemId)`, `findByUserId(int uid)`, `save(Bid b)` |
 | `StakeRepository` | `findByUserId(int uid)`, `findByItemId(int itemId)`, `save(Stake s)`, `delete(int id)`, `releaseAll(int itemId)` |
@@ -208,11 +208,11 @@ releaseFunds(userId, amount)   → void       — move lockedBalance → balance
 getAvailable(userId)           → long       — balance - lockedBalance
 ```
 
-#### `ItemService`
+#### `StakeService`
 ```
 upload(Item item)              → Item       — save with status=PENDING
 approve(itemId)                → void       — set status=PENDING (ready for session)
-listPending()                  → List<Item> — all PENDING items
+listPending()                  → List<Item> — all PENDING StakeS
 getById(itemId)                → Item
 ```
 
@@ -268,8 +268,8 @@ One controller per FXML screen. Each controller:
 | `DashboardController` | `dashboard.fxml` | `SessionService`, `AccountService` |
 | `SessionListController` | `session-list.fxml` | `SessionService` |
 | `SessionDetailController` | `session-detail.fxml` | `BidService`, `StakeService`, `AutobidService`, `AccountService` |
-| `ItemBrowseController` | `item-browse.fxml` | `ItemService`, `SessionService` |
-| `UploadItemController` | `upload-item.fxml` | `ItemService` |
+| `ItemBrowseController` | `item-browse.fxml` | `StakeService`, `SessionService` |
+| `UploadItemController` | `upload-item.fxml` | `StakeService` |
 | `DepositController` | `deposit.fxml` | `AccountService` |
 | `AccountController` | `account.fxml` | `AccountService`, `StakeService` |
 | `WinnerController` | `winner.fxml` | `SessionService`, `AccountService` |
@@ -288,7 +288,7 @@ Each `.fxml` file declares the layout using JavaFX scene graph elements. The `fx
 | `dashboard.fxml` | Dashboard | `balanceLabel`, `pendingLabel`, `availableLabel`, `mainContent` |
 | `session-list.fxml` | Session list | `sessionsContainer`, `refreshBtn`, `statLiveLabel` |
 | `session-detail.fxml` | Session detail + Countdown | `itemNameLabel`, `countdownLabel`, `currentPriceLabel`, `bidAmountField`, `placeBidBtn`, `autoMaxField`, `feedContainer` |
-| `item-browse.fxml` | Browse items | `itemsGrid`, `searchField`, `filterAllBtn`, `filterPendingBtn` |
+| `item-browse.fxml` | Browse StakeS | `StakeSGrid`, `searchField`, `filterAllBtn`, `filterPendingBtn` |
 | `upload-item.fxml` | Upload item | `nameField`, `descriptionArea`, `startPriceField`, `categoryField`, `submitBtn` |
 | `deposit.fxml` | Deposit | `currentBalanceLabel`, `depositAmountField`, `methodGroup`, `confirmBtn`, `afterDepositLabel` |
 | `account.fxml` | Account detail | `fullNameLabel`, `totalBalanceLabel`, `pendingAmountLabel`, `availableLabel`, `pendingBidsList`, `transactionsList` |
@@ -366,17 +366,17 @@ entity/
   Item.java                   — POJO: id, ownerUserId, beginPrice, status
   Session.java                — POJO: id, itemId, currentUserId, currentPrice, availabilityTime
   Bid.java                    — POJO: id, userId, itemId, price
-  Stake.java                  — POJO: id, lockedItemsId, userId, amount
+  Stake.java                  — POJO: id, lockedStakeSId, userId, amount
   Autobid.java                — POJO: id, userId, itemId, maxPrice, isActive
 
 enums/
   UserRole.java               — ADMIN, USER, SELLER
-  ItemStatus.java             — PENDING, SOLD
+  StakeStatus.java             — PENDING, SOLD
 
 repository/
   UserRepository.java         — CRUD for user table
   AccountRepository.java      — read/update account balances
-  ItemRepository.java         — CRUD + status filter for items table
+  ItemRepository.java         — CRUD + status filter for StakeS table
   SessionRepository.java      — CRUD + active filter + price update
   BidRepository.java          — insert bid, query top bid
   StakeRepository.java        — insert/delete stakes, release by item
@@ -385,7 +385,7 @@ repository/
 service/
   AuthService.java            — login, register, role check
   AccountService.java         — deposit, lockFunds, releaseFunds, getAvailable
-  ItemService.java            — upload, approve, list
+  StakeService.java            — upload, approve, list
   SessionService.java         — create session, close, declare winner
   BidService.java             — placeBid (validates + locks stake), getHistory, trigger auto-bids
   StakeService.java           — createStake, releaseStake, releaseAll
@@ -397,7 +397,7 @@ controller/
   SessionListController.java  — renders session cards with countdown
   SessionDetailController.java— 3-column layout, bid feed, countdown timer
   ItemBrowseController.java   — item grid with status filter
-  UploadItemController.java   — upload form, calls ItemService.upload
+  UploadItemController.java   — upload form, calls StakeService.upload
   DepositController.java      — deposit form, calls AccountService.deposit
   AccountController.java      — balance cards, pending bids, tx history
   WinnerController.java       — trophy screen after session closes
