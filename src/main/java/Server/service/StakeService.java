@@ -3,7 +3,7 @@ import Common.DataBase.entities.Auction;
 import Common.DataBase.entities.Stake;
 import Common.DataBase.repository.AuctionRepository;
 import Common.DataBase.repository.StakeRepository;
-import Common.Enum.ItemStatus;
+import Common.Enum.StakeStatus;
 import java.util.List;
 
 public class StakeService {
@@ -22,7 +22,7 @@ public class StakeService {
         s.setAution_id(auction.getId());
         s.setUser_id(userId);
         s.setAmount(amount);
-        s.setStatus(ItemStatus.LOCKED);
+        s.setStatus(StakeStatus.LOCKED);
 
         repo.saveStake(s);
 
@@ -36,7 +36,7 @@ public class StakeService {
 
         accountService.releaseFunds(s.getUser_id(), s.getAmount());
 
-        repo.updateStatus(stakeId, ItemStatus.LOST);
+        repo.updateStatus(stakeId, StakeStatus.LOST);
     }
 
     public List<Stake> getUserStakes(long userId) {
@@ -46,7 +46,7 @@ public class StakeService {
     // 🔥 helper cực quan trọng
     public Stake getActiveStake(long auctionId, long userId) {
         return repo.getByAuctionIdAndUserIdAndStatus(
-                auctionId, userId, ItemStatus.LOCKED
+                auctionId, userId, StakeStatus.LOCKED
         );
     }
 }

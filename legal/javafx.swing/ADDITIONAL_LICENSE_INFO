@@ -24,7 +24,7 @@ Additionally, if you were to remove the Classpath Exception from any of the
 files to which it applies and distribute the result, you would likely be 
 required to license some or all of the other code in that distribution under 
 the GPLv2 as well, and since the GPLv2 is incompatible with the license terms 
-of some items included in the distribution by Oracle, removing the Classpath 
+of some StakeS included in the distribution by Oracle, removing the Classpath
 Exception could therefore effectively compromise your ability to further 
 distribute the package. 
 

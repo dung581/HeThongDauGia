@@ -139,7 +139,7 @@ sequenceDiagram
     actor Seller
     participant View as upload-item.fxml
     participant Controller as UploadItemController
-    participant Service as ItemService
+    participant Service as StakeService
     participant Repo as ItemRepository
     participant DB as Database
     participant Entity as Item
@@ -160,14 +160,14 @@ sequenceDiagram
         Entity-->>Service: item object
 
         Service->>Repo: save(item)
-        Repo->>DB: INSERT INTO items (owner_user_id, begin_price, status) VALUES (?, ?, 'PENDING')
+        Repo->>DB: INSERT INTO StakeS (owner_user_id, begin_price, status) VALUES (?, ?, 'PENDING')
         DB-->>Repo: generated id
         Repo-->>Service: Item (with id)
 
         Service-->>Controller: Item
         Controller->>View: AlertUtil.showSuccess("Item submitted for review")
         Controller->>View: NavigationUtil.switchScene(item-browse.fxml)
-        View-->>Seller: Browse items screen
+        View-->>Seller: Browse StakeS screen
     else validation fails
         Controller->>View: AlertUtil.showError("Please fill all fields")
         View-->>Seller: error alert
@@ -183,16 +183,16 @@ sequenceDiagram
     actor Admin
     participant View as item-browse.fxml
     participant Controller as ItemBrowseController
-    participant Service as ItemService
+    participant Service as StakeService
     participant Repo as ItemRepository
     participant DB as Database
     participant Entity as Item
 
-    Admin->>View: views pending items list
+    Admin->>View: views pending StakeS list
     View->>Controller: initialize()
     Controller->>Service: listPending()
     Service->>Repo: findByStatus(PENDING)
-    Repo->>DB: SELECT * FROM items WHERE status = 'PENDING'
+    Repo->>DB: SELECT * FROM StakeS WHERE status = 'PENDING'
     DB-->>Repo: ResultSet rows
     Repo->>Entity: new Item(...) for each row
     Entity-->>Repo: item objects
@@ -207,14 +207,14 @@ sequenceDiagram
     Controller->>Service: approve(itemId)
 
     Service->>Repo: findById(itemId)
-    Repo->>DB: SELECT * FROM items WHERE id = ?
+    Repo->>DB: SELECT * FROM StakeS WHERE id = ?
     DB-->>Repo: ResultSet row
     Repo->>Entity: new Item(...)
     Entity-->>Repo: item
     Repo-->>Service: Item
 
     Service->>Repo: updateStatus(itemId, PENDING)
-    Repo->>DB: UPDATE items SET status = 'PENDING' WHERE id = ?
+    Repo->>DB: UPDATE StakeS SET status = 'PENDING' WHERE id = ?
     DB-->>Repo: rows affected
     Repo-->>Service: void
 
@@ -225,7 +225,7 @@ sequenceDiagram
     alt Admin clicks Reject
         Controller->>Service: reject(itemId)
         Service->>Repo: updateStatus(itemId, SOLD)
-        Repo->>DB: UPDATE items SET status = 'SOLD' WHERE id = ?
+        Repo->>DB: UPDATE StakeS SET status = 'SOLD' WHERE id = ?
         DB-->>Repo: ok
         Service-->>Controller: void
         Controller->>View: AlertUtil.showSuccess("Item rejected")
@@ -243,7 +243,7 @@ sequenceDiagram
     participant View as session-list.fxml
     participant Controller as SessionListController
     participant SessSvc as SessionService
-    participant ItemSvc as ItemService
+    participant StakeSvc as StakeService
     participant SessRepo as SessionRepository
     participant ItemRepo as ItemRepository
     participant DB as Database
@@ -255,14 +255,14 @@ sequenceDiagram
 
     View->>Controller: onCreateSessionClick(itemId, endTime)
 
-    Controller->>ItemSvc: getById(itemId)
-    ItemSvc->>ItemRepo: findById(itemId)
-    ItemRepo->>DB: SELECT * FROM items WHERE id = ?
+    Controller->>StakeSvc: getById(itemId)
+    StakeSvc->>ItemRepo: findById(itemId)
+    ItemRepo->>DB: SELECT * FROM StakeS WHERE id = ?
     DB-->>ItemRepo: ResultSet
     ItemRepo->>ItemEntity: new Item(...)
     ItemEntity-->>ItemRepo: item
-    ItemRepo-->>ItemSvc: Item
-    ItemSvc-->>Controller: Item
+    ItemRepo-->>StakeSvc: Item
+    StakeSvc-->>Controller: Item
 
     Controller->>SessSvc: createSession(itemId, item.getBeginPrice(), endTime)
 
@@ -383,7 +383,7 @@ sequenceDiagram
         StakeSvc->>StakeEntity: new Stake(userId, itemId, amount=3300000)
         StakeEntity-->>StakeSvc: stake object
         StakeSvc->>StakeRepo: save(stake)
-        StakeRepo->>DB: INSERT INTO stake (user_id, locked_items_id, amount) VALUES (?, ?, ?)
+        StakeRepo->>DB: INSERT INTO stake (user_id, locked_StakeS_id, amount) VALUES (?, ?, ?)
         DB-->>StakeRepo: ok
 
         BidSvc->>BidEntity: new Bid(userId, itemId, price=3300000)
@@ -456,7 +456,7 @@ sequenceDiagram
 
             AutoSvc->>StakeSvc: releaseStake(userId, itemId)
             StakeSvc->>StakeRepo: findByUserAndItem(userId, itemId)
-            StakeRepo->>DB: SELECT * FROM stake WHERE user_id = ? AND locked_items_id = ?
+            StakeRepo->>DB: SELECT * FROM stake WHERE user_id = ? AND locked_StakeS_id = ?
             DB-->>StakeRepo: Stake
             StakeSvc->>AccSvc: releaseFunds(userId, oldAmount)
             AccSvc->>AccRepo: unlockBalance(userId, oldAmount)
@@ -648,11 +648,11 @@ sequenceDiagram
     AccRepo-->>AccSvc: void
     AccSvc-->>StakeSvc: void
 
-    StakeSvc->>StakeEntity: new Stake(lockedItemsId=itemId, userId, amount=3300000)
+    StakeSvc->>StakeEntity: new Stake(lockedStakeSId=itemId, userId, amount=3300000)
     StakeEntity-->>StakeSvc: stake object
 
     StakeSvc->>StakeRepo: save(stake)
-    StakeRepo->>DB: INSERT INTO stake (locked_items_id, user_id, amount) VALUES (?, ?, ?)
+    StakeRepo->>DB: INSERT INTO stake (locked_StakeS_id, user_id, amount) VALUES (?, ?, ?)
     DB-->>StakeRepo: generated id
     StakeRepo-->>StakeSvc: Stake (with id)
 
@@ -682,7 +682,7 @@ sequenceDiagram
     BidSvc->>StakeSvc: releaseStake(outbidUserId, itemId)
 
     StakeSvc->>StakeRepo: findByUserAndItem(outbidUserId, itemId)
-    StakeRepo->>DB: SELECT * FROM stake WHERE user_id = ? AND locked_items_id = ?
+    StakeRepo->>DB: SELECT * FROM stake WHERE user_id = ? AND locked_StakeS_id = ?
     DB-->>StakeRepo: ResultSet row
     StakeRepo-->>StakeSvc: Stake (amount = 3200000)
 
@@ -772,7 +772,7 @@ sequenceDiagram
     participant SessSvc as SessionService
     participant AccSvc as AccountService
     participant StakeSvc as StakeService
-    participant ItemSvc as ItemService
+    participant StakeSvc as StakeService
     participant AccRepo as AccountRepository
     participant StakeRepo as StakeRepository
     participant ItemRepo as ItemRepository
@@ -807,15 +807,15 @@ sequenceDiagram
 
     Controller->>StakeSvc: releaseStake(winnerId, itemId)
     StakeSvc->>StakeRepo: findByUserAndItem(winnerId, itemId)
-    StakeRepo->>DB: SELECT * FROM stake WHERE user_id = ? AND locked_items_id = ?
+    StakeRepo->>DB: SELECT * FROM stake WHERE user_id = ? AND locked_StakeS_id = ?
     DB-->>StakeRepo: Stake
     StakeSvc->>StakeRepo: delete(stakeId)
     StakeRepo->>DB: DELETE FROM stake WHERE id = ?
     DB-->>StakeRepo: ok
 
-    Controller->>ItemSvc: markSold(itemId)
-    ItemSvc->>ItemRepo: updateStatus(itemId, SOLD)
-    ItemRepo->>DB: UPDATE items SET status = 'SOLD' WHERE id = ?
+    Controller->>StakeSvc: markSold(itemId)
+    StakeSvc->>ItemRepo: updateStatus(itemId, SOLD)
+    ItemRepo->>DB: UPDATE StakeS SET status = 'SOLD' WHERE id = ?
     DB-->>ItemRepo: ok
 
     Controller->>View: populate winner details (item name, winning price, session info)
@@ -841,7 +841,7 @@ sequenceDiagram
     SessSvc->>StakeSvc: releaseAll(itemId, excludeUserId=winnerId)
 
     StakeSvc->>StakeRepo: findByItemId(itemId)
-    StakeRepo->>DB: SELECT * FROM stake WHERE locked_items_id = ?
+    StakeRepo->>DB: SELECT * FROM stake WHERE locked_StakeS_id = ?
     DB-->>StakeRepo: ResultSet rows
     StakeRepo-->>StakeSvc: List<Stake> (all non-winner stakes)
 
