@@ -1,7 +1,10 @@
 package Server.service;
 
+import Common.DataBase.DbConnection;
 import Common.DataBase.entities.Account;
 import Common.DataBase.repository.AccountRepository;
+
+import java.sql.Connection;
 
 public class AccountService {
 
