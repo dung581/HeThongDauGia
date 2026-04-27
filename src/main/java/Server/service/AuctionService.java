@@ -3,22 +3,13 @@ package Server.service;
 import Common.DataBase.entities.*;
 import Common.DataBase.repository.AccountRepository;
 import Common.DataBase.repository.AuctionRepository;
-import Common.DataBase.repository.BidRepository;
 import Common.DataBase.repository.RepoUseInService.UserAccountRepository;
-import Common.DataBase.repository.StakeRepository;
 import Common.Enum.AuctionState;
 
-import Common.Enum.ItemStatus;
 import Common.Model.user.UserAccount;
-import Server.service.Exceptions.AuctionClosedException;
-import Server.service.Exceptions.InvalidBidException;
-import Server.service.Exceptions.NotEnoughMoneyException;
-import Server.service.Exceptions.ReturnMessage;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Random;
 public class AuctionService{
 
     private AuctionRepository repo = new AuctionRepository();
