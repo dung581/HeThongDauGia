@@ -21,6 +21,7 @@ import javafx.util.Duration;
 
 import javax.swing.*;
 import java.io.IOException;
+import java.util.Objects;
 
 public class UILoginController {
     private Parent root;
@@ -129,4 +130,5 @@ public class UILoginController {
             registerMessage.setVisible(false);
         }
     }
+
 }
