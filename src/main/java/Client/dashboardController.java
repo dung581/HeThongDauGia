@@ -13,6 +13,12 @@ public class dashboardController {
         switchScene(actionEvent, "/com/template/hellfx/danhSachDauGia.fxml");
     }
 
+    public void Dangabn (ActionEvent actionEvent) throws IOException {
+        switchScene(actionEvent, "/com/template/hellfx/danhSachDauGia.fxml"); //to do
+    }
+
     private void switchScene(ActionEvent actionEvent, String s) {
     }
+
+
 }

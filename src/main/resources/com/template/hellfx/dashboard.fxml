@@ -17,6 +17,7 @@
       <Button layoutX="387.0" layoutY="68.0" mnemonicParsing="false" onAction="#Sandaugia" prefHeight="31.0" prefWidth="157.0" style="-fx-background-color: blue;" text="📦 Đấu giá ngay " />
       <Button layoutX="387.0" layoutY="113.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="157.0" style="-fx-background-color: yellow;" text="Lịch sử đấu giá" />
       <Button layoutX="387.0" layoutY="157.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="157.0" text="Quản lý tài khoản" />
-      <Button layoutX="387.0" layoutY="200.0" mnemonicParsing="false" onAction="#goToLogin" prefHeight="31.0" prefWidth="157.0" style="-fx-background-color: red;" text="Đăng xuất" />
+      <Button layoutX="389.0" layoutY="244.0" mnemonicParsing="false" onAction="#goToLogin" prefHeight="31.0" prefWidth="157.0" style="-fx-background-color: red;" text="Đăng xuất" />
+      <Button layoutX="389.0" layoutY="200.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="157.0" text="Đăng bán" />
    </children>
 </AnchorPane>
