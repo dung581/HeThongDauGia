@@ -56,6 +56,10 @@ public class AuthService {
             throw new PasswordIsBlankException(ReturnMessage.PASSWORD_IS_BLANK);
         }
 
+        if (password.length() < 6 || password.length() > 10) {
+            throw new PasswordIsBlankException(ReturnMessage.PASSWORD_LENGTH_INVALID);
+        }
+
         String normalizedUsername = username.trim();
         if (userRepository.existsByUsername(normalizedUsername)) {
             throw new UsernameAlreadyExistsException(ReturnMessage.USERNAME_ALREADY_EXISTS);
