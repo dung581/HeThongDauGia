@@ -21,7 +21,6 @@ import javafx.util.Duration;
 
 import javax.swing.*;
 import java.io.IOException;
-import java.util.Objects;
 
 public class UILoginController {
     private Parent root;
@@ -54,6 +53,7 @@ public class UILoginController {
         try {
             User user = authService.login(ten, pass);
             JOptionPane.showMessageDialog(null, "Đăng nhập thành công: " + user.getUsername(), "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            switchScene("/com/template/hellfx/danhSachDauGia.fxml");
         } catch (UsernameIsBlankException e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Thông báo", JOptionPane.WARNING_MESSAGE);
         } catch (UserNotFoundException e) {
@@ -61,7 +61,9 @@ public class UILoginController {
         } catch (WrongPasswordException e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Thông báo", JOptionPane.ERROR_MESSAGE);
         } catch (DataAccessException e) {
-            JOptionPane.showMessageDialog(null, "Không thể kết nối database. Kiểm tra SQL Server và db.properties.", "Thông báo", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Không thể kết nối database. Kiểm tra cấu hình kết nối.", "Thông báo", JOptionPane.ERROR_MESSAGE);
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "Không mở được màn hình đấu giá.", "Thông báo", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -117,6 +119,14 @@ public class UILoginController {
         stage.show();
     }
 
+    private void switchScene(String fxmlPath) throws IOException {
+        root = FXMLLoader.load(getClass().getResource(fxmlPath));
+        stage = (Stage) name.getScene().getWindow();
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+    }
+
     private void showRegisterMessage(String message) {
         if (registerMessage != null) {
             registerMessage.setText(message);
@@ -130,5 +140,4 @@ public class UILoginController {
             registerMessage.setVisible(false);
         }
     }
-
 }
