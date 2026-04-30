@@ -1,7 +1,6 @@
 package Common.DataBase.entities;
 
 import Common.Enum.StakeStatus;
-import Common.Enum.StakeStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

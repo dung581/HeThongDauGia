@@ -1,5 +1,5 @@
 package Common.Enum;
 
 public enum StakeStatus {
-    LOST, LOCKED
+    LOST, LOCKED, RELEASED, WON
 }

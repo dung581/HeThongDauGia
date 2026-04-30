@@ -60,8 +60,9 @@ public class ItemRepository {
             if (rs.next()) {
                 Item i = new Item();
                 i.setId(rs.getLong("id"));
+                i.setFullname(rs.getString("fullname")); // thêm phần fullname
                 i.setOwner_user_id(rs.getLong("owner_user_id"));
-                i.setBeginPrice(rs.getLong("begin_price"));
+                i.setBeginPrice(rs.getLong("beginPrice")); // sửa thành beginPrice thay vì begin_price
                 i.setStatus(ItemStatus.valueOf(rs.getString("status")));
                 return i;
             }
@@ -74,10 +75,12 @@ public class ItemRepository {
 
         String sql = """
         UPDATE item
-        SET 
+        SET fullname = ?, 
+            owner_user_id = ?,
+            beginPrice = ?,
             status = ?
         WHERE id = ?
-    """;
+    """; // sửa thành 4 cột (fullname, owner_user_id, beginPrice, status) khớp với số placeholder
 
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -97,6 +100,23 @@ public class ItemRepository {
             throw new RuntimeException(e);
         }
     }
+    // Helper riêng, tiết kiệm kết nối giữa Database
+    public void updateStatus(long id, ItemStatus status){
+        String sql = "UPDATE item SET status = ? WHERE id = ?";
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, status.name());
+            ps.setLong(2, id);
+
+            int rows = ps.executeUpdate();
+            if (rows == 00){
+                throw new RuntimeException("Item not found, id =" + id);
+            }
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }
+    }
+
     public List<Item> getByStatus(ItemStatus status) {
 
         List<Item> list = new ArrayList<>();
@@ -127,6 +147,30 @@ public class ItemRepository {
             throw new RuntimeException(e);
         }
 
+        return list;
+    }
+
+    public List<Item> getByOwnerUserId(long ownerUserId){
+        List<Item> list = new ArrayList<>();
+        String sql = "SELECT * FROM item WHERE owner_user_id = ?";
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, ownerUserId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Item i = new Item();
+                i.setId(rs.getLong("id"));
+                i.setFullname(rs.getString("fullname"));
+                i.setOwner_user_id(rs.getLong("owner_user_id"));
+                i.setBeginPrice(rs.getLong("beginPrice"));
+                i.setStatus(ItemStatus.valueOf(rs.getString("status")));
+                list.add(i);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return list;
     }
 }
