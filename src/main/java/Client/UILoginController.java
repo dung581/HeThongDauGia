@@ -1,6 +1,7 @@
 package Client;
 
 import Common.DataBase.entities.User;
+import Common.Enum.UserRole;
 import Server.service.Exceptions.DataAccessException;
 import Server.service.Exceptions.PasswordIsBlankException;
 import Server.service.Exceptions.UserNotFoundException;
@@ -14,13 +15,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import javax.swing.*;
 import java.io.IOException;
+
+import static jdk.nio.zipfs.ZipFileAttributeView.AttrID.group;
 
 public class UILoginController {
     private Parent root;
@@ -38,9 +40,28 @@ public class UILoginController {
     @FXML
     private TextField regpassagain;
     @FXML
-    private Label welcomeText;
+    private RadioButton Seller;
     @FXML
-    private Label registerMessage;
+    private RadioButton Bidder;
+    @FXML
+    private ToggleGroup group;
+
+    //gan gia tri cho nut radiobutton
+    @FXML
+    public void initialize() {
+        // gán giá trị ẩn
+        Bidder.setUserData(UserRole.BIDDER);
+        Seller.setUserData(UserRole.SELLER);
+    }
+    // hàm lấy role đã chọn
+    public UserRole getRole() {
+        Toggle selected = group.getSelectedToggle();
+        if (selected != null) {
+            UserRole role = (UserRole) selected.getUserData();
+            return role;
+        }
+        return null;
+    }
 
     public UILoginController() {
         authService = new Authservice();
@@ -53,7 +74,12 @@ public class UILoginController {
         try {
             User user = authService.login(ten, pass);
             JOptionPane.showMessageDialog(null, "Đăng nhập thành công: " + user.getUsername(), "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-            switchScene("/com/template/hellfx/danhSachDauGia.fxml");
+            // kiem tra role cua tai khoan
+            UserRole role = user.getRole();
+            if (role == UserRole.BIDDER ){switchScene("/com/template/hellfx/dashboard-Bidder.fxml");
+            } else if (role == UserRole.SELLER) {switchScene("/com/template/hellfx/dashboard - Seller.fxml");
+            } else {switchScene("/com/template/hellfx/dashboard - Admin.fxml");}
+
         } catch (UsernameIsBlankException e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Thông báo", JOptionPane.WARNING_MESSAGE);
         } catch (UserNotFoundException e) {
@@ -79,6 +105,8 @@ public class UILoginController {
         String tenDK = regname.getText();
         String mkhau = regpass.getText();
         String mkhauLai = regpassagain.getText();
+        UserRole role = getRole();
+
 
         clearRegisterMessage();
 
@@ -88,7 +116,7 @@ public class UILoginController {
         }
 
         try {
-            authService.register(tenDK, mkhau);
+            authService.register(tenDK, mkhau,role);
             showRegisterMessage("Đăng ký thành công");
 
             PauseTransition pause = new PauseTransition(Duration.seconds(1.5));

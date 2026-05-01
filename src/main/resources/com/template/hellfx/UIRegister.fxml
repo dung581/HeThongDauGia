@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -18,12 +20,18 @@
       <TextField fx:id="regname" layoutX="350.0" layoutY="100.0" promptText="Tên Đăng Nhập" style="-fx-background-color: white;" />
       <TextField fx:id="regpass" layoutX="350.0" layoutY="150.0" promptText="Mật Khẩu" style="-fx-background-color: white;" />
       <TextField fx:id="regpassagain" layoutX="350.0" layoutY="200.0" promptText="Nhập Lại Mật Khẩu" style="-fx-background-color: white;" />
-      <Button layoutX="350.0" layoutY="250.0" mnemonicParsing="false" onAction="#Register2" prefHeight="30.0" prefWidth="142.0" text="Register" />
+      <Button layoutX="350.0" layoutY="297.0" mnemonicParsing="false" onAction="#Register2" prefHeight="30.0" prefWidth="142.0" text="Register" />
       <Text layoutX="350.0" layoutY="57.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Đăng kí tài khoản" wrappingWidth="149.0">
          <font>
             <Font size="18.0" />
          </font>
       </Text>
       <Button layoutX="52.0" layoutY="37.0" mnemonicParsing="false" onAction="#goToLogin" text="Trở Lại" />
+      <RadioButton fx:id="Seller" layoutX="350.0" layoutY="237.0" mnemonicParsing="false" text="Seller">
+         <toggleGroup>
+            <ToggleGroup fx:id="A" />
+         </toggleGroup>
+      </RadioButton>
+      <RadioButton fx:id="Bidder" layoutX="350.0" layoutY="263.0" mnemonicParsing="false" text="Bidder" toggleGroup="$A" />
    </children>
 </AnchorPane>

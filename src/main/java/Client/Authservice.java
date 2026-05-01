@@ -18,8 +18,8 @@ public class Authservice {
         return authService.login(username, password);
     }
 
-    public User register(String username, String password)
+    public User register(String username, String password , UserRole role)
             throws UsernameIsBlankException, UsernameAlreadyExistsException, PasswordIsBlankException {
-        return authService.register(username, password, username, UserRole.BIDDER);
+        return authService.register(username, password, username, role);    //sua : thay vi mac dinh la bidder thi co the chon bidder va seller
     }
 }

@@ -13,12 +13,16 @@ public class dashboardController {
         switchScene(actionEvent, "/com/template/hellfx/danhSachDauGia.fxml");
     }
 
-    public void Dangabn (ActionEvent actionEvent) throws IOException {
-        switchScene(actionEvent, "/com/template/hellfx/danhSachDauGia.fxml"); //to do
+    public void dangban (ActionEvent actionEvent) throws IOException {
+        switchScene(actionEvent, "/com/template/hellfx/uploadItem.fxml");
+    }
+    public void quanlytk (ActionEvent actionEvent) throws IOException {
+        switchScene(actionEvent, "/com/template/hellfx/danhSachDauGia.fxml");
     }
 
     private void switchScene(ActionEvent actionEvent, String s) {
     }
+
 
 
 }
