@@ -113,4 +113,5 @@ public abstract class Item extends Entity {
 
     /** Mỗi subclass phải trả về loại cụ thể (ART, VEHICLE, ELECTRONICS). */
     public abstract String getItemType();
+    public abstract String getmota();
 }

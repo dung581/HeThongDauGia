@@ -44,4 +44,6 @@ public class Vehicle extends Item {
     public String getItemType() {
         return "VEHICLE";
     }
+    public String getmota(){return
+              " | Động cơ: " + engineType + " | Dặm: " + mileage + " | Biển: " + licensePlate;}
 }

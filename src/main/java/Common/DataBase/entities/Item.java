@@ -22,8 +22,6 @@ public class Item {
     private ItemType itemType;
     private long minIncrement;
     private ItemStatus status;
+    private String mota;
 
-    public String getName() {
-        return fullname;
-    }
 }

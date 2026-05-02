@@ -1,5 +1,6 @@
 package Client.util;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -21,7 +22,7 @@ public class NavigationUtil {
     /**
      * Chuyển màn hình chỉ bằng tên file FXML (Chuẩn theo Diagram 01, 02, 05...)
      */
-    public static void switchScene(String fxmlName) {
+    public static void switchScene(ActionEvent actionEvent, String fxmlName) {
         if (mainStage == null) {
             AlertUtil.showError("Lỗi hệ thống: Chưa khởi tạo Main Stage!");
             return;

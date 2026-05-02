@@ -19,6 +19,9 @@ public class dashboardController {
     public void quanlytk (ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/danhSachDauGia.fxml");
     }
+    public void duyetsp (ActionEvent actionEvent) throws IOException {
+        switchScene(actionEvent, "/com/template/hellfx/ApproveItem.fxml");
+    }
 
     private void switchScene(ActionEvent actionEvent, String s) {
     }

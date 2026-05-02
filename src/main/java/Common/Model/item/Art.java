@@ -20,4 +20,9 @@ public class Art extends Item {
     public String getItemType() {
         return "ART";
     }
+
+    //lay mo ta tranh
+    public String getmota() {
+        return "Tác giả: " + getArtistName() + " | Tên tranh: " + getItemName();
+    }
 }

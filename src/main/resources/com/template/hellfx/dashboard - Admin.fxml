@@ -14,9 +14,10 @@
          </image>
       </ImageView>
       <Line endX="40.0" endY="352.0" layoutX="280.0" layoutY="48.0" startX="40.0" startY="-48.0" />
-      <Button layoutX="387.0" layoutY="110.0" mnemonicParsing="false" onAction="#Sandaugia" prefHeight="31.0" prefWidth="157.0" style="-fx-background-color: blue;" text="📦 Đấu giá ngay " />
+      <Button layoutX="387.0" layoutY="67.0" mnemonicParsing="false" onAction="#Sandaugia" prefHeight="31.0" prefWidth="157.0" style="-fx-background-color: blue;" text="📦 Đấu giá ngay " />
       <Button layoutX="387.0" layoutY="157.0" mnemonicParsing="false" onAction="#quanlytk" prefHeight="31.0" prefWidth="157.0" text="Quản lý tài khoản" />
       <Button layoutX="389.0" layoutY="244.0" mnemonicParsing="false" onAction="#goToLogin" prefHeight="31.0" prefWidth="157.0" style="-fx-background-color: red;" text="Đăng xuất" />
       <Button layoutX="389.0" layoutY="200.0" mnemonicParsing="false" onAction="#dangban" prefHeight="31.0" prefWidth="157.0" text="Đăng bán" />
+      <Button layoutX="389.0" layoutY="110.0" mnemonicParsing="false" onAction="#duyetsp" prefHeight="31.0" prefWidth="157.0" style="-fx-background-color: green;" text="Duyệt Sản Phẩm" />
    </children>
 </AnchorPane>

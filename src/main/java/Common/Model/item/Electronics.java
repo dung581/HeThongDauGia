@@ -20,4 +20,9 @@ public class Electronics extends Item {
     public String getItemType() {
         return "ELECTRONICS";
     }
+
+    // lay mo ta sp
+    public String getmota() {
+        return "Bảo hành: " + getWarrantyMonths() + " tháng";
+    }
 }
