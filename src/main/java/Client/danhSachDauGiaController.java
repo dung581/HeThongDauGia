@@ -1,24 +1,25 @@
 package Client;
 
-import Common.DataBase.entities.Bid;
 import Common.DataBase.entities.Item;
-import Common.DataBase.repository.AuctionRepository;
+import Common.Enum.UserRole;
 import Common.Model.user.UserAccount;
-import Server.service.AuctionService;
 import Server.service.BidService;
 import Server.service.ItemService;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 import java.io.IOException;
-
 
 public class danhSachDauGiaController {
     @FXML
@@ -38,9 +39,9 @@ public class danhSachDauGiaController {
     @FXML
     private TextField tiencuoc;
 
-    private ItemService itemService = new ItemService();
-    private BidService bidService = new BidService();
-    // tu dong chay khi mo scene duyet
+    private final ItemService itemService = new ItemService();
+    private final BidService bidService = new BidService();
+
     @FXML
     public void initialize() {
         colId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getId()));
@@ -49,70 +50,69 @@ public class danhSachDauGiaController {
         colDescription.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDescription()));
         colStatus.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus().toString()));
         colDetail.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getMota()));
-
         loadData();
     }
+
     public void loadData() {
-        table.getItems().setAll(itemService.listPending());
+        table.getItems().setAll(itemService.listApproved());
     }
 
-    public void trolaiA(ActionEvent actionEvent) throws IOException {
-        switchScene(actionEvent, "/com/template/hellfx/dashbroad - Admin.fxml");
+        public void trolai(ActionEvent actionEvent) throws IOException {
+        UserRole role = UserAccount.getCurrentRole();
+        if (role == UserRole.ADMIN) {
+            switchScene(actionEvent, "/com/template/hellfx/dashboard - Admin.fxml");
+        } else if (role == UserRole.SELLER) {
+            switchScene(actionEvent, "/com/template/hellfx/dashboard - Seller.fxml");
+        } else {
+            switchScene(actionEvent, "/com/template/hellfx/dashboard-Bidder.fxml");
+        }
     }
-    public void trolaiB(ActionEvent actionEvent) throws IOException {
-        switchScene(actionEvent, "/com/template/hellfx/dashbroad-Bidder.fxml");
-    }
-    public void trolaiS(ActionEvent actionEvent) throws IOException {
-        switchScene(actionEvent, "/com/template/hellfx/dashbroad - Seller.fxml");
-    }
-
-    public void submit(){
-        int tiendaugia = Integer.parseInt(tiencuoc.getText());
-        long accountid = UserAccount.getUserId(); // --> lay id nguoi đặt giá
-
-        Item seclected = table.getSelectionModel().getSelectedItem();
-        long IteamId = seclected.getId();
-        bidService.placeBid(accountid , IteamId,tiendaugia);
-
-    }
-
-    private void switchScene(ActionEvent actionEvent, String s) {
-    }
-
-    public class SessionListController {
-
-        @FXML
-        private VBox sessionsContainer;
-
-        // Hàm này tự chạy khi load UI
-        @FXML
-        public void initialize() {
-            addOneItem(); // test thêm 1 item
+    public void submit() {
+        UserRole role = UserAccount.getCurrentRole();
+        if (role == UserRole.SELLER) {
+            showWarning("Seller khong duoc mua/dau gia.");
+            return;
         }
 
-
-        // 👉 Hàm tạo 1 item
-        private HBox createItem(String name, String price) {
-            Label nameLabel = new Label(name);
-            nameLabel.setStyle("-fx-font-weight: bold;");
-
-            Label priceLabel = new Label(price);
-
-            Button viewBtn = new Button("Xem");
-
-            Region spacer = new Region();
-            HBox.setHgrow(spacer, Priority.ALWAYS);
-
-            HBox item = new HBox(10, nameLabel, spacer, priceLabel, viewBtn);
-            item.setStyle("-fx-background-color: #eaf2f8; -fx-padding: 10; -fx-background-radius: 8;");
-
-            return item;
+        Item selected = table.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showWarning("Vui long chon san pham truoc khi dat gia.");
+            return;
         }
 
-        // 👉 Hàm thêm 1 item vào VBox
-        public void addOneItem() {
-            HBox item = createItem("Session #101", "1.200.000đ");
-            sessionsContainer.getChildren().add(item);
+        try {
+            int tiendaugia = Integer.parseInt(tiencuoc.getText().trim());
+            long accountid = UserAccount.getUserId();
+            bidService.placeBid(accountid, selected.getId(), tiendaugia);
+            showInfo("Dat gia thanh cong.");
+        } catch (NumberFormatException e) {
+            showWarning("So tien dat gia khong hop le.");
+        } catch (Exception e) {
+            showWarning("Dat gia that bai: " + e.getMessage());
         }
+    }
+
+    private void showWarning(String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Thong bao");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showInfo(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Thong bao");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(root));
+        stage.show();
     }
 }
+

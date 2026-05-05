@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleGroup?>
@@ -17,21 +19,29 @@
             <Image url="@hinh-meme-meo-dap-mat-na.jpg" />
          </image>
       </ImageView>
-      <TextField fx:id="regname" layoutX="350.0" layoutY="100.0" promptText="Tên Đăng Nhập" style="-fx-background-color: white;" />
-      <TextField fx:id="regpass" layoutX="350.0" layoutY="150.0" promptText="Mật Khẩu" style="-fx-background-color: white;" />
-      <TextField fx:id="regpassagain" layoutX="350.0" layoutY="200.0" promptText="Nhập Lại Mật Khẩu" style="-fx-background-color: white;" />
+      <TextField fx:id="regname" layoutX="350.0" layoutY="100.0" promptText="Ten Dang Nhap" style="-fx-background-color: white;" />
+
+      <PasswordField fx:id="regpassHidden" layoutX="350.0" layoutY="150.0" prefWidth="142.0" promptText="Mat Khau" style="-fx-background-color: white;" />
+      <TextField fx:id="regpassVisible" layoutX="350.0" layoutY="150.0" prefWidth="142.0" promptText="Mat Khau" style="-fx-background-color: white;" visible="false" managed="false" />
+      <Button layoutX="492.0" layoutY="150.0" mnemonicParsing="false" onAction="#toggleRegisterPassword" prefHeight="26.0" prefWidth="26.0" text="👁" />
+
+      <PasswordField fx:id="regpassagainHidden" layoutX="350.0" layoutY="200.0" prefWidth="142.0" promptText="Nhap Lai Mat Khau" style="-fx-background-color: white;" />
+      <TextField fx:id="regpassagainVisible" layoutX="350.0" layoutY="200.0" prefWidth="142.0" promptText="Nhap Lai Mat Khau" style="-fx-background-color: white;" visible="false" managed="false" />
+      <Button layoutX="492.0" layoutY="200.0" mnemonicParsing="false" onAction="#toggleRegisterPasswordAgain" prefHeight="26.0" prefWidth="26.0" text="👁" />
+
       <Button layoutX="350.0" layoutY="297.0" mnemonicParsing="false" onAction="#Register2" prefHeight="30.0" prefWidth="142.0" text="Register" />
-      <Text layoutX="350.0" layoutY="57.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Đăng kí tài khoản" wrappingWidth="149.0">
+      <Text layoutX="350.0" layoutY="57.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Dang ki tai khoan" wrappingWidth="149.0">
          <font>
             <Font size="18.0" />
          </font>
       </Text>
-      <Button layoutX="52.0" layoutY="37.0" mnemonicParsing="false" onAction="#goToLogin" text="Trở Lại" />
+      <Button layoutX="52.0" layoutY="37.0" mnemonicParsing="false" onAction="#goToLogin" text="Tro Lai" />
       <RadioButton fx:id="Seller" layoutX="350.0" layoutY="237.0" mnemonicParsing="false" text="Seller">
          <toggleGroup>
-            <ToggleGroup fx:id="A" />
+            <ToggleGroup fx:id="group" />
          </toggleGroup>
       </RadioButton>
-      <RadioButton fx:id="Bidder" layoutX="350.0" layoutY="263.0" mnemonicParsing="false" text="Bidder" toggleGroup="$A" />
+      <RadioButton fx:id="Bidder" layoutX="350.0" layoutY="263.0" mnemonicParsing="false" text="Bidder" toggleGroup="$group" />
+      <Label fx:id="registerMessage" layoutX="350.0" layoutY="334.0" prefHeight="24.0" prefWidth="220.0" textFill="#0f5132" visible="false" />
    </children>
 </AnchorPane>
