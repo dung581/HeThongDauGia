@@ -32,7 +32,7 @@
          <VBox alignment="CENTER" spacing="14.0" prefWidth="280.0">
             <children>
                <Button mnemonicParsing="false" onAction="#Sandaugia" prefHeight="36.0" prefWidth="200.0" style="-fx-background-color: blue; -fx-text-fill: white;" text="Sàn đấu giá" />
-               <Button mnemonicParsing="false" onAction="#duyetsp" prefHeight="36.0" prefWidth="200.0" style="-fx-background-color: green; -fx-text-fill: black;" text="Duyệt sản phẩm" />
+               <Button mnemonicParsing="false" onAction="#duyetsp" prefHeight="36.0" prefWidth="200.0" style="-fx-background-color: green; -fx-text-fill: black;" text="Quản lí sản phẩm" />
                <Button mnemonicParsing="false" onAction="#quanlytk" prefHeight="36.0" prefWidth="200.0" text="Quản lí tài khoản" />
                <Button mnemonicParsing="false" onAction="#goToLogin" prefHeight="36.0" prefWidth="200.0" style="-fx-background-color: red; -fx-text-fill: white;" text="Đăng xuất" />
             </children>
@@ -40,3 +40,4 @@
       </HBox>
    </center>
 </BorderPane>
+

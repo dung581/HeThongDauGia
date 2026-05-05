@@ -4,13 +4,15 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
 <BorderPane style="-fx-background-color: skyblue;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Client.ApproveController">
 
     <top>
-        <Label style="-fx-font-size: 18px; -fx-padding: 10;" text="Duyệt sản phẩm" BorderPane.alignment="CENTER" />
+        <Label style="-fx-font-size: 18px; -fx-padding: 10;" text="Quản lí sản phẩm" BorderPane.alignment="CENTER" />
     </top>
 
     <center>
@@ -18,20 +20,33 @@
             <columns>
                 <TableColumn fx:id="colId" prefWidth="70" text="ID" />
                 <TableColumn fx:id="colName" prefWidth="122.0" text="Tên" />
-                <TableColumn fx:id="colPrice" prefWidth="133.0" text="Giá" />
-                <TableColumn fx:id="colDescription" prefWidth="191.0" text="Thông tin" />
-                <TableColumn fx:id="colDetail" prefWidth="174.0" text="Mô tả" />
-            <TableColumn fx:id="colStatus" prefWidth="120.0" text="Trạng thái" />
+                <TableColumn fx:id="colPrice" prefWidth="100.0" text="Giá" />
+                <TableColumn fx:id="colDescription" prefWidth="160.0" text="Thông tin" />
+                <TableColumn fx:id="colDetail" prefWidth="160.0" text="Mô tả" />
+                <TableColumn fx:id="colStatus" prefWidth="120.0" text="Trạng thái" />
             </columns>
         </TableView>
     </center>
 
     <bottom>
-        <HBox alignment="CENTER" spacing="10" style="-fx-padding: 10;">
-         <Button mnemonicParsing="false" onAction="#loadData" text="Tải lại" />
-            <Button onAction="#duyetsp" text="Duyệt" />
-         <Button mnemonicParsing="false" onAction="#trolai" text="Trở lại" />
-        </HBox>
+        <VBox spacing="8" style="-fx-padding: 10;">
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <children>
+                        <Label text="Lý do từ chối:" />
+                        <TextField fx:id="rejectReason" prefWidth="420.0" promptText="Nhập lý do trả về cho seller" />
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER" spacing="10">
+                    <children>
+                        <Button mnemonicParsing="false" onAction="#loadData" text="Tải lại" />
+                        <Button onAction="#duyetsp" text="Duyệt" />
+                        <Button onAction="#tuchoi" text="Xóa/Từ chối" />
+                        <Button mnemonicParsing="false" onAction="#trolai" text="Trở lại" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
     </bottom>
 
 </BorderPane>

@@ -1,6 +1,7 @@
 package Client;
 
 import Common.DataBase.entities.Item;
+import Common.Model.user.UserAccount;
 import Server.service.ItemService;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -18,7 +19,14 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class ApproveController {
+public class SellerProductController {
+
+    @FXML
+    private TextField itemName;
+    @FXML
+    private TextField itemPrice;
+    @FXML
+    private TextField itemDescription;
 
     @FXML
     private TableView<Item> table;
@@ -29,13 +37,9 @@ public class ApproveController {
     @FXML
     private TableColumn<Item, Long> colPrice;
     @FXML
-    private TableColumn<Item, String> colDetail;
-    @FXML
-    private TableColumn<Item, String> colDescription;
-    @FXML
     private TableColumn<Item, String> colStatus;
     @FXML
-    private TextField rejectReason;
+    private TableColumn<Item, String> colReason;
 
     private final ItemService itemService = new ItemService();
 
@@ -44,58 +48,49 @@ public class ApproveController {
         colId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getId()));
         colName.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getFullname()));
         colPrice.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getBeginPrice()));
-        colDescription.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDescription()));
-        colStatus.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus().toString()));
-        colDetail.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getMota()));
-
-        loadData();
+        colStatus.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus().name()));
+        colReason.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getMota() == null ? "" : data.getValue().getMota()));
+        loadMyItems();
     }
 
-    public void loadData() {
-        table.getItems().setAll(itemService.listPending());
+    public void loadMyItems() {
+        table.getItems().setAll(itemService.listByOwner(UserAccount.getUserId()));
     }
 
-    public void duyetsp() {
-        Item selected = table.getSelectionModel().getSelectedItem();
-
-        if (selected == null) {
-            showWarning("Chua chon san pham.");
-            return;
-        }
-
+    public void submitItem() {
         try {
-            itemService.approve(selected.getId());
-            showInfo("Da duyet san pham ID: " + selected.getId());
-            loadData();
-        } catch (Exception e) {
-            showWarning("Duyet that bai: " + e.getMessage());
-        }
-    }
+            String name = itemName.getText() == null ? "" : itemName.getText().trim();
+            String desc = itemDescription.getText() == null ? "" : itemDescription.getText().trim();
+            long price = Long.parseLong(itemPrice.getText().trim());
 
-    public void tuchoi() {
-        Item selected = table.getSelectionModel().getSelectedItem();
-
-        if (selected == null) {
-            showWarning("Chua chon san pham.");
-            return;
-        }
-
-        String reason = rejectReason == null ? "" : rejectReason.getText();
-
-        try {
-            itemService.reject(selected.getId(), reason);
-            showInfo("Da tu choi/xoa khoi danh sach duyet. Seller se nhan duoc ly do.");
-            if (rejectReason != null) {
-                rejectReason.clear();
+            if (name.isEmpty()) {
+                showWarning("Vui long nhap ten san pham.");
+                return;
             }
-            loadData();
+
+            Item item = new Item();
+            item.setFullname(name);
+            item.setOwner_user_id(UserAccount.getUserId());
+            item.setDescription(desc);
+            item.setBeginPrice(price);
+            item.setMota("Cho duyet");
+
+            itemService.upload(item);
+            showInfo("Da gui yeu cau dang ban. Cho admin duyet.");
+
+            itemName.clear();
+            itemPrice.clear();
+            itemDescription.clear();
+            loadMyItems();
+        } catch (NumberFormatException e) {
+            showWarning("Gia khong hop le.");
         } catch (Exception e) {
-            showWarning("Tu choi that bai: " + e.getMessage());
+            showWarning("Dang ban that bai: " + e.getMessage());
         }
     }
 
-    public void trolai(ActionEvent actionEvent) throws IOException {
-        switchScene(actionEvent, "/com/template/hellfx/dashboard - Admin.fxml");
+    public void backToSellerDashboard(ActionEvent actionEvent) throws IOException {
+        switchScene(actionEvent, "/com/template/hellfx/dashboard - Seller.fxml");
     }
 
     private void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {

@@ -35,8 +35,7 @@ public class dashboardController {
             showWarning("Bidder chi duoc dau gia, khong duoc dang ban.");
             return;
         }
-        // project hien tai chua co man hinh dang ban rieng, tam thoi vao thong tin tai khoan
-        switchScene(actionEvent, "/com/template/hellfx/account.fxml");
+        switchScene(actionEvent, "/com/template/hellfx/SellerProducts.fxml");
     }
 
     public void quanlytk(ActionEvent actionEvent) throws IOException {
