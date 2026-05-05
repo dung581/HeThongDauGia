@@ -20,4 +20,8 @@ import lombok.Setter;
         public long getAvailableBalance() {
             return balance - lockedBalance;
         }
+
+        public static long getUserId() {
+            return getUserId();
+        }
     }

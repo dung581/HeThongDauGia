@@ -30,6 +30,8 @@ public class UILoginController {
     private final Authservice authService;
 
     @FXML
+    private Label registerMessage;
+    @FXML
     private TextField name;
     @FXML
     private TextField password;
