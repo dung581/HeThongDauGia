@@ -10,13 +10,13 @@ public class UpLoatItemController {
 
     //nut cua admin
     public void ArtAdmin(ActionEvent actionEvent) throws IOException {
-        switchScene(actionEvent, "/com/template/hellfx/ART-A.fxml");
-    }
-    public void ElectronicsAdmin(ActionEvent actionEvent) throws IOException {
-        switchScene(actionEvent, "/com/template/hellfx/Electronics-A.fxml");
-    }
-    public void VehicleAdmin(ActionEvent actionEvent) throws IOException {
-        switchScene(actionEvent, "/com/template/hellfx/Vehicle-A.fxml");
+            switchScene(actionEvent, "/com/template/hellfx/ART-A.fxml");
+        }
+        public void ElectronicsAdmin(ActionEvent actionEvent) throws IOException {
+            switchScene(actionEvent, "/com/template/hellfx/Electronics-A.fxml");
+        }
+        public void VehicleAdmin(ActionEvent actionEvent) throws IOException {
+            switchScene(actionEvent, "/com/template/hellfx/Vehicle-A.fxml");
     }
     public void trolaiAdmin(ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/dashbroad - Admin.fxml");

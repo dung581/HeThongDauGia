@@ -59,16 +59,16 @@ public class ApproveController {
         Item selected = table.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
-            showWarning("Chua chon san pham.");
+            showWarning("Chưa chọn sản phẩm.");
             return;
         }
 
         try {
             itemService.approve(selected.getId());
-            showInfo("Da duyet san pham ID: " + selected.getId());
+            showInfo("Đã duyệt sản phẩm ID: " + selected.getId());
             loadData();
         } catch (Exception e) {
-            showWarning("Duyet that bai: " + e.getMessage());
+            showWarning("Duyệt thất bại: " + e.getMessage());
         }
     }
 
@@ -76,7 +76,7 @@ public class ApproveController {
         Item selected = table.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
-            showWarning("Chua chon san pham.");
+            showWarning("Chưa chọn sản phẩm.");
             return;
         }
 
@@ -84,13 +84,13 @@ public class ApproveController {
 
         try {
             itemService.reject(selected.getId(), reason);
-            showInfo("Da tu choi/xoa khoi danh sach duyet. Seller se nhan duoc ly do.");
+            showInfo("Đã từ chối/xóa khỏi danh sách duyệt. Seller sẽ nhận được lý do.");
             if (rejectReason != null) {
                 rejectReason.clear();
             }
             loadData();
         } catch (Exception e) {
-            showWarning("Tu choi that bai: " + e.getMessage());
+            showWarning("Từ chối thất bại: " + e.getMessage());
         }
     }
 
@@ -107,7 +107,7 @@ public class ApproveController {
 
     private void showWarning(String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Thong bao");
+        alert.setTitle("Thông báo");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
@@ -115,7 +115,7 @@ public class ApproveController {
 
     private void showInfo(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Thong bao");
+        alert.setTitle("Thông báo");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();

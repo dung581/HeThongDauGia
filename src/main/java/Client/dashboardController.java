@@ -23,7 +23,7 @@ public class dashboardController {
     public void Sandaugia(ActionEvent actionEvent) throws IOException {
         UserRole role = UserAccount.getCurrentRole();
         if (role == UserRole.SELLER) {
-            showWarning("Seller chi duoc ban, khong duoc dau gia mua.");
+            showWarning("Seller chỉ được bán, không được đấu giá mua.");
             return;
         }
         switchScene(actionEvent, "/com/template/hellfx/danhSachDauGia.fxml");
@@ -32,7 +32,7 @@ public class dashboardController {
     public void dangban(ActionEvent actionEvent) throws IOException {
         UserRole role = UserAccount.getCurrentRole();
         if (role == UserRole.BIDDER) {
-            showWarning("Bidder chi duoc dau gia, khong duoc dang ban.");
+            showWarning("Bidder chỉ được đấu giá, không được đăng bán.");
             return;
         }
         switchScene(actionEvent, "/com/template/hellfx/SellerProducts.fxml");
@@ -48,7 +48,7 @@ public class dashboardController {
 
     private void showWarning(String msg) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Thong bao");
+        alert.setTitle("Thông báo");
         alert.setHeaderText(null);
         alert.setContentText(msg);
         alert.showAndWait();
@@ -58,8 +58,8 @@ public class dashboardController {
         URL resource = getClass().getResource(fxmlPath);
         if (resource == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Loi dieu huong");
-            alert.setHeaderText("Khong tim thay man hinh");
+            alert.setTitle("Lỗi điều hướng");
+            alert.setHeaderText("Không tìm thấy màn hình");
             alert.setContentText(fxmlPath);
             alert.showAndWait();
             return;

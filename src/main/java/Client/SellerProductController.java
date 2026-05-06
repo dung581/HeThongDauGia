@@ -64,7 +64,7 @@ public class SellerProductController {
             long price = Long.parseLong(itemPrice.getText().trim());
 
             if (name.isEmpty()) {
-                showWarning("Vui long nhap ten san pham.");
+                showWarning("Vui lòng nhập tên sản phẩm.");
                 return;
             }
 
@@ -73,19 +73,19 @@ public class SellerProductController {
             item.setOwner_user_id(UserAccount.getUserId());
             item.setDescription(desc);
             item.setBeginPrice(price);
-            item.setMota("Cho duyet");
+            item.setMota("Chờ duyệt");
 
             itemService.upload(item);
-            showInfo("Da gui yeu cau dang ban. Cho admin duyet.");
+            showInfo("Đã gửi yêu cầu đăng bán. Chờ admin duyệt.");
 
             itemName.clear();
             itemPrice.clear();
             itemDescription.clear();
             loadMyItems();
         } catch (NumberFormatException e) {
-            showWarning("Gia khong hop le.");
+            showWarning("Giá không hợp lệ.");
         } catch (Exception e) {
-            showWarning("Dang ban that bai: " + e.getMessage());
+            showWarning("Đăng bán thất bại: " + e.getMessage());
         }
     }
 
@@ -102,7 +102,7 @@ public class SellerProductController {
 
     private void showWarning(String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Thong bao");
+        alert.setTitle("Thông báo");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
@@ -110,7 +110,7 @@ public class SellerProductController {
 
     private void showInfo(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Thong bao");
+        alert.setTitle("Thông báo");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
