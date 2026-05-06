@@ -8,7 +8,7 @@ import java.util.List;
 public class AutoBidService {
 
     private AutoBidRepository repo = new AutoBidRepository();
-    private BidService bidService = new BidService();
+//    private BidService bidService = new BidService();
 
     public Autobid configure(long userId, long itemId, long maxPrice) {
         Autobid ab = new Autobid();
@@ -30,7 +30,7 @@ public class AutoBidService {
     }
 
     public void trigger(long itemId, long currentPrice) {
-
+        BidService bidService = new BidService();
         List<Autobid> list = repo.getActiveByItemId(itemId);
 
         for (Autobid ab : list) {

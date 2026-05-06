@@ -40,8 +40,13 @@ public class danhSachDauGiaController {
     private TextField tiencuoc;
 
     private final ItemService itemService = new ItemService();
-    private final BidService bidService = new BidService();
+    private final BidService bidService;
 
+    {
+        bidService = new BidService();
+    }
+
+    //gan du lieu cho bang
     @FXML
     public void initialize() {
         colId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getId()));
@@ -49,10 +54,9 @@ public class danhSachDauGiaController {
         colPrice.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getBeginPrice()));
         colDescription.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDescription()));
         colStatus.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus().toString()));
-        colDetail.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getMota()));
         loadData();
     }
-
+    //load item bang
     public void loadData() {
         table.getItems().setAll(itemService.listApproved());
     }
