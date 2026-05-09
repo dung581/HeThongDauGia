@@ -52,7 +52,7 @@ public class ApproveController {
     }
 
     public void loadData() {
-        table.getItems().setAll(itemService.listPending());
+        table.getItems().setAll(itemService.listApproved());
     }
 
     public void duyetsp() {

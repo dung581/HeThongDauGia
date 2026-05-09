@@ -7,19 +7,19 @@ import Server.service.BidService;
 import Server.service.ItemService;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+
+import static Client.util.NavigationUtil.switchScene;
 
 public class danhSachDauGiaController {
     @FXML
@@ -31,13 +31,21 @@ public class danhSachDauGiaController {
     @FXML
     private TableColumn<Item, Long> colPrice;
     @FXML
-    private TableColumn<Item, String> colDetail;
-    @FXML
     private TableColumn<Item, String> colDescription;
     @FXML
     private TableColumn<Item, String> colStatus;
     @FXML
+    private TableColumn<Item, String> colTime;
+    @FXML
+    private TableColumn<Item, String> colWinner;
+    @FXML
     private TextField tiencuoc;
+    @FXML private Label idLabel;
+    @FXML private Label tenLabel;
+    @FXML private Label giaLabel;
+    @FXML private Label trangthaiLabel;
+    @FXML private Label thongtinLabel;
+
 
     private final ItemService itemService = new ItemService();
     private final BidService bidService;
@@ -55,7 +63,26 @@ public class danhSachDauGiaController {
         colDescription.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDescription()));
         colStatus.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus().toString()));
         loadData();
-    }
+
+
+        idLabel.setVisible(false);
+        tenLabel.setVisible(false);
+        giaLabel.setVisible(false);
+        trangthaiLabel.setVisible(false);
+        thongtinLabel.setVisible(false);
+
+
+        table.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldSelection, newSelection) -> {
+                    if (newSelection != null) {
+                        idLabel.setText(String.valueOf(newSelection.getId()));
+                        tenLabel.setText(newSelection.getFullname());
+                        giaLabel.setText(String.valueOf(newSelection.getBeginPrice()));
+                        trangthaiLabel.setText(newSelection.getStatus().toString());
+                        thongtinLabel.setText(newSelection.getDescription());
+                    }
+                ;})
+    ;}
     //load item bang
     public void loadData() {
         table.getItems().setAll(itemService.listApproved());
