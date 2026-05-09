@@ -1,4 +1,4 @@
-package Client;
+package Server.Controller;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

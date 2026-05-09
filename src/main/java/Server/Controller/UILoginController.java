@@ -1,4 +1,4 @@
-package Client;
+package Server.Controller;
 
 import Common.DataBase.entities.User;
 import Common.Enum.UserRole;

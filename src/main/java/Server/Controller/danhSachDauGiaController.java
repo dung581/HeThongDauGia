@@ -1,8 +1,12 @@
-package Client;
+package Server.Controller;
 
+import Common.DataBase.entities.Auction;
 import Common.DataBase.entities.Item;
+import Common.DataBase.repository.ItemRepository;
+import Common.Enum.AuctionState;
 import Common.Enum.UserRole;
 import Common.Model.user.UserAccount;
+import Server.service.AuctionService;
 import Server.service.BidService;
 import Server.service.ItemService;
 import javafx.beans.property.SimpleObjectProperty;
@@ -18,77 +22,96 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 import static Client.util.NavigationUtil.switchScene;
 
 public class danhSachDauGiaController {
     @FXML
-    private TableView<Item> table;
+    private TableView<Auction> table;
+
     @FXML
-    private TableColumn<Item, Long> colId;
+    private TableColumn<Auction, Long> colId;
+
     @FXML
-    private TableColumn<Item, String> colName;
+    private TableColumn<Auction, Long> colItemId;
+
     @FXML
-    private TableColumn<Item, Long> colPrice;
+    private TableColumn<Auction, Long> colCurrentUserId;
+
     @FXML
-    private TableColumn<Item, String> colDescription;
+    private TableColumn<Auction, Long> colCurrentPrice;
+
     @FXML
-    private TableColumn<Item, String> colStatus;
+    private TableColumn<Auction, LocalDateTime> colStartTime;
+
     @FXML
-    private TableColumn<Item, String> colTime;
+    private TableColumn<Auction, LocalDateTime> colEndTime;
+
     @FXML
-    private TableColumn<Item, String> colWinner;
+    private TableColumn<Auction, AuctionState> colState;
+
     @FXML
-    private TextField tiencuoc;
+    private TableColumn<Auction, String> colItemName;
+
+
     @FXML private Label idLabel;
     @FXML private Label tenLabel;
     @FXML private Label giaLabel;
     @FXML private Label trangthaiLabel;
     @FXML private Label thongtinLabel;
 
+    private TextField tiencuoc;
 
-    private final ItemService itemService = new ItemService();
+    private ItemRepository Repo = new ItemRepository();
+    private final AuctionService auctionService = new AuctionService();
+
+    @FXML
+    public void initialize() {
+        // Gán dữ liệu cho từng cột
+        colId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getId()));
+        colItemId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getItem_id()));
+        colCurrentUserId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getCurrent_user_id()));
+        colCurrentPrice.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getCurrent_price()));
+        colStartTime.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getStartTime()));
+        colEndTime.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getEndTime()));
+        colState.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getState()));
+        colItemName.setCellValueFactory(data -> {
+            Item item = Repo.getItemById(data.getValue().getItem_id());
+            return new SimpleStringProperty(item != null ? item.getFullname() : "N/A");
+        });
+
+        //nhan phan hoi khi an vao 1 phien dau gia
+        table.getSelectionModel().selectedItemProperty().addListener((obs, oldAuction, newAuction) -> {
+                    if (newAuction != null) {
+                        // Lấy thông tin sản phẩm từ phiên đấu giá
+
+                        Item item = Repo.getItemById(newAuction.getItem_id());
+
+                        // Hiển thị thông tin sản phẩm
+                        idLabel.setText(String.valueOf(item.getId()));
+                        tenLabel.setText(item.getFullname());
+                        thongtinLabel.setText(item.getDescription());
+                        giaLabel.setText(String.valueOf(item.getBeginPrice()));
+                        trangthaiLabel.setText(item.getStatus().toString());
+                    }
+                });
+        // Load dữ liệu từ service
+        loadData();
+    }
+
+
+    public void loadData() {
+        table.getItems().setAll(auctionService.getActive());
+    }
+
     private final BidService bidService;
-
     {
         bidService = new BidService();
     }
 
-    //gan du lieu cho bang
-    @FXML
-    public void initialize() {
-        colId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getId()));
-        colName.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getFullname()));
-        colPrice.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getBeginPrice()));
-        colDescription.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDescription()));
-        colStatus.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus().toString()));
-        loadData();
 
-
-        idLabel.setVisible(false);
-        tenLabel.setVisible(false);
-        giaLabel.setVisible(false);
-        trangthaiLabel.setVisible(false);
-        thongtinLabel.setVisible(false);
-
-
-        table.getSelectionModel().selectedItemProperty().addListener(
-                (obs, oldSelection, newSelection) -> {
-                    if (newSelection != null) {
-                        idLabel.setText(String.valueOf(newSelection.getId()));
-                        tenLabel.setText(newSelection.getFullname());
-                        giaLabel.setText(String.valueOf(newSelection.getBeginPrice()));
-                        trangthaiLabel.setText(newSelection.getStatus().toString());
-                        thongtinLabel.setText(newSelection.getDescription());
-                    }
-                ;})
-    ;}
-    //load item bang
-    public void loadData() {
-        table.getItems().setAll(itemService.listApproved());
-    }
-
-        public void trolai(ActionEvent actionEvent) throws IOException {
+    public void trolai(ActionEvent actionEvent) throws IOException {
         UserRole role = UserAccount.getCurrentRole();
         if (role == UserRole.ADMIN) {
             switchScene(actionEvent, "/com/template/hellfx/dashboard - Admin.fxml");
@@ -105,7 +128,7 @@ public class danhSachDauGiaController {
             return;
         }
 
-        Item selected = table.getSelectionModel().getSelectedItem();
+        Auction selected = table.getSelectionModel().getSelectedItem();
         if (selected == null) {
             showWarning("Vui long chon san pham truoc khi dat gia.");
             return;

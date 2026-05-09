@@ -1,4 +1,4 @@
-package Client;
+package Server.Controller;
 
 import Common.DataBase.entities.Item;
 import Server.service.ItemService;
@@ -52,7 +52,7 @@ public class ApproveController {
     }
 
     public void loadData() {
-        table.getItems().setAll(itemService.listApproved());
+        table.getItems().setAll(itemService.listPending());
     }
 
     public void duyetsp() {
