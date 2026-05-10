@@ -27,7 +27,7 @@ public class ItemRepository {
 
     public List<Item> getAllItem() {
         List<Item> items = new ArrayList<>();
-        String sql = "SELECT * FROM Item";
+        String sql = "SELECT * FROM item";
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -42,7 +42,7 @@ public class ItemRepository {
     }
 
     public void saveItem(Item item) {
-        String sql = "INSERT INTO Item (fullname, owner_user_id, description, beginPrice, mota, status) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO item (fullname, owner_user_id, description, beginPrice, mota, status) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

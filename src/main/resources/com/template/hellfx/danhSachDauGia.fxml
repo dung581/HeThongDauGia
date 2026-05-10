@@ -51,7 +51,7 @@
             <Label layoutX="10.0" layoutY="128.0" text="Giá hiện tại :" />
             <Label layoutX="13.0" layoutY="159.0" text="Trạng thái :" />
             <Label layoutX="15.0" layoutY="191.0" text="Thông tin :" />
-            <TextField fx:id="tiencuoc" layoutX="55.0" layoutY="404.0" promptText="nhập giá tiền" style="-fx-background-color: white;" />
+            <TextField fx:id="tiencuoc" layoutX="55.0" layoutY="404.0" promptText="nhập giá tiền" style="-fx-background-color: gray;" />
             <Text layoutX="96.0" layoutY="388.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Đặt Giá">
                <font>
                   <Font size="24.0" />

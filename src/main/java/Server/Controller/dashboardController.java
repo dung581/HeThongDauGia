@@ -21,13 +21,7 @@ public class dashboardController {
     }
 
     public void Sandaugia(ActionEvent actionEvent) throws IOException {
-        UserRole role = UserAccount.getCurrentRole();
-        if (role == UserRole.SELLER) {
-            showWarning("Seller chỉ được bán, không được đấu giá mua.");
-            return;
-        }else {
-            switchScene(actionEvent, "/com/template/hellfx/danhSachDauGia.fxml");
-        }
+        switchScene(actionEvent, "/com/template/hellfx/danhSachDauGia.fxml");
     }
 
     public void dangban(ActionEvent actionEvent) throws IOException {

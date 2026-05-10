@@ -51,7 +51,7 @@ public class BidRepository {
 
         String sql = """
             INSERT INTO bid
-            (session_id, user_id, item_id, price)
+            (session_id, user_id, items_id, price)
             VALUES (?, ?, ?, ?)
         """;
 
@@ -76,8 +76,8 @@ public class BidRepository {
 
         String sql = """
             SELECT * FROM bid
-            WHERE item_id = ?
-            ORDER BY created_at ASC
+            WHERE items_id = ?
+            ORDER BY id ASC
         """;
 
         try (Connection conn = db.getConnection();

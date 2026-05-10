@@ -61,7 +61,7 @@ public class danhSachDauGiaController {
     @FXML private Label trangthaiLabel;
     @FXML private Label thongtinLabel;
 
-    private TextField tiencuoc;
+    @FXML private TextField tiencuoc;
 
     private ItemRepository Repo = new ItemRepository();
     private final AuctionService auctionService = new AuctionService();
@@ -135,7 +135,7 @@ public class danhSachDauGiaController {
         }
 
         try {
-            int tiendaugia = Integer.parseInt(tiencuoc.getText().trim());
+            long tiendaugia = Integer.parseInt(tiencuoc.getText().trim());
             long accountid = UserAccount.getUserId();
             bidService.placeBid(accountid, selected.getId(), tiendaugia);
             showInfo("Dat gia thanh cong.");
