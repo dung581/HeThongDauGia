@@ -1,6 +1,7 @@
 package Server.Controller;
 
 import Common.DataBase.entities.Item;
+import Server.service.AuctionService;
 import Server.service.ItemService;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -17,6 +18,9 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class ApproveController {
 
@@ -36,7 +40,10 @@ public class ApproveController {
     private TableColumn<Item, String> colStatus;
     @FXML
     private TextField rejectReason;
+    @FXML
+    private TextField endTime;
 
+    private final AuctionService auctionService = new AuctionService();
     private final ItemService itemService = new ItemService();
 
     @FXML
@@ -65,6 +72,11 @@ public class ApproveController {
 
         try {
             itemService.approve(selected.getId());
+            // tao phien dau gia
+            LocalDateTime now = LocalDate.now().atStartOfDay();
+            LocalDateTime endtime = now.plus(Duration.ofHours(Integer.parseInt(endTime.getText())));
+            auctionService.createSession(selected.getId(),endtime);
+
             showInfo("Đã duyệt sản phẩm ID: " + selected.getId());
             loadData();
         } catch (Exception e) {

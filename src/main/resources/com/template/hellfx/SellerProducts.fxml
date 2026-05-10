@@ -30,8 +30,6 @@
             <TextField fx:id="itemPrice" promptText="Nhập giá" />
             <Label text="Mô tả" />
             <TextField fx:id="itemDescription" promptText="Nhập mô tả" />
-            <Label text="Thời gian phien đấu giá" />
-            <TextField fx:id="endTime" promptText="Nhập số giờ" />
             <Button mnemonicParsing="false" onAction="#submitItem" text="Gửi duyệt" />
          </children>
       </VBox>
