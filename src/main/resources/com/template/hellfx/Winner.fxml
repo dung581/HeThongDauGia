@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane style="-fx-background-color: skyblue;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Server.Controller.WinnerController">
+
+    <top>
+        <Label fx:id="lblTitle" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-padding: 14;" text="Kết quả phiên đấu giá" BorderPane.alignment="CENTER" />
+    </top>
+
+    <center>
+        <VBox alignment="CENTER" spacing="14.0">
+            <padding>
+                <Insets bottom="20.0" left="40.0" right="40.0" top="20.0" />
+            </padding>
+
+            <GridPane hgap="16.0" vgap="12.0">
+                <Label text="Sản phẩm:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <Label fx:id="lblItemName" style="-fx-font-weight: bold;" text="(?)" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                <Label text="Giá thắng:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <Label fx:id="lblWinningPrice" style="-fx-text-fill: red; -fx-font-weight: bold;" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                <Label text="Người thắng:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <Label fx:id="lblWinnerId" text="(?)" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            </GridPane>
+
+            <Label fx:id="lblNote" style="-fx-font-style: italic;" text="" wrapText="true" />
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER" spacing="14.0" style="-fx-padding: 14;">
+            <Button onAction="#onBack" prefWidth="160.0" text="Trở lại Dashboard" />
+        </HBox>
+    </bottom>
+
+</BorderPane>
