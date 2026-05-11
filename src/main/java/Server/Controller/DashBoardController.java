@@ -27,7 +27,7 @@ public class DashBoardController {
     public void dangban(ActionEvent actionEvent) throws IOException {
         UserRole role = UserAccount.getCurrentRole();
         if (role == UserRole.BIDDER) {
-            showWarning("Bidder chá»‰ Ä‘Æ°á»£c Ä‘áº¥u giÃ¡, khÃ´ng Ä‘Æ°á»£c Ä‘Äƒng bÃ¡n.");
+            showWarning("Bidder chỉ được đấu giá, không được đăng bán.");
             return;
         }
         switchScene(actionEvent, "/com/template/hellfx/SellerProducts.fxml");
@@ -43,7 +43,7 @@ public class DashBoardController {
 
     private void showWarning(String msg) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("ThÃ´ng bÃ¡o");
+        alert.setTitle("Thông báo");
         alert.setHeaderText(null);
         alert.setContentText(msg);
         alert.showAndWait();
@@ -53,8 +53,8 @@ public class DashBoardController {
         URL resource = getClass().getResource(fxmlPath);
         if (resource == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Lá»—i Ä‘iá»u hÆ°á»›ng");
-            alert.setHeaderText("KhÃ´ng tÃ¬m tháº¥y mÃ n hÃ¬nh");
+            alert.setTitle("Lỗi điều hướng");
+            alert.setHeaderText("Không tìm thấy màn hình");
             alert.setContentText(fxmlPath);
             alert.showAndWait();
             return;

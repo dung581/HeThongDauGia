@@ -14,24 +14,20 @@
 <BorderPane prefHeight="760.0" prefWidth="1220.0" style="-fx-background-color: skyblue;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Server.Controller.UILoginController">
    <center>
       <HBox alignment="CENTER" spacing="36.0" BorderPane.alignment="CENTER">
-         <padding>
-            <Insets bottom="16" left="16" right="16" top="16" />
-         </padding>
+         <padding><Insets bottom="16" left="16" right="16" top="16" /></padding>
          <children>
             <VBox alignment="CENTER" spacing="12">
                <children>
-                  <Label text="Hệ thống đấu giá" style="-fx-font-size: 22px; -fx-font-weight: bold;" />
+                  <Label text="Chào mừng đến với hệ thống đấu giá" style="-fx-font-size: 22px; -fx-font-weight: bold;" />
                   <ImageView fitHeight="320.0" fitWidth="320.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@hinh-meme-meo-dap-mat-na.jpg" />
-                     </image>
+                     <image><Image url="@hinh-meme-meo-dap-mat-na.jpg" /></image>
                   </ImageView>
                </children>
             </VBox>
 
             <VBox alignment="CENTER_LEFT" spacing="14" maxWidth="320">
                <children>
-                  <Label text="Login" style="-fx-font-size: 22px; -fx-font-weight: bold;" />
+                  <Label text="Đăng nhập" style="-fx-font-size: 22px; -fx-font-weight: bold;" />
                   <TextField id="name" fx:id="name" prefWidth="280" promptText="Tên đăng nhập" />
                   <HBox spacing="6" alignment="CENTER_LEFT">
                      <children>
@@ -40,8 +36,8 @@
                         <Button fx:id="loginEyeButton" mnemonicParsing="false" onAction="#toggleLoginPassword" prefWidth="28" text="..." />
                      </children>
                   </HBox>
-                  <Button mnemonicParsing="false" onAction="#login" prefHeight="36" prefWidth="280" text="Login" />
-                  <Button mnemonicParsing="false" onAction="#Register" prefHeight="36" prefWidth="280" text="Register" />
+                  <Button mnemonicParsing="false" onAction="#login" prefHeight="36" prefWidth="280" text="Đăng nhập" />
+                  <Button mnemonicParsing="false" onAction="#Register" prefHeight="36" prefWidth="280" text="Đăng ký" />
                   <Label fx:id="welcomeText" text="" />
                </children>
             </VBox>

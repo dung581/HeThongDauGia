@@ -105,7 +105,7 @@ public class AccountController {
 
         Account account = accountRepository.getAccountByUserId(userId);
 
-        lblTitle.setText("Thong tin tai khoan");
+        lblTitle.setText("Thông tin tài khoản");
         lblUsername.setText(username == null ? "" : username);
         lblFullname.setText(fullname == null ? "" : fullname);
         lblRole.setText(role == null ? "" : role.name());
