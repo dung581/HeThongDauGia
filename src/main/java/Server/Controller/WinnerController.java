@@ -61,11 +61,7 @@ public class WinnerController{
         }
     }
 
-<<<<<<< HEAD
     private void populate(Auction auction){
-=======
-   private void populate(Auction auction){
->>>>>>> 22bdd5605f0f4b633514ca815d42179798e1df5e
         Item item = itemRepo.getItemById(auction.getItem_id());
 
         if (lblItemName != null){
@@ -97,13 +93,8 @@ public class WinnerController{
                 lblNote.setText("Không có Bidder, Item trở lại trạng thái APPROVED, phiên đấu giá CANCLED");
             }
         }
-<<<<<<< HEAD
     }
     // khi nguười dùng bấm nút quay lại
-=======
-   }
-   // khi nguười dùng bấm nút quay lại
->>>>>>> 22bdd5605f0f4b633514ca815d42179798e1df5e
     public void onBack(ActionEvent actionEvent) throws IOException {
         UserRole role = UserAccount.getCurrentRole();
         String target;
@@ -131,8 +122,4 @@ public class WinnerController{
         alert.setContentText(message);
         alert.showAndWait();
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 22bdd5605f0f4b633514ca815d42179798e1df5e
