@@ -10,6 +10,7 @@ import Server.service.AuctionService;
 import Server.service.BidService;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,7 +23,9 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DanhSachDauGiaController {
     @FXML
@@ -66,6 +69,7 @@ public class DanhSachDauGiaController {
     private ItemRepository Repo = new ItemRepository();
     private final AuctionService auctionService = new AuctionService();
     private final List<Auction> allAuctions = new ArrayList<>();
+    private final Map<Long, String> itemNameById = new HashMap<>();
     private static final int PAGE_SIZE = 8;
     private int currentPage = 1;
 
@@ -79,10 +83,8 @@ public class DanhSachDauGiaController {
         colStartTime.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getStartTime()));
         colEndTime.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getEndTime()));
         colState.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getState()));
-        colItemName.setCellValueFactory(data -> {
-            Item item = Repo.getItemById(data.getValue().getItem_id());
-            return new SimpleStringProperty(item != null ? item.getFullname() : "N/A");
-        });
+        colItemName.setCellValueFactory(data ->
+                new SimpleStringProperty(itemNameById.getOrDefault(data.getValue().getItem_id(), "N/A")));
 
         //nhan phan hoi khi an vao 1 phien dau gia
         table.getSelectionModel().selectedItemProperty().addListener((obs, oldAuction, newAuction) -> {
@@ -105,9 +107,7 @@ public class DanhSachDauGiaController {
 
 
     public void loadData() {
-        allAuctions.clear();
-        allAuctions.addAll(auctionService.getActive());
-        renderPage(1);
+        loadAuctionDataAsync();
     }
 
     @FXML
@@ -154,6 +154,50 @@ public class DanhSachDauGiaController {
     private int getTotalPages() {
         if (allAuctions.isEmpty()) return 1;
         return (allAuctions.size() + PAGE_SIZE - 1) / PAGE_SIZE;
+    }
+
+    private void loadAuctionDataAsync() {
+        Task<LoadAuctionData> task = new Task<>() {
+            @Override
+            protected LoadAuctionData call() {
+                List<Auction> auctions = auctionService.getActive();
+                List<Item> items = Repo.getAllItem();
+                Map<Long, String> names = new HashMap<>();
+                for (Item item : items) {
+                    names.put(item.getId(), item.getFullname());
+                }
+                return new LoadAuctionData(auctions, names);
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            LoadAuctionData result = task.getValue();
+            allAuctions.clear();
+            allAuctions.addAll(result.auctions);
+            itemNameById.clear();
+            itemNameById.putAll(result.itemNames);
+            renderPage(1);
+        });
+
+        task.setOnFailed(event -> {
+            allAuctions.clear();
+            itemNameById.clear();
+            renderPage(1);
+        });
+
+        Thread worker = new Thread(task, "auction-list-load");
+        worker.setDaemon(true);
+        worker.start();
+    }
+
+    private static class LoadAuctionData {
+        private final List<Auction> auctions;
+        private final Map<Long, String> itemNames;
+
+        private LoadAuctionData(List<Auction> auctions, Map<Long, String> itemNames) {
+            this.auctions = auctions;
+            this.itemNames = itemNames;
+        }
     }
 
     private final BidService bidService;

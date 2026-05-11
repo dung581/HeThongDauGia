@@ -8,6 +8,7 @@ import Common.Enum.UserRole;
 import Common.Model.user.UserAccount;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -24,7 +25,9 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AccountController {
 
@@ -140,23 +143,7 @@ public class AccountController {
         colBalance.setCellValueFactory(new PropertyValueFactory<>("balance"));
         colLocked.setCellValueFactory(new PropertyValueFactory<>("lockedBalance"));
 
-        List<User> users = userRepository.getallUser();
-        allAdminRows.clear();
-        for (User user : users) {
-            Account account = accountRepository.getAccountByUserId(user.getId());
-            long balance = account == null ? 0 : account.getBalance();
-            long locked = account == null ? 0 : account.getLocked_balance();
-            allAdminRows.add(new ManagedAccountRow(
-                    user.getId(),
-                    user.getUsername(),
-                    user.getFullname(),
-                    user.getRole() == null ? "" : user.getRole().name(),
-                    user.getPassword(),
-                    balance,
-                    locked
-            ));
-        }
-        renderPage(1);
+        loadAdminDataAsync();
     }
 
     @FXML
@@ -222,6 +209,52 @@ public class AccountController {
             return 1;
         }
         return (allAdminRows.size() + PAGE_SIZE - 1) / PAGE_SIZE;
+    }
+
+    private void loadAdminDataAsync() {
+        Task<List<ManagedAccountRow>> task = new Task<>() {
+            @Override
+            protected List<ManagedAccountRow> call() {
+                List<User> users = userRepository.getallUser();
+                List<Account> accounts = accountRepository.getAllAccount();
+                Map<Long, Account> accountByUserId = new HashMap<>();
+                for (Account account : accounts) {
+                    accountByUserId.put(account.getUser_id(), account);
+                }
+
+                List<ManagedAccountRow> rows = new ArrayList<>(users.size());
+                for (User user : users) {
+                    Account account = accountByUserId.get(user.getId());
+                    long balance = account == null ? 0 : account.getBalance();
+                    long locked = account == null ? 0 : account.getLocked_balance();
+                    rows.add(new ManagedAccountRow(
+                            user.getId(),
+                            user.getUsername(),
+                            user.getFullname(),
+                            user.getRole() == null ? "" : user.getRole().name(),
+                            user.getPassword(),
+                            balance,
+                            locked
+                    ));
+                }
+                return rows;
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            allAdminRows.clear();
+            allAdminRows.addAll(task.getValue());
+            renderPage(1);
+        });
+
+        task.setOnFailed(event -> {
+            allAdminRows.clear();
+            renderPage(1);
+        });
+
+        Thread worker = new Thread(task, "account-admin-load");
+        worker.setDaemon(true);
+        worker.start();
     }
 
     private void ensurePasswordColumn() {

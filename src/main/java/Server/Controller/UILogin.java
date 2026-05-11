@@ -1,5 +1,6 @@
 package Server.Controller;
 
+import Common.DataBase.DbIndexBootstrap;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -13,6 +14,8 @@ public class UILogin extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        DbIndexBootstrap.ensureIndexes();
+
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/template/hellfx/UILogin.fxml"));
         Scene scene1 = new Scene(loader.load(), APP_WIDTH, APP_HEIGHT);
 
