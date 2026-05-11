@@ -24,31 +24,19 @@ import java.time.format.DateTimeFormatter;
 
 public class ApproveController {
 
-    @FXML
-    private TableView<Item> table;
-    @FXML
-    private TableColumn<Item, Long> colId;
-    @FXML
-    private TableColumn<Item, String> colName;
-    @FXML
-    private TableColumn<Item, Long> colPrice;
-    @FXML
-    private TableColumn<Item, String> colDetail;
-    @FXML
-    private TableColumn<Item, String> colDescription;
-    @FXML
-    private TableColumn<Item, String> colStatus;
+    @FXML private TableView<Item> table;
+    @FXML private TableColumn<Item, Long> colId;
+    @FXML private TableColumn<Item, String> colName;
+    @FXML private TableColumn<Item, Long> colPrice;
+    @FXML private TableColumn<Item, String> colDetail;
+    @FXML private TableColumn<Item, String> colDescription;
+    @FXML private TableColumn<Item, String> colStatus;
 
-    @FXML
-    private VBox approvePane;
-    @FXML
-    private VBox rejectPane;
-    @FXML
-    private TextField startTime;
-    @FXML
-    private TextField endTime;
-    @FXML
-    private TextField rejectReason;
+    @FXML private VBox approvePane;
+    @FXML private VBox rejectPane;
+    @FXML private TextField startTime;
+    @FXML private TextField endTime;
+    @FXML private TextField rejectReason;
 
     private final AuctionService auctionService = new AuctionService();
     private final ItemService itemService = new ItemService();
@@ -66,7 +54,7 @@ public class ApproveController {
 
         setPaneVisible(approvePane, false);
         setPaneVisible(rejectPane, false);
-
+        loadData();
     }
 
     public void loadData() {
@@ -83,15 +71,13 @@ public class ApproveController {
             }
             return;
         }
-
         duyetsp();
     }
 
     private void duyetsp() {
         Item selected = table.getSelectionModel().getSelectedItem();
-
         if (selected == null) {
-            showWarning("ChÆ°a chá»n sáº£n pháº©m.");
+            showWarning("Chưa chọn sản phẩm.");
             return;
         }
 
@@ -99,20 +85,17 @@ public class ApproveController {
             LocalDateTime start = LocalDateTime.parse(startTime.getText().trim(), formatter);
             LocalDateTime end = LocalDateTime.parse(endTime.getText().trim(), formatter);
             if (!end.isAfter(start)) {
-                showWarning("Thá»i gian káº¿t thÃºc pháº£i sau thá»i gian báº¯t Ä‘áº§u.");
+                showWarning("Thời gian kết thúc phải sau thời gian bắt đầu.");
                 return;
             }
 
             itemService.approve(selected.getId());
             auctionService.createSession(selected.getId(), end);
-
-            showInfo("ÄÃ£ cháº¥p nháº­n sáº£n pháº©m ID: " + selected.getId());
-            if (endTime != null) {
-                endTime.clear();
-            }
+            showInfo("Đã chấp nhận sản phẩm ID: " + selected.getId());
+            if (endTime != null) endTime.clear();
             loadData();
         } catch (Exception e) {
-            showWarning("Cháº¥p nháº­n tháº¥t báº¡i: " + e.getMessage());
+            showWarning("Chấp nhận thất bại: " + e.getMessage());
         }
     }
 
@@ -123,29 +106,24 @@ public class ApproveController {
             setPaneVisible(approvePane, false);
             return;
         }
-
         tuchoi();
     }
 
     private void tuchoi() {
         Item selected = table.getSelectionModel().getSelectedItem();
-
         if (selected == null) {
-            showWarning("ChÆ°a chá»n sáº£n pháº©m.");
+            showWarning("Chưa chọn sản phẩm.");
             return;
         }
 
         String reason = rejectReason == null ? "" : rejectReason.getText();
-
         try {
             itemService.reject(selected.getId(), reason);
-            showInfo("ÄÃ£ tá»« chá»‘i. Seller sáº½ nháº­n tráº¡ng thÃ¡i CANCELED vÃ  lÃ½ do pháº£n há»“i.");
-            if (rejectReason != null) {
-                rejectReason.clear();
-            }
+            showInfo("Đã từ chối. Seller sẽ nhận trạng thái CANCELED và lý do phản hồi.");
+            if (rejectReason != null) rejectReason.clear();
             loadData();
         } catch (Exception e) {
-            showWarning("Tá»« chá»‘i tháº¥t báº¡i: " + e.getMessage());
+            showWarning("Từ chối thất bại: " + e.getMessage());
         }
     }
 
@@ -161,16 +139,14 @@ public class ApproveController {
     }
 
     private void setPaneVisible(VBox pane, boolean visible) {
-        if (pane == null) {
-            return;
-        }
+        if (pane == null) return;
         pane.setVisible(visible);
         pane.setManaged(visible);
     }
 
     private void showWarning(String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("ThÃ´ng bÃ¡o");
+        alert.setTitle("Thông báo");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
@@ -178,13 +154,11 @@ public class ApproveController {
 
     private void showInfo(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("ThÃ´ng bÃ¡o");
+        alert.setTitle("Thông báo");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
     }
 
-    private enum ActionMode {
-        NONE, APPROVE, REJECT
-    }
+    private enum ActionMode { NONE, APPROVE, REJECT }
 }

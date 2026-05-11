@@ -215,7 +215,7 @@ public class DanhSachDauGiaController {
 
         task.setOnFailed(event -> {
             loading = false;
-            showWarning("Khong the tai danh sach dau gia: " + task.getException().getMessage());
+            showWarning("Không thể tải danh sách đấu giá: " + task.getException().getMessage());
         });
 
         Thread worker = new Thread(task, "auction-list-load");
@@ -263,13 +263,13 @@ public class DanhSachDauGiaController {
     public void submit() {
         UserRole role = UserAccount.getCurrentRole();
         if (role == UserRole.SELLER) {
-            showWarning("Seller khong duoc mua/dau gia.");
+            showWarning("Seller không được đấu giá!");
             return;
         }
 
         Auction selected = table.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showWarning("Vui long chon san pham truoc khi dat gia.");
+            showWarning("Vui lòng chọn sản phẩm trước khi đặt giá!");
             return;
         }
 
@@ -277,18 +277,18 @@ public class DanhSachDauGiaController {
             long tiendaugia = Long.parseLong(tiencuoc.getText().trim());
             long accountid = UserAccount.getUserId();
             bidService.placeBid(accountid, selected.getId(), tiendaugia);
-            showInfo("Dat gia thanh cong.");
+            showInfo("Đặt giá thành công!");
             loadAuctionDataAsync(false);
         } catch (NumberFormatException e) {
-            showWarning("So tien dat gia khong hop le.");
+            showWarning("Số tiền đặt giá không hợp lệ");
         } catch (Exception e) {
-            showWarning("Dat gia that bai: " + e.getMessage());
+            showWarning("Đặt giá thất bại! " + e.getMessage());
         }
     }
 
     private void showWarning(String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Thong bao");
+        alert.setTitle("Thông báo");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
@@ -296,7 +296,7 @@ public class DanhSachDauGiaController {
 
     private void showInfo(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Thong bao");
+        alert.setTitle("Thông báo");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();

@@ -193,10 +193,13 @@ public class UILoginController {
     }
 
     public void login() throws UsernameIsBlankException, UserNotFoundException, WrongPasswordException, PasswordIsBlankException {
+        String ten = name.getText();
+        String pass = getLoginPasswordValue();
+
         try {
-            User user = authService.login(name.getText(), getLoginPasswordValue());
+            User user = authService.login(ten, pass);
             UserAccount.setSession(user.getId(), user.getUsername(), user.getFullname(), user.getRole());
-            JOptionPane.showMessageDialog(null, "Dang nhap thanh cong: " + user.getUsername(), "Thong bao", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Đăng nhập thành công: " + user.getUsername(), "Thông báo", JOptionPane.INFORMATION_MESSAGE);
 
             UserRole role = user.getRole();
             if (role == UserRole.BIDDER) {
@@ -206,19 +209,19 @@ public class UILoginController {
             } else if (role == UserRole.ADMIN) {
                 switchScene("/com/template/hellfx/dashboard - Admin.fxml");
             } else {
-                JOptionPane.showMessageDialog(null, "Role khong hop le.", "Thong bao", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Vai trò không hợp lệ.", "Thông báo", JOptionPane.ERROR_MESSAGE);
             }
 
         } catch (UsernameIsBlankException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Thong bao", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Thông báo", JOptionPane.WARNING_MESSAGE);
         } catch (UserNotFoundException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Thong bao", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Thông báo", JOptionPane.ERROR_MESSAGE);
         } catch (WrongPasswordException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Thong bao", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Thông báo", JOptionPane.ERROR_MESSAGE);
         } catch (DataAccessException e) {
-            JOptionPane.showMessageDialog(null, "Khong the ket noi database. Kiem tra cau hinh ket noi.", "Thong bao", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Không thể kết nối database. Kiểm tra cấu hình kết nối.", "Thông báo", JOptionPane.ERROR_MESSAGE);
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Khong mo duoc man hinh dau gia.", "Thong bao", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Không mở được màn hình đấu giá.", "Thông báo", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -239,41 +242,41 @@ public class UILoginController {
         clearRegisterMessage();
 
         if (!mkhau.equals(mkhauLai)) {
-            JOptionPane.showMessageDialog(null, "Dang ky that bai: mat khau nhap lai khong khop", "Thong bao", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Đăng ký thất bại: mật khẩu nhập lại không khớp", "Thông báo", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         if (role == null) {
-            JOptionPane.showMessageDialog(null, "Vui long chon role Bidder hoac Seller.", "Thong bao", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Vui lòng chọn vai trò Người đấu giá hoặc Người bán.", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         if (role == UserRole.ADMIN) {
-            JOptionPane.showMessageDialog(null, "Khong the dang ky tai khoan Admin.", "Thong bao", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Không thể đăng ký tài khoản Admin.", "Thông báo", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         try {
             authService.register(tenDK, mkhau, role);
-            showRegisterMessage("Dang ky thanh cong");
+            showRegisterMessage("Đăng ký thành công");
 
             PauseTransition pause = new PauseTransition(Duration.seconds(1.5));
             pause.setOnFinished(event -> {
                 try {
                     switchScene(actionEvent, "/com/template/hellfx/UILogin.fxml");
                 } catch (IOException e) {
-                    JOptionPane.showMessageDialog(null, "Khong mo duoc man hinh dang nhap.", "Thong bao", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Không mở được màn hình đăng nhập.", "Thông báo", JOptionPane.ERROR_MESSAGE);
                 }
             });
             pause.play();
         } catch (UsernameIsBlankException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Thong bao", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Thông báo", JOptionPane.WARNING_MESSAGE);
         } catch (UsernameAlreadyExistsException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Thong bao", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Thông báo", JOptionPane.ERROR_MESSAGE);
         } catch (PasswordIsBlankException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Thong bao", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Thông báo", JOptionPane.WARNING_MESSAGE);
         } catch (DataAccessException e) {
-            JOptionPane.showMessageDialog(null, "Dang ky that bai do loi ket noi may chu.", "Thong bao", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Đăng ký thất bại do lỗi kết nối máy chủ.", "Thông báo", JOptionPane.ERROR_MESSAGE);
         }
     }
 

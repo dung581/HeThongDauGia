@@ -24,7 +24,7 @@ public class DbIndexBootstrap {
                 st.execute(sql);
             }
         } catch (Exception e) {
-            System.err.println("Khong the tao index toi uu: " + e.getMessage());
+            System.err.println(e.getMessage());
         }
     }
 }

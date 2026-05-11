@@ -24,29 +24,18 @@ import java.util.List;
 
 public class SellerProductController {
 
-    @FXML
-    private TextField itemName;
-    @FXML
-    private TextField itemPrice;
-    @FXML
-    private TextField itemDescription;
+    @FXML private TextField itemName;
+    @FXML private TextField itemPrice;
+    @FXML private TextField itemDescription;
 
-    @FXML
-    private TableView<Item> table;
-    @FXML
-    private TableColumn<Item, Long> colId;
-    @FXML
-    private TableColumn<Item, String> colName;
-    @FXML
-    private TableColumn<Item, Long> colPrice;
-    @FXML
-    private TableColumn<Item, String> colStatus;
-    @FXML
-    private TableColumn<Item, String> colReason;
-    @FXML
-    private Label lblPageInfo;
-    @FXML
-    private TextField txtPageInput;
+    @FXML private TableView<Item> table;
+    @FXML private TableColumn<Item, Long> colId;
+    @FXML private TableColumn<Item, String> colName;
+    @FXML private TableColumn<Item, Long> colPrice;
+    @FXML private TableColumn<Item, String> colStatus;
+    @FXML private TableColumn<Item, String> colReason;
+    @FXML private Label lblPageInfo;
+    @FXML private TextField txtPageInput;
 
     private final ItemService itemService = new ItemService();
     private final List<Item> allItems = new ArrayList<>();
@@ -60,6 +49,7 @@ public class SellerProductController {
         colPrice.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getBeginPrice()));
         colStatus.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus().name()));
         colReason.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getMota() == null ? "" : data.getValue().getMota()));
+        loadMyItems();
     }
 
     public void loadMyItems() {
@@ -68,23 +58,14 @@ public class SellerProductController {
         renderPage(1);
     }
 
-    @FXML
-    public void goFirstPage() { renderPage(1); }
-
-    @FXML
-    public void goPrevPage() { renderPage(currentPage - 1); }
-
-    @FXML
-    public void goNextPage() { renderPage(currentPage + 1); }
-
-    @FXML
-    public void goLastPage() { renderPage(getTotalPages()); }
+    @FXML public void goFirstPage() { renderPage(1); }
+    @FXML public void goPrevPage() { renderPage(currentPage - 1); }
+    @FXML public void goNextPage() { renderPage(currentPage + 1); }
+    @FXML public void goLastPage() { renderPage(getTotalPages()); }
 
     @FXML
     public void goToPage() {
-        if (txtPageInput == null || txtPageInput.getText() == null) {
-            return;
-        }
+        if (txtPageInput == null || txtPageInput.getText() == null) return;
         try {
             int page = Integer.parseInt(txtPageInput.getText().trim());
             renderPage(page);
@@ -121,7 +102,7 @@ public class SellerProductController {
             long price = Long.parseLong(itemPrice.getText().trim());
 
             if (name.isEmpty()) {
-                showWarning("Vui lÃ²ng nháº­p tÃªn sáº£n pháº©m.");
+                showWarning("Vui lòng nhập tên sản phẩm.");
                 return;
             }
 
@@ -130,19 +111,19 @@ public class SellerProductController {
             item.setOwner_user_id(UserAccount.getUserId());
             item.setDescription(desc);
             item.setBeginPrice(price);
-            item.setMota("Chá» duyá»‡t");
+            item.setMota("Chờ duyệt");
 
             itemService.upload(item);
-            showInfo("ÄÃ£ gá»­i yÃªu cáº§u Ä‘Äƒng bÃ¡n. Chá» admin duyá»‡t.");
+            showInfo("Đã gửi yêu cầu đăng bán. Chờ admin duyệt.");
 
             itemName.clear();
             itemPrice.clear();
             itemDescription.clear();
             loadMyItems();
         } catch (NumberFormatException e) {
-            showWarning("GiÃ¡ khÃ´ng há»£p lá»‡.");
+            showWarning("Giá không hợp lệ.");
         } catch (Exception e) {
-            showWarning("ÄÄƒng bÃ¡n tháº¥t báº¡i: " + e.getMessage());
+            showWarning("Đăng bán thất bại: " + e.getMessage());
         }
     }
 
@@ -159,7 +140,7 @@ public class SellerProductController {
 
     private void showWarning(String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("ThÃ´ng bÃ¡o");
+        alert.setTitle("Thông báo");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
@@ -167,7 +148,7 @@ public class SellerProductController {
 
     private void showInfo(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("ThÃ´ng bÃ¡o");
+        alert.setTitle("Thông báo");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
