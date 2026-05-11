@@ -15,12 +15,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class ApproveController {
 
@@ -38,13 +38,22 @@ public class ApproveController {
     private TableColumn<Item, String> colDescription;
     @FXML
     private TableColumn<Item, String> colStatus;
+
     @FXML
-    private TextField rejectReason;
+    private VBox approvePane;
+    @FXML
+    private VBox rejectPane;
+    @FXML
+    private TextField startTime;
     @FXML
     private TextField endTime;
+    @FXML
+    private TextField rejectReason;
 
     private final AuctionService auctionService = new AuctionService();
     private final ItemService itemService = new ItemService();
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private ActionMode actionMode = ActionMode.NONE;
 
     @FXML
     public void initialize() {
@@ -55,6 +64,8 @@ public class ApproveController {
         colStatus.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus().toString()));
         colDetail.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getMota()));
 
+        setPaneVisible(approvePane, false);
+        setPaneVisible(rejectPane, false);
         loadData();
     }
 
@@ -62,33 +73,65 @@ public class ApproveController {
         table.getItems().setAll(itemService.listPending());
     }
 
-    public void duyetsp() {
+    public void onChapNhan() {
+        if (actionMode != ActionMode.APPROVE) {
+            actionMode = ActionMode.APPROVE;
+            setPaneVisible(approvePane, true);
+            setPaneVisible(rejectPane, false);
+            if (startTime != null && (startTime.getText() == null || startTime.getText().isBlank())) {
+                startTime.setText(LocalDateTime.now().withSecond(0).withNano(0).format(formatter));
+            }
+            return;
+        }
+
+        duyetsp();
+    }
+
+    private void duyetsp() {
         Item selected = table.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
-            showWarning("Chưa chọn sản phẩm.");
+            showWarning("ChÆ°a chá»n sáº£n pháº©m.");
             return;
         }
 
         try {
-            itemService.approve(selected.getId());
-            // tao phien dau gia
-            LocalDateTime now = LocalDate.now().atStartOfDay();
-            LocalDateTime endtime = now.plus(Duration.ofHours(Integer.parseInt(endTime.getText())));
-            auctionService.createSession(selected.getId(),endtime);
+            LocalDateTime start = LocalDateTime.parse(startTime.getText().trim(), formatter);
+            LocalDateTime end = LocalDateTime.parse(endTime.getText().trim(), formatter);
+            if (!end.isAfter(start)) {
+                showWarning("Thá»i gian káº¿t thÃºc pháº£i sau thá»i gian báº¯t Ä‘áº§u.");
+                return;
+            }
 
-            showInfo("Đã duyệt sản phẩm ID: " + selected.getId());
+            itemService.approve(selected.getId());
+            auctionService.createSession(selected.getId(), end);
+
+            showInfo("ÄÃ£ cháº¥p nháº­n sáº£n pháº©m ID: " + selected.getId());
+            if (endTime != null) {
+                endTime.clear();
+            }
             loadData();
         } catch (Exception e) {
-            showWarning("Duyệt thất bại: " + e.getMessage());
+            showWarning("Cháº¥p nháº­n tháº¥t báº¡i: " + e.getMessage());
         }
     }
 
-    public void tuchoi() {
+    public void onTuChoi() {
+        if (actionMode != ActionMode.REJECT) {
+            actionMode = ActionMode.REJECT;
+            setPaneVisible(rejectPane, true);
+            setPaneVisible(approvePane, false);
+            return;
+        }
+
+        tuchoi();
+    }
+
+    private void tuchoi() {
         Item selected = table.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
-            showWarning("Chưa chọn sản phẩm.");
+            showWarning("ChÆ°a chá»n sáº£n pháº©m.");
             return;
         }
 
@@ -96,13 +139,13 @@ public class ApproveController {
 
         try {
             itemService.reject(selected.getId(), reason);
-            showInfo("Đã từ chối/xóa khỏi danh sách duyệt. Seller sẽ nhận được lý do.");
+            showInfo("ÄÃ£ tá»« chá»‘i. Seller sáº½ nháº­n tráº¡ng thÃ¡i CANCELED vÃ  lÃ½ do pháº£n há»“i.");
             if (rejectReason != null) {
                 rejectReason.clear();
             }
             loadData();
         } catch (Exception e) {
-            showWarning("Từ chối thất bại: " + e.getMessage());
+            showWarning("Tá»« chá»‘i tháº¥t báº¡i: " + e.getMessage());
         }
     }
 
@@ -113,13 +156,21 @@ public class ApproveController {
     private void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(root));
+        stage.setScene(new Scene(root, UILogin.APP_WIDTH, UILogin.APP_HEIGHT));
         stage.show();
+    }
+
+    private void setPaneVisible(VBox pane, boolean visible) {
+        if (pane == null) {
+            return;
+        }
+        pane.setVisible(visible);
+        pane.setManaged(visible);
     }
 
     private void showWarning(String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Thông báo");
+        alert.setTitle("ThÃ´ng bÃ¡o");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
@@ -127,9 +178,13 @@ public class ApproveController {
 
     private void showInfo(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Thông báo");
+        alert.setTitle("ThÃ´ng bÃ¡o");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private enum ActionMode {
+        NONE, APPROVE, REJECT
     }
 }

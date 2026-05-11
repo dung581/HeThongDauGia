@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 
-public class dashboardController {
+public class DashBoardController {
 
     public void goToLogin(ActionEvent actionEvent) throws IOException {
         UserAccount.clearSession();
@@ -27,7 +27,7 @@ public class dashboardController {
     public void dangban(ActionEvent actionEvent) throws IOException {
         UserRole role = UserAccount.getCurrentRole();
         if (role == UserRole.BIDDER) {
-            showWarning("Bidder chỉ được đấu giá, không được đăng bán.");
+            showWarning("Bidder chá»‰ Ä‘Æ°á»£c Ä‘áº¥u giÃ¡, khÃ´ng Ä‘Æ°á»£c Ä‘Äƒng bÃ¡n.");
             return;
         }
         switchScene(actionEvent, "/com/template/hellfx/SellerProducts.fxml");
@@ -43,7 +43,7 @@ public class dashboardController {
 
     private void showWarning(String msg) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Thông báo");
+        alert.setTitle("ThÃ´ng bÃ¡o");
         alert.setHeaderText(null);
         alert.setContentText(msg);
         alert.showAndWait();
@@ -53,8 +53,8 @@ public class dashboardController {
         URL resource = getClass().getResource(fxmlPath);
         if (resource == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Lỗi điều hướng");
-            alert.setHeaderText("Không tìm thấy màn hình");
+            alert.setTitle("Lá»—i Ä‘iá»u hÆ°á»›ng");
+            alert.setHeaderText("KhÃ´ng tÃ¬m tháº¥y mÃ n hÃ¬nh");
             alert.setContentText(fxmlPath);
             alert.showAndWait();
             return;
@@ -62,7 +62,7 @@ public class dashboardController {
 
         Parent root = FXMLLoader.load(resource);
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        Scene scene = new Scene(root);
+        Scene scene = new Scene(root, UILogin.APP_WIDTH, UILogin.APP_HEIGHT);
         stage.setScene(scene);
         stage.show();
     }

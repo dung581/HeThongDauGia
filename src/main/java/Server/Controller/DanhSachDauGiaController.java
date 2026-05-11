@@ -8,10 +8,8 @@ import Common.Enum.UserRole;
 import Common.Model.user.UserAccount;
 import Server.service.AuctionService;
 import Server.service.BidService;
-import Server.service.ItemService;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -23,10 +21,10 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-import static Client.util.NavigationUtil.switchScene;
-
-public class danhSachDauGiaController {
+public class DanhSachDauGiaController {
     @FXML
     private TableView<Auction> table;
 
@@ -60,15 +58,20 @@ public class danhSachDauGiaController {
     @FXML private Label giaLabel;
     @FXML private Label trangthaiLabel;
     @FXML private Label thongtinLabel;
+    @FXML private Label lblPageInfo;
 
     @FXML private TextField tiencuoc;
+    @FXML private TextField txtPageInput;
 
     private ItemRepository Repo = new ItemRepository();
     private final AuctionService auctionService = new AuctionService();
+    private final List<Auction> allAuctions = new ArrayList<>();
+    private static final int PAGE_SIZE = 8;
+    private int currentPage = 1;
 
     @FXML
     public void initialize() {
-        // Gán dữ liệu cho từng cột
+        // GÃ¡n dá»¯ liá»‡u cho tá»«ng cá»™t
         colId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getId()));
         colItemId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getItem_id()));
         colCurrentUserId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getCurrent_user_id()));
@@ -83,26 +86,74 @@ public class danhSachDauGiaController {
 
         //nhan phan hoi khi an vao 1 phien dau gia
         table.getSelectionModel().selectedItemProperty().addListener((obs, oldAuction, newAuction) -> {
-                    if (newAuction != null) {
-                        // Lấy thông tin sản phẩm từ phiên đấu giá
+            if (newAuction != null) {
+                // Láº¥y thÃ´ng tin sáº£n pháº©m tá»« phiÃªn Ä‘áº¥u giÃ¡
 
-                        Item item = Repo.getItemById(newAuction.getItem_id());
+                Item item = Repo.getItemById(newAuction.getItem_id());
 
-                        // Hiển thị thông tin sản phẩm
-                        idLabel.setText(String.valueOf(item.getId()));
-                        tenLabel.setText(item.getFullname());
-                        thongtinLabel.setText(item.getDescription());
-                        giaLabel.setText(String.valueOf(item.getBeginPrice()));
-                        trangthaiLabel.setText(item.getStatus().toString());
-                    }
-                });
-        // Load dữ liệu từ service
+                // Hiá»ƒn thá»‹ thÃ´ng tin sáº£n pháº©m
+                idLabel.setText(String.valueOf(item.getId()));
+                tenLabel.setText(item.getFullname());
+                thongtinLabel.setText(item.getDescription());
+                giaLabel.setText(String.valueOf(item.getBeginPrice()));
+                trangthaiLabel.setText(item.getStatus().toString());
+            }
+        });
+        // Load dá»¯ liá»‡u tá»« service
         loadData();
     }
 
 
     public void loadData() {
-        table.getItems().setAll(auctionService.getActive());
+        allAuctions.clear();
+        allAuctions.addAll(auctionService.getActive());
+        renderPage(1);
+    }
+
+    @FXML
+    public void goFirstPage() { renderPage(1); }
+
+    @FXML
+    public void goPrevPage() { renderPage(currentPage - 1); }
+
+    @FXML
+    public void goNextPage() { renderPage(currentPage + 1); }
+
+    @FXML
+    public void goLastPage() { renderPage(getTotalPages()); }
+
+    @FXML
+    public void goToPage() {
+        if (txtPageInput == null || txtPageInput.getText() == null) {
+            return;
+        }
+        try {
+            int page = Integer.parseInt(txtPageInput.getText().trim());
+            renderPage(page);
+        } catch (NumberFormatException ignored) {
+            renderPage(currentPage);
+        }
+    }
+
+    private void renderPage(int page) {
+        int totalPages = getTotalPages();
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+        currentPage = page;
+
+        int fromIndex = (currentPage - 1) * PAGE_SIZE;
+        int toIndex = Math.min(fromIndex + PAGE_SIZE, allAuctions.size());
+        List<Auction> pageRows = fromIndex >= toIndex ? List.of() : allAuctions.subList(fromIndex, toIndex);
+        table.getItems().setAll(pageRows);
+
+        if (lblPageInfo != null) {
+            lblPageInfo.setText("Trang " + currentPage + " / " + totalPages);
+        }
+    }
+
+    private int getTotalPages() {
+        if (allAuctions.isEmpty()) return 1;
+        return (allAuctions.size() + PAGE_SIZE - 1) / PAGE_SIZE;
     }
 
     private final BidService bidService;
@@ -165,7 +216,7 @@ public class danhSachDauGiaController {
     private void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(root));
+        stage.setScene(new Scene(root, UILogin.APP_WIDTH, UILogin.APP_HEIGHT));
         stage.show();
     }
 }

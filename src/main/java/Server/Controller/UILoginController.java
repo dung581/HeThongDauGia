@@ -283,7 +283,7 @@ public class UILoginController {
     private void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {
         root = FXMLLoader.load(getClass().getResource(fxmlPath));
         stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        Scene scene = new Scene(root);
+        Scene scene = new Scene(root, UILogin.APP_WIDTH, UILogin.APP_HEIGHT);
         stage.setScene(scene);
         stage.show();
     }
@@ -291,7 +291,7 @@ public class UILoginController {
     private void switchScene(String fxmlPath) throws IOException {
         root = FXMLLoader.load(getClass().getResource(fxmlPath));
         stage = (Stage) name.getScene().getWindow();
-        Scene scene = new Scene(root);
+        Scene scene = new Scene(root, UILogin.APP_WIDTH, UILogin.APP_HEIGHT);
         stage.setScene(scene);
         stage.show();
     }

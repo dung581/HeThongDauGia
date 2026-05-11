@@ -120,7 +120,6 @@ public class ItemRepository {
         String sql = "UPDATE item SET status = ?, mota = ? WHERE id = ?";
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, ItemStatus.REJECTED.name());
             ps.setString(2, reason);
             ps.setLong(3, id);
             int rows = ps.executeUpdate();

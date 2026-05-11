@@ -10,27 +10,27 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="560.0" prefWidth="980.0" style="-fx-background-color: skyblue;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Server.Controller.SellerProductController">
+<BorderPane prefHeight="760.0" prefWidth="1220.0" style="-fx-background-color: skyblue;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Server.Controller.SellerProductController">
    <top>
-      <HBox alignment="CENTER_LEFT" prefHeight="51.0" prefWidth="867.0" spacing="12.0" style="-fx-padding: 12;" BorderPane.alignment="CENTER">
+      <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-padding: 12;" BorderPane.alignment="CENTER">
          <children>
-            <Button mnemonicParsing="false" onAction="#backToSellerDashboard" text="Trở lại" />
-            <Label style="-fx-font-size: 20px;" text="Đăng bán sản phẩm" />
+            <Button mnemonicParsing="false" onAction="#backToSellerDashboard" text="Tro lai" />
+            <Label style="-fx-font-size: 20px;" text="Dang ban san pham" />
          </children>
       </HBox>
    </top>
 
    <left>
-      <VBox prefWidth="280.0" spacing="10.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 12;" BorderPane.alignment="CENTER">
+      <VBox prefWidth="300.0" spacing="10.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 12;" BorderPane.alignment="CENTER">
          <padding><Insets bottom="12.0" left="12.0" right="12.0" top="12.0" /></padding>
          <children>
-            <Label text="Tên sản phẩm" />
-            <TextField fx:id="itemName" promptText="Nhập tên" />
-            <Label text="Giá khởi điểm" />
-            <TextField fx:id="itemPrice" promptText="Nhập giá" />
-            <Label text="Mô tả" />
-            <TextField fx:id="itemDescription" promptText="Nhập mô tả" />
-            <Button mnemonicParsing="false" onAction="#submitItem" text="Gửi duyệt" />
+            <Label text="Ten san pham" />
+            <TextField fx:id="itemName" promptText="Nhap ten" />
+            <Label text="Gia khoi diem" />
+            <TextField fx:id="itemPrice" promptText="Nhap gia" />
+            <Label text="Mo ta" />
+            <TextField fx:id="itemDescription" promptText="Nhap mo ta" />
+            <Button mnemonicParsing="false" onAction="#submitItem" text="Gui duyet" />
          </children>
       </VBox>
    </left>
@@ -39,18 +39,28 @@
       <VBox spacing="8.0" BorderPane.alignment="CENTER">
          <padding><Insets bottom="12.0" left="12.0" right="12.0" top="12.0" /></padding>
          <children>
-            <Label style="-fx-font-size: 16px;" text="Sản phẩm của tôi" />
-            <TableView fx:id="table" prefHeight="445.0" prefWidth="738.0">
+            <Label style="-fx-font-size: 16px;" text="San pham cua toi" />
+            <TableView fx:id="table" prefHeight="520.0" prefWidth="860.0">
                <columns>
                   <TableColumn fx:id="colId" text="ID" />
-                  <TableColumn fx:id="colName" prefWidth="140.0" text="Tên" />
-                  <TableColumn fx:id="colPrice" prefWidth="93.0" text="Giá" />
-                  <TableColumn fx:id="colStatus" minWidth="0.0" prefWidth="85.0" text="Trạng thái" />
-                  <TableColumn fx:id="colReason" prefWidth="183.0" text="Lý do phản hồi" />
-                  <TableColumn fx:id="colEndTime" prefWidth="93.0" text="Thời gian" />
+                  <TableColumn fx:id="colName" prefWidth="170.0" text="Ten" />
+                  <TableColumn fx:id="colPrice" prefWidth="110.0" text="Gia" />
+                  <TableColumn fx:id="colStatus" prefWidth="140.0" text="Trang thai" />
+                  <TableColumn fx:id="colReason" prefWidth="330.0" text="Ly do phan hoi" />
                </columns>
             </TableView>
-            <Button mnemonicParsing="false" onAction="#loadMyItems" text="Tải lại" />
+            <HBox alignment="CENTER" spacing="8.0">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#loadMyItems" text="Tai lai" />
+                  <Button mnemonicParsing="false" onAction="#goFirstPage" text="Dau" />
+                  <Button mnemonicParsing="false" onAction="#goPrevPage" text="&lt;" />
+                  <Label fx:id="lblPageInfo" text="Trang 1 / 1" />
+                  <Button mnemonicParsing="false" onAction="#goNextPage" text="&gt;" />
+                  <Button mnemonicParsing="false" onAction="#goLastPage" text="Cuoi" />
+                  <TextField fx:id="txtPageInput" prefWidth="80.0" promptText="So trang" />
+                  <Button mnemonicParsing="false" onAction="#goToPage" text="Di chuyen" />
+               </children>
+            </HBox>
          </children>
       </VBox>
    </center>
