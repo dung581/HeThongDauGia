@@ -101,8 +101,6 @@ public class DanhSachDauGiaController {
                 trangthaiLabel.setText(item.getStatus().toString());
             }
         });
-        // Load dá»¯ liá»‡u tá»« service
-        loadData();
     }
 
 
