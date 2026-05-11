@@ -66,7 +66,7 @@ public class ApproveController {
 
         setPaneVisible(approvePane, false);
         setPaneVisible(rejectPane, false);
-        loadData();
+
     }
 
     public void loadData() {
