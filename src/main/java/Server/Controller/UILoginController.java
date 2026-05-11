@@ -193,11 +193,8 @@ public class UILoginController {
     }
 
     public void login() throws UsernameIsBlankException, UserNotFoundException, WrongPasswordException, PasswordIsBlankException {
-        String ten = name.getText();
-        String pass = getLoginPasswordValue();
-
         try {
-            User user = authService.login(ten, pass);
+            User user = authService.login(name.getText(), getLoginPasswordValue());
             UserAccount.setSession(user.getId(), user.getUsername(), user.getFullname(), user.getRole());
             JOptionPane.showMessageDialog(null, "Dang nhap thanh cong: " + user.getUsername(), "Thong bao", JOptionPane.INFORMATION_MESSAGE);
 
