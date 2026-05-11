@@ -131,4 +131,8 @@ public class DepositController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 22bdd5605f0f4b633514ca815d42179798e1df5e
