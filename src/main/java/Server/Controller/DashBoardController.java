@@ -41,6 +41,14 @@ public class DashBoardController {
         switchScene(actionEvent, "/com/template/hellfx/ApproveItem.fxml");
     }
 
+    public void naptien(ActionEvent actionEvent) throws IOException {
+        switchScene(actionEvent, "/com/template/hellfx/Deposit.fxml");
+    }
+
+    public void duyetItem(ActionEvent actionEvent) throws IOException {
+        switchScene(actionEvent, "/com/template/hellfx/ItemBrowse.fxml");
+    }
+
     private void showWarning(String msg) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Thông báo");
@@ -62,7 +70,7 @@ public class DashBoardController {
 
         Parent root = FXMLLoader.load(resource);
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        Scene scene = new Scene(root, UILogin.APP_WIDTH, UILogin.APP_HEIGHT);
+        Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
     }
