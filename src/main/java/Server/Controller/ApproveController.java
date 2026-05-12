@@ -88,7 +88,7 @@ public class ApproveController {
                 showWarning("Thời gian kết thúc phải sau thời gian bắt đầu.");
                 return;
             }
-
+            //duyet san phan va tao phien
             itemService.approve(selected.getId());
             auctionService.createSession(selected.getId(), end);
             showInfo("Đã chấp nhận sản phẩm ID: " + selected.getId());

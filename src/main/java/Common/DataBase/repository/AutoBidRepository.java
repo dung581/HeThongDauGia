@@ -6,6 +6,8 @@ import Common.DataBase.entities.Autobid;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -157,4 +159,25 @@ public class AutoBidRepository {
 
         return list;
     }
+
+    // them 5p neu dat gia qua gan endtime
+    public void updateEndTime(long auctionId, LocalDateTime newEndTime) {
+        String sql = "UPDATE auction SET end_time = ? WHERE id = ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setTimestamp(1, Timestamp.valueOf(newEndTime));
+            ps.setLong(2, auctionId);
+
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                throw new RuntimeException("Auction not found");
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

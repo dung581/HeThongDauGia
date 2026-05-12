@@ -1,8 +1,10 @@
 package Server.service;
 
+import Common.DataBase.entities.Auction;
 import Common.DataBase.entities.Autobid;
 import Common.DataBase.repository.AutoBidRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class AutoBidService {
@@ -49,5 +51,16 @@ public class AutoBidService {
 
     public List<Autobid> getByUserId(long userId) {
         return repo.getByUserId(userId);
+    }
+
+    public void autoTime(Auction auction) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime endTime = auction.getEndTime();
+
+        // Nếu bid trong vòng 5 phút cuối
+        if (now.isAfter(endTime.minusMinutes(5)) && now.isBefore(endTime)) {
+            auction.setEndTime(endTime.plusMinutes(5));
+            repo.updateEndTime(auction.getId(), auction.getEndTime());
+        }
     }
 }

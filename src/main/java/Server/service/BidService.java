@@ -9,6 +9,9 @@ import Common.Enum.AuctionState;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static Common.Enum.AuctionState.RUNNING;
+
 public class BidService {
 
     private AuctionRepository auctionRepo = new AuctionRepository();
@@ -19,9 +22,8 @@ public class BidService {
     public synchronized Bid placeBid(long userId, long itemId, long price) {
 
         Auction auction = auctionRepo.getByItemId(itemId);
-
         if (auction == null) throw new RuntimeException("Auction not found");
-        if (auction.getState() != AuctionState.RUNNING)
+        if (auction.getState() != RUNNING)
             throw new RuntimeException("Auction closed");
 
         if (price <= auction.getCurrent_price())
@@ -54,6 +56,8 @@ public class BidService {
 
         // 🔥 auto bid
         AutobidService.trigger(itemId, price);
+        // tu dong gia han thoi gian
+        AutobidService.autoTime(auctionRepo.getById(itemId));
 
         return b;
     }
