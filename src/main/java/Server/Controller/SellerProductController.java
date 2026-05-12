@@ -128,7 +128,7 @@ public class SellerProductController {
     }
 
     public void backToSellerDashboard(ActionEvent actionEvent) throws IOException {
-        switchScene(actionEvent, "/com/template/hellfx/dashboard - Seller.fxml");
+        switchScene(actionEvent, "/com/template/hellfx/UILogin.fxml");
     }
 
     private void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {
