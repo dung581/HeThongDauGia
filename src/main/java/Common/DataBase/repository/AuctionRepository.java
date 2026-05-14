@@ -171,7 +171,13 @@ public class AuctionRepository {
 
         List<Auction> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM auction ";
+        String sql = """
+                SELECT a.*
+                FROM auction a
+                JOIN item i ON i.id = a.item_id
+                WHERE a.state = 'RUNNING'
+                  AND i.status = 'IN_AUCTION'
+                """;
 
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);

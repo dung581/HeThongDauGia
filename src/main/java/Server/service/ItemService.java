@@ -59,6 +59,10 @@ public class ItemService {
         return repo.getByOwnerUserId(ownerUserId);
     }
 
+    public List<Item> listAll() {
+        return repo.getAllItem();
+    }
+
     public void markSold(long itemId) {
         Item item = repo.getItemById(itemId);
 

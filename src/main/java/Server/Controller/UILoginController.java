@@ -33,33 +33,21 @@ public class UILoginController {
     private Stage stage;
     private final Authservice authService;
 
-    @FXML
-    private TextField name;
+    @FXML private TextField name;
 
-    @FXML
-    private PasswordField loginPasswordHidden;
-    @FXML
-    private TextField loginPasswordVisible;
+    @FXML private PasswordField loginPasswordHidden;
+    @FXML private TextField loginPasswordVisible;
 
-    @FXML
-    private TextField regname;
-    @FXML
-    private PasswordField regpassHidden;
-    @FXML
-    private TextField regpassVisible;
-    @FXML
-    private PasswordField regpassagainHidden;
-    @FXML
-    private TextField regpassagainVisible;
+    @FXML private TextField regname;
+    @FXML private PasswordField regpassHidden;
+    @FXML private TextField regpassVisible;
+    @FXML private PasswordField regpassagainHidden;
+    @FXML private TextField regpassagainVisible;
 
-    @FXML
-    private RadioButton Seller;
-    @FXML
-    private RadioButton Bidder;
-    @FXML
-    private ToggleGroup group;
-    @FXML
-    private Label registerMessage;
+    @FXML private RadioButton Seller;
+    @FXML private RadioButton Bidder;
+    @FXML private ToggleGroup group;
+    @FXML private Label registerMessage;
 
     private boolean loginPasswordShown = false;
     private boolean registerPasswordShown = false;
@@ -67,13 +55,8 @@ public class UILoginController {
 
     @FXML
     public void initialize() {
-        if (Bidder != null) {
-            Bidder.setUserData(UserRole.BIDDER);
-        }
-        if (Seller != null) {
-            Seller.setUserData(UserRole.SELLER);
-        }
-
+        if (Bidder != null) Bidder.setUserData(UserRole.BIDDER);
+        if (Seller != null) Seller.setUserData(UserRole.SELLER);
         initPasswordBindings();
     }
 
@@ -93,15 +76,9 @@ public class UILoginController {
     }
 
     public UserRole getRole() {
-        if (group == null) {
-            return null;
-        }
-
+        if (group == null) return null;
         Toggle selected = group.getSelectedToggle();
-        if (selected != null) {
-            return (UserRole) selected.getUserData();
-        }
-        return null;
+        return selected == null ? null : (UserRole) selected.getUserData();
     }
 
     public UILoginController() {
@@ -109,10 +86,7 @@ public class UILoginController {
     }
 
     public void toggleLoginPassword() {
-        if (loginPasswordHidden == null || loginPasswordVisible == null) {
-            return;
-        }
-
+        if (loginPasswordHidden == null || loginPasswordVisible == null) return;
         if (!loginPasswordShown) {
             loginPasswordVisible.setText(loginPasswordHidden.getText());
             loginPasswordVisible.setManaged(true);
@@ -130,10 +104,7 @@ public class UILoginController {
     }
 
     public void toggleRegisterPassword() {
-        if (regpassHidden == null || regpassVisible == null) {
-            return;
-        }
-
+        if (regpassHidden == null || regpassVisible == null) return;
         if (!registerPasswordShown) {
             regpassVisible.setText(regpassHidden.getText());
             regpassVisible.setManaged(true);
@@ -151,10 +122,7 @@ public class UILoginController {
     }
 
     public void toggleRegisterPasswordAgain() {
-        if (regpassagainHidden == null || regpassagainVisible == null) {
-            return;
-        }
-
+        if (regpassagainHidden == null || regpassagainVisible == null) return;
         if (!registerPasswordAgainShown) {
             regpassagainVisible.setText(regpassagainHidden.getText());
             regpassagainVisible.setManaged(true);
@@ -172,24 +140,21 @@ public class UILoginController {
     }
 
     private String getLoginPasswordValue() {
-        if (loginPasswordShown && loginPasswordVisible != null) {
-            return loginPasswordVisible.getText();
-        }
-        return loginPasswordHidden == null ? "" : loginPasswordHidden.getText();
+        return (loginPasswordShown && loginPasswordVisible != null)
+                ? loginPasswordVisible.getText()
+                : (loginPasswordHidden == null ? "" : loginPasswordHidden.getText());
     }
 
     private String getRegisterPasswordValue() {
-        if (registerPasswordShown && regpassVisible != null) {
-            return regpassVisible.getText();
-        }
-        return regpassHidden == null ? "" : regpassHidden.getText();
+        return (registerPasswordShown && regpassVisible != null)
+                ? regpassVisible.getText()
+                : (regpassHidden == null ? "" : regpassHidden.getText());
     }
 
     private String getRegisterPasswordAgainValue() {
-        if (registerPasswordAgainShown && regpassagainVisible != null) {
-            return regpassagainVisible.getText();
-        }
-        return regpassagainHidden == null ? "" : regpassagainHidden.getText();
+        return (registerPasswordAgainShown && regpassagainVisible != null)
+                ? regpassagainVisible.getText()
+                : (regpassagainHidden == null ? "" : regpassagainHidden.getText());
     }
 
     public void login() throws UsernameIsBlankException, UserNotFoundException, WrongPasswordException, PasswordIsBlankException {
@@ -221,7 +186,8 @@ public class UILoginController {
         } catch (DataAccessException e) {
             JOptionPane.showMessageDialog(null, "Không thể kết nối database. Kiểm tra cấu hình kết nối.", "Thông báo", JOptionPane.ERROR_MESSAGE);
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Không mở được màn hình đấu giá.", "Thông báo", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Không mở được màn hình sau đăng nhập.\nChi tiết: " + e.getMessage(), "Thông báo", JOptionPane.ERROR_MESSAGE);
         }
     }
 
