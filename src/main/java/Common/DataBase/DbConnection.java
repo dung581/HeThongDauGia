@@ -1,4 +1,4 @@
-
+/*
 package Common.DataBase;
 
 import java.sql.Connection;
@@ -20,7 +20,7 @@ public class DbConnection {
     }
 
 }
-/*
+ */
 package Common.DataBase;
 
 import java.sql.Connection;
@@ -43,4 +43,3 @@ public class DbConnection {
 
 }
 
- */
