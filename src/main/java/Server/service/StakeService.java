@@ -39,6 +39,7 @@ public class StakeService {
         repo.updateStatus(stakeId, StakeStatus.LOST);
     }
 
+    // list lich dat gia
     public List<Stake> getUserStakes(long userId) {
         return repo.getByUserId(userId);
     }

@@ -10,7 +10,6 @@ import java.util.List;
 public class AutoBidService {
 
     private AutoBidRepository repo = new AutoBidRepository();
-//    private BidService bidService = new BidService();
 
     public Autobid configure(long userId, long itemId, long maxPrice) {
         Autobid ab = new Autobid();

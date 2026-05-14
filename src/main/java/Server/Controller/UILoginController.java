@@ -24,6 +24,7 @@ import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import Server.service.AuthService;
 
 import javax.swing.JOptionPane;
 import java.io.IOException;
@@ -31,7 +32,7 @@ import java.io.IOException;
 public class UILoginController {
     private Parent root;
     private Stage stage;
-    private final Authservice authService;
+    private final AuthService authService;
 
     @FXML
     private TextField name;
@@ -105,7 +106,7 @@ public class UILoginController {
     }
 
     public UILoginController() {
-        authService = new Authservice();
+        authService = new AuthService();
     }
 
     public void toggleLoginPassword() {
@@ -245,19 +246,16 @@ public class UILoginController {
             JOptionPane.showMessageDialog(null, "Đăng ký thất bại: mật khẩu nhập lại không khớp", "Thông báo", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
         if (role == null) {
             JOptionPane.showMessageDialog(null, "Vui lòng chọn vai trò Người đấu giá hoặc Người bán.", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
-
         if (role == UserRole.ADMIN) {
             JOptionPane.showMessageDialog(null, "Không thể đăng ký tài khoản Admin.", "Thông báo", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
         try {
-            authService.register(tenDK, mkhau, role);
+            authService.register(tenDK, mkhau,tenDK, role);
             showRegisterMessage("Đăng ký thành công");
 
             PauseTransition pause = new PauseTransition(Duration.seconds(1.5));

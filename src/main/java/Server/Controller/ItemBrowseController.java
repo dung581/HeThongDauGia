@@ -29,7 +29,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class ItemBrowseController {
+public class    ItemBrowseController {
     @FXML private TableView<Item> table;
     @FXML private TableColumn<Item, Long> colId;
     @FXML private TableColumn<Item, String> colName;
