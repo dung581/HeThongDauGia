@@ -63,6 +63,28 @@ public class ItemService {
         return repo.getAllItem();
     }
 
+    public List<Item> listAllPaged(int page, int pageSize) {
+        int safePage = Math.max(page, 1);
+        int safeSize = Math.max(pageSize, 1);
+        int offset = (safePage - 1) * safeSize;
+        return repo.getAllPaged(safeSize, offset);
+    }
+
+    public List<Item> listByOwnerPaged(long ownerUserId, int page, int pageSize) {
+        int safePage = Math.max(page, 1);
+        int safeSize = Math.max(pageSize, 1);
+        int offset = (safePage - 1) * safeSize;
+        return repo.getByOwnerUserIdPaged(ownerUserId, safeSize, offset);
+    }
+
+    public int countAll() {
+        return repo.countAll();
+    }
+
+    public int countByOwner(long ownerUserId) {
+        return repo.countByOwnerUserId(ownerUserId);
+    }
+
     public void markSold(long itemId) {
         Item item = repo.getItemById(itemId);
 
