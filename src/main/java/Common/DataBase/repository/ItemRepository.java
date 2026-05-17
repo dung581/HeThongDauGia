@@ -234,4 +234,18 @@ public class ItemRepository {
             throw new RuntimeException(e);
         }
     }
+
+    public void deleteById(long id) {
+        String sql = "DELETE FROM item WHERE id = ?";
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, id);
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                throw new RuntimeException("Item not found, id =" + id);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

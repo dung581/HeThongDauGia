@@ -1,5 +1,6 @@
 package Server.Controller;
 
+import Client.Controller.UILogin;
 import Common.DataBase.entities.Auction;
 import Common.DataBase.entities.Item;
 import Common.DataBase.repository.ItemRepository;
@@ -196,6 +197,8 @@ public class DanhSachDauGiaController {
             allAuctions.addAll(result.auctions);
             itemNameById.clear();
             itemNameById.putAll(result.itemNames);
+            itemById.clear();
+            itemById.putAll(result.items);
             renderPage(1);
         });
 
@@ -254,8 +257,9 @@ public class DanhSachDauGiaController {
         try {
             long tiendaugia = Integer.parseInt(tiencuoc.getText().trim());
             long accountid = UserAccount.getUserId();
-            bidService.placeBid(accountid, selected.getId(), tiendaugia);
+            bidService.placeBid(accountid, selected.getItem_id(), tiendaugia);
             showInfo("Dat gia thanh cong.");
+            loadAuctionDataAsync();
         } catch (NumberFormatException e) {
             showWarning("So tien dat gia khong hop le.");
         } catch (Exception e) {

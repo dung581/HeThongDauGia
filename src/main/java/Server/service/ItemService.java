@@ -105,4 +105,15 @@ public class ItemService {
 
         return item;
     }
+
+    public void deleteById(long itemId) {
+        Item item = repo.getItemById(itemId);
+        if (item == null) {
+            throw new RuntimeException("Item not found");
+        }
+        if (item.getStatus() == ItemStatus.IN_AUCTION || item.getStatus() == ItemStatus.SOLD) {
+            throw new RuntimeException("Khong the xoa san pham dang dau gia hoac da ban");
+        }
+        repo.deleteById(itemId);
+    }
 }
