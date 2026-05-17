@@ -10,7 +10,7 @@ public class Launcher {
             DbIndexBootstrap.ensureIndexes();
             new TcpJsonServer(port).start();
         } catch (Exception e) {
-            throw new RuntimeException("Cannot start server on port " + port, e);
+            throw new RuntimeException("Không thể chạy server ở port " + port, e);
         }
     }
 }
