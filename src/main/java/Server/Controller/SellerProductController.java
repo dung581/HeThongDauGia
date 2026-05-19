@@ -1,10 +1,12 @@
 package Server.Controller;
 
+import Client.Controller.UILogin;
 import Common.DataBase.entities.Item;
 import Common.Model.user.UserAccount;
 import Server.service.ItemService;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -19,7 +21,6 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class SellerProductController {
@@ -38,9 +39,10 @@ public class SellerProductController {
     @FXML private TextField txtPageInput;
 
     private final ItemService itemService = new ItemService();
-    private final List<Item> allItems = new ArrayList<>();
     private static final int PAGE_SIZE = 8;
     private int currentPage = 1;
+    private int totalItems = 0;
+    private boolean loading = false;
 
     @FXML
     public void initialize() {
@@ -53,36 +55,30 @@ public class SellerProductController {
     }
 
     public void loadMyItems() {
-        allItems.clear();
-        allItems.addAll(itemService.listByOwner(UserAccount.getUserId()));
-        renderPage(1);
+        loadPageAsync(1);
     }
 
-    @FXML public void goFirstPage() { renderPage(1); }
-    @FXML public void goPrevPage() { renderPage(currentPage - 1); }
-    @FXML public void goNextPage() { renderPage(currentPage + 1); }
-    @FXML public void goLastPage() { renderPage(getTotalPages()); }
+    @FXML public void goFirstPage() { loadPageAsync(1); }
+    @FXML public void goPrevPage() { loadPageAsync(currentPage - 1); }
+    @FXML public void goNextPage() { loadPageAsync(currentPage + 1); }
+    @FXML public void goLastPage() { loadPageAsync(getTotalPages()); }
 
     @FXML
     public void goToPage() {
         if (txtPageInput == null || txtPageInput.getText() == null) return;
         try {
             int page = Integer.parseInt(txtPageInput.getText().trim());
-            renderPage(page);
+            loadPageAsync(page);
         } catch (NumberFormatException ignored) {
-            renderPage(currentPage);
+            loadPageAsync(currentPage);
         }
     }
 
-    private void renderPage(int page) {
+    private void renderPage(int page, List<Item> pageRows) {
         int totalPages = getTotalPages();
         if (page < 1) page = 1;
         if (page > totalPages) page = totalPages;
         currentPage = page;
-
-        int fromIndex = (currentPage - 1) * PAGE_SIZE;
-        int toIndex = Math.min(fromIndex + PAGE_SIZE, allItems.size());
-        List<Item> pageRows = fromIndex >= toIndex ? List.of() : allItems.subList(fromIndex, toIndex);
         table.getItems().setAll(pageRows);
 
         if (lblPageInfo != null) {
@@ -91,8 +87,54 @@ public class SellerProductController {
     }
 
     private int getTotalPages() {
-        if (allItems.isEmpty()) return 1;
-        return (allItems.size() + PAGE_SIZE - 1) / PAGE_SIZE;
+        if (totalItems <= 0) return 1;
+        return (totalItems + PAGE_SIZE - 1) / PAGE_SIZE;
+    }
+
+    private void loadPageAsync(int requestedPage) {
+        if (loading) return;
+        loading = true;
+        if (lblPageInfo != null) lblPageInfo.setText("Đang tải...");
+
+        Task<PageData> task = new Task<>() {
+            @Override
+            protected PageData call() {
+                long ownerId = UserAccount.getUserId();
+                int total = itemService.countByOwner(ownerId);
+                int totalPages = Math.max(1, (total + PAGE_SIZE - 1) / PAGE_SIZE);
+                int safePage = Math.max(1, Math.min(requestedPage, totalPages));
+                List<Item> rows = itemService.listByOwnerPaged(ownerId, safePage, PAGE_SIZE);
+                return new PageData(total, safePage, rows);
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            PageData result = task.getValue();
+            totalItems = result.totalItems;
+            renderPage(result.page, result.rows);
+            loading = false;
+        });
+
+        task.setOnFailed(event -> {
+            loading = false;
+            if (lblPageInfo != null) lblPageInfo.setText("Tải thất bại");
+        });
+
+        Thread worker = new Thread(task, "seller-item-page-load");
+        worker.setDaemon(true);
+        worker.start();
+    }
+
+    private static class PageData {
+        private final int totalItems;
+        private final int page;
+        private final List<Item> rows;
+
+        private PageData(int totalItems, int page, List<Item> rows) {
+            this.totalItems = totalItems;
+            this.page = page;
+            this.rows = rows;
+        }
     }
 
     public void submitItem() {
@@ -128,7 +170,7 @@ public class SellerProductController {
     }
 
     public void backToSellerDashboard(ActionEvent actionEvent) throws IOException {
-        switchScene(actionEvent, "/com/template/hellfx/UILogin.fxml");
+        switchScene(actionEvent, "/com/template/hellfx/dashboard - Seller.fxml");
     }
 
     private void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {

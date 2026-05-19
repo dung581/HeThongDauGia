@@ -59,7 +59,7 @@ public class    ItemBrowseController {
 
         // bo loc status
         if (statusFilter != null){
-            ObservableList<String> options = FXCollections.observableArrayList(ALL, ItemStatus.PENDING.name(), ItemStatus.APPROVED.name(), ItemStatus.IN_AUCTION.name(), ItemStatus.SOLD.name(), ItemStatus.REJECTED.name());
+            ObservableList<String> options = FXCollections.observableArrayList(ALL, ItemStatus.PENDING.name(), ItemStatus.APPROVED.name(), ItemStatus.IN_AUCTION.name(), ItemStatus.SOLD.name(), ItemStatus.CANCELED.name());
             statusFilter.setItems(options);
             UserRole role = UserAccount.getCurrentRole();
             if (role == UserRole.ADMIN){

@@ -2,9 +2,11 @@ package Server.service;
 
 import Common.DataBase.entities.Auction;
 import Common.DataBase.entities.Bid;
+import Common.DataBase.entities.Item;
 import Common.DataBase.entities.Stake;
 import Common.DataBase.repository.AuctionRepository;
 import Common.DataBase.repository.BidRepository;
+import Common.DataBase.repository.ItemRepository;
 import Common.Enum.AuctionState;
 
 import java.time.LocalDateTime;
@@ -16,6 +18,7 @@ public class BidService {
 
     private AuctionRepository auctionRepo = new AuctionRepository();
     private BidRepository bidRepo = new BidRepository();
+    private ItemRepository itemRepo = new ItemRepository();
     private StakeService stakeService = new StakeService();
     private AutoBidService AutobidService = new AutoBidService();
 
@@ -26,8 +29,14 @@ public class BidService {
         if (auction.getState() != RUNNING)
             throw new RuntimeException("Auction closed");
 
-        if (price <= auction.getCurrent_price())
-            throw new RuntimeException("Price must be higher");
+        Item item = itemRepo.getItemById(itemId);
+        if (item == null) throw new RuntimeException("Item not found");
+        long minIncrement = item.getMinIncrement() > 0 ? item.getMinIncrement() : 1L;
+        long minAllowed = auction.getCurrent_price() + minIncrement;
+
+        if (price < minAllowed) {
+            throw new RuntimeException("Price must be at least " + minAllowed + " (step " + minIncrement + ")");
+        }
 
         long oldUser = auction.getCurrent_user_id();
 
@@ -57,7 +66,7 @@ public class BidService {
         // 🔥 auto bid
         AutobidService.trigger(itemId, price);
         // tu dong gia han thoi gian
-        AutobidService.autoTime(auctionRepo.getById(itemId));
+        AutobidService.autoTime(auctionRepo.getById(auction.getId()));
 
         return b;
     }

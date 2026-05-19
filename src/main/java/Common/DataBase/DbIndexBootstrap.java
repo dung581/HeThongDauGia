@@ -10,6 +10,8 @@ public class DbIndexBootstrap {
             "CREATE INDEX IF NOT EXISTS idx_auction_state ON auction(state)",
             "CREATE INDEX IF NOT EXISTS idx_auction_item_id ON auction(item_id)",
             "CREATE INDEX IF NOT EXISTS idx_item_owner_user_id ON item(owner_user_id)",
+            "CREATE INDEX IF NOT EXISTS idx_item_owner_id_desc ON item(owner_user_id, id DESC)",
+            "CREATE INDEX IF NOT EXISTS idx_item_id_desc ON item(id DESC)",
             "CREATE INDEX IF NOT EXISTS idx_item_status ON item(status)",
             "CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)"
     };
@@ -24,7 +26,7 @@ public class DbIndexBootstrap {
                 st.execute(sql);
             }
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            System.err.println("Khong the tao index toi uu: " + e.getMessage());
         }
     }
 }
