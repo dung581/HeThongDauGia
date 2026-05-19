@@ -30,7 +30,39 @@
          <padding>
             <Insets bottom="18.0" left="18.0" right="18.0" top="8.0" />
          </padding>
+         <TableView fx:id="stakeTable"
+                    prefHeight="300"
+                    VBox.vgrow="ALWAYS">
 
+            <columns>
+
+               <TableColumn fx:id="colStakeId"
+                            text="ID"
+                            prefWidth="70"/>
+
+               <TableColumn fx:id="colAuctionId"
+                            text="Auction ID"
+                            prefWidth="120"/>
+
+               <TableColumn fx:id="colItemId"
+                            text="Item ID"
+                            prefWidth="120"/>
+
+               <TableColumn fx:id="colStakeUserId"
+                            text="User ID"
+                            prefWidth="120"/>
+
+               <TableColumn fx:id="colAmount"
+                            text="Số tiền"
+                            prefWidth="180"/>
+
+               <TableColumn fx:id="colStakeStatus"
+                            text="Trạng thái"
+                            prefWidth="180"/>
+
+            </columns>
+
+         </TableView>
          <VBox fx:id="userInfoPane" spacing="10.0" style="-fx-background-color: white; -fx-padding: 14; -fx-background-radius: 8;">
             <children>
                <Label text="Username:" />

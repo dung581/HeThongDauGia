@@ -2,8 +2,10 @@ package Server.Controller;
 
 import Client.Controller.UILogin;
 import Common.DataBase.entities.Account;
+import Common.DataBase.entities.Stake;
 import Common.DataBase.entities.User;
 import Common.DataBase.repository.AccountRepository;
+import Common.DataBase.repository.StakeRepository;
 import Common.DataBase.repository.UserRepository;
 import Common.Enum.UserRole;
 import Common.Model.user.UserAccount;
@@ -50,6 +52,21 @@ public class AccountController {
     private Label lblLocked;
     @FXML
     private Label lblAvailable;
+    @FXML
+    private TableView<Stake> stakeTable;
+    @FXML
+    private TableColumn<Stake, Long> colStakeId;
+    @FXML
+    private TableColumn<Stake, Long> colAuctionId;
+    @FXML
+    private TableColumn<Stake, Long> colItemId;
+    @FXML
+    private TableColumn<Stake, Long> colStakeUserId;
+    @FXML
+    private TableColumn<Stake, Long> colAmount;
+    @FXML
+    private TableColumn<Stake, String> colStakeStatus;
+
 
     @FXML
     private TableView<ManagedAccountRow> adminTable;
@@ -104,11 +121,34 @@ public class AccountController {
         UserRole role = UserAccount.getCurrentRole();
 
         Account account = accountRepository.getAccountByUserId(userId);
-
+        //thong tin tai khoan
         lblTitle.setText("Thông tin tài khoản");
         lblUsername.setText(username == null ? "" : username);
         lblFullname.setText(fullname == null ? "" : fullname);
         lblRole.setText(role == null ? "" : role.name());
+
+        //cot lich su dau gia
+        colStakeId.setCellValueFactory(new PropertyValueFactory<>("id")
+        );
+
+        colAuctionId.setCellValueFactory(new PropertyValueFactory<>("auction_id")
+        );
+
+        colItemId.setCellValueFactory(new PropertyValueFactory<>("item_id")
+        );
+
+        colStakeUserId.setCellValueFactory(new PropertyValueFactory<>("user_id")
+        );
+
+        colAmount.setCellValueFactory(new PropertyValueFactory<>("amount")
+        );
+
+        colStakeStatus.setCellValueFactory(new PropertyValueFactory<>("status")
+        );
+
+
+        // LOAD DATA
+        loadStakeDataAsync();
 
         if (account != null) {
             long balance = account.getBalance();
@@ -255,6 +295,30 @@ public class AccountController {
         Thread worker = new Thread(task, "account-admin-load");
         worker.setDaemon(true);
         worker.start();
+    }
+
+    private void loadStakeDataAsync() {
+
+        Task<List<Stake>> task = new Task<>() {
+
+            @Override
+            protected List<Stake> call() throws Exception {
+
+                StakeRepository repo = new StakeRepository();
+
+                return repo.getByUserId(UserAccount.getUserId());
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            stakeTable.getItems().setAll(task.getValue()
+            );
+        });
+
+        task.setOnFailed(event -> {
+            task.getException().printStackTrace();
+        });
+        new Thread(task).start();
     }
 
     private void ensurePasswordColumn() {

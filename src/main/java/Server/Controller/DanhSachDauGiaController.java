@@ -1,5 +1,6 @@
 package Server.Controller;
 
+import Client.Controller.UILogin;
 import Common.DataBase.entities.Auction;
 import Common.DataBase.entities.Item;
 import Common.DataBase.repository.ItemRepository;
@@ -88,26 +89,26 @@ public class DanhSachDauGiaController {
                 new SimpleStringProperty(itemNameById.getOrDefault(data.getValue().getItem_id(), "N/A")));
 
         //nhan phan hoi khi an vao 1 phien dau gia
-        table.getSelectionModel().selectedItemProperty().addListener((obs, oldAuction, newAuction) -> {
-            if (newAuction != null) {
-                // Láº¥y thÃ´ng tin sáº£n pháº©m tá»« phiÃªn Ä‘áº¥u giÃ¡
+        table.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((obs, oldValue, auction) -> {
 
-                Item item = itemById.get(newAuction.getItem_id());
+                    if (auction != null) {
+                        // Láº¥y thÃ´ng tin sáº£n pháº©m tá»« phiÃªn Ä‘áº¥u giÃ¡
+                        Item item = itemById.get(auction.getItem_id());
+                        if (item != null) {
+                            idLabel.setText(String.valueOf(item.getId()));
 
-                if (item != null) {
+                            tenLabel.setText(item.getFullname());
 
-                    idLabel.setText(String.valueOf(item.getId()));
+                            thongtinLabel.setText(item.getDescription());
 
-                    tenLabel.setText(item.getFullname());
+                            giaLabel.setText(String.valueOf(item.getBeginPrice()));
 
-                    thongtinLabel.setText(item.getDescription());
-
-                    giaLabel.setText(String.valueOf(item.getBeginPrice()));
-
-                    trangthaiLabel.setText(item.getStatus().toString());
-                }
-            }
-        });
+                            trangthaiLabel.setText(item.getStatus().toString());
+                        }
+                    }
+                });
         loadAuctionDataAsync();
     }
     public void loadData() {

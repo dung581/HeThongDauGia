@@ -1,8 +1,10 @@
-package Server.Controller;
+package Client.Controller;
 
+import Client.Controller.UILogin;
 import Common.DataBase.entities.User;
 import Common.Enum.UserRole;
 import Common.Model.user.UserAccount;
+import Server.service.AuthService;
 import Server.service.Exceptions.DataAccessException;
 import Server.service.Exceptions.PasswordIsBlankException;
 import Server.service.Exceptions.UserNotFoundException;
@@ -31,7 +33,7 @@ import java.io.IOException;
 public class UILoginController {
     private Parent root;
     private Stage stage;
-    private final Authservice authService;
+    private final AuthService authService;
 
     @FXML private TextField name;
 
@@ -82,7 +84,7 @@ public class UILoginController {
     }
 
     public UILoginController() {
-        authService = new Authservice();
+        authService = new AuthService();
     }
 
     public void toggleLoginPassword() {
@@ -223,7 +225,7 @@ public class UILoginController {
         }
 
         try {
-            authService.register(tenDK, mkhau, role);
+            authService.register(tenDK, mkhau, tenDK , role);
             showRegisterMessage("Đăng ký thành công");
 
             PauseTransition pause = new PauseTransition(Duration.seconds(1.5));

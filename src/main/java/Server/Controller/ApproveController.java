@@ -92,6 +92,8 @@ public class ApproveController {
             //duyet san pham
             itemService.approve(selected.getId());
             showInfo("Đã chấp nhận sản phẩm ID: " + selected.getId());
+            //tao phien
+            auctionService.createSession(selected.getId(),end);
             if (endTime != null) endTime.clear();
             loadData();
         } catch (Exception e) {
