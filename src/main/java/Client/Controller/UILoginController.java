@@ -1,9 +1,9 @@
 package Client.Controller;
 
+import Client.service.AuthSocketService;
 import Common.DataBase.entities.User;
 import Common.Enum.UserRole;
 import Common.Model.user.UserAccount;
-import Server.Controller.Authservice;
 import Server.service.Exceptions.DataAccessException;
 import Server.service.Exceptions.PasswordIsBlankException;
 import Server.service.Exceptions.UserNotFoundException;
@@ -32,19 +32,16 @@ import java.io.IOException;
 public class UILoginController {
     private Parent root;
     private Stage stage;
-    private final Authservice authService;
+    private final AuthSocketService authService;
 
     @FXML private TextField name;
-
     @FXML private PasswordField loginPasswordHidden;
     @FXML private TextField loginPasswordVisible;
-
     @FXML private TextField regname;
     @FXML private PasswordField regpassHidden;
     @FXML private TextField regpassVisible;
     @FXML private PasswordField regpassagainHidden;
     @FXML private TextField regpassagainVisible;
-
     @FXML private RadioButton Seller;
     @FXML private RadioButton Bidder;
     @FXML private ToggleGroup group;
@@ -53,6 +50,10 @@ public class UILoginController {
     private boolean loginPasswordShown = false;
     private boolean registerPasswordShown = false;
     private boolean registerPasswordAgainShown = false;
+
+    public UILoginController() {
+        authService = new AuthSocketService();
+    }
 
     @FXML
     public void initialize() {
@@ -80,10 +81,6 @@ public class UILoginController {
         if (group == null) return null;
         Toggle selected = group.getSelectedToggle();
         return selected == null ? null : (UserRole) selected.getUserData();
-    }
-
-    public UILoginController() {
-        authService = new Authservice();
     }
 
     public void toggleLoginPassword() {
@@ -158,14 +155,13 @@ public class UILoginController {
                 : (regpassagainHidden == null ? "" : regpassagainHidden.getText());
     }
 
-    public void login() throws UsernameIsBlankException, UserNotFoundException, WrongPasswordException, PasswordIsBlankException {
+    public void login() {
         String ten = name.getText();
         String pass = getLoginPasswordValue();
 
         try {
             User user = authService.login(ten, pass);
             UserAccount.setSession(user.getId(), user.getUsername(), user.getFullname(), user.getRole());
-            JOptionPane.showMessageDialog(null, "Đăng nhập thành công: " + user.getUsername(), "Thông báo", JOptionPane.INFORMATION_MESSAGE);
 
             UserRole role = user.getRole();
             if (role == UserRole.BIDDER) {
@@ -184,10 +180,11 @@ public class UILoginController {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Thông báo", JOptionPane.ERROR_MESSAGE);
         } catch (WrongPasswordException e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Thông báo", JOptionPane.ERROR_MESSAGE);
+        } catch (PasswordIsBlankException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Thông báo", JOptionPane.WARNING_MESSAGE);
         } catch (DataAccessException e) {
-            JOptionPane.showMessageDialog(null, "Không thể kết nối database. Kiểm tra cấu hình kết nối.", "Thông báo", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Không thể kết nối đến máy chủ.", "Thông báo", JOptionPane.ERROR_MESSAGE);
         } catch (IOException e) {
-            e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Không mở được màn hình sau đăng nhập.\nChi tiết: " + e.getMessage(), "Thông báo", JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -209,12 +206,12 @@ public class UILoginController {
         clearRegisterMessage();
 
         if (!mkhau.equals(mkhauLai)) {
-            JOptionPane.showMessageDialog(null, "Đăng ký thất bại: mật khẩu nhập lại không khớp", "Thông báo", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Đăng ký thất bại: mật khẩu nhập lại không khớp.", "Thông báo", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         if (role == null) {
-            JOptionPane.showMessageDialog(null, "Vui lòng chọn vai trò Người đấu giá hoặc Người bán.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Vui lòng chọn vai trò Người bán hoặc Người đấu giá.", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -227,7 +224,7 @@ public class UILoginController {
             authService.register(tenDK, mkhau, role);
             showRegisterMessage("Đăng ký thành công");
 
-            PauseTransition pause = new PauseTransition(Duration.seconds(1.5));
+            PauseTransition pause = new PauseTransition(Duration.seconds(1.2));
             pause.setOnFinished(event -> {
                 try {
                     switchScene(actionEvent, "/com/template/hellfx/UILogin.fxml");

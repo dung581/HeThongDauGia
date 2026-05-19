@@ -15,8 +15,8 @@
    <top>
       <HBox alignment="CENTER_LEFT" spacing="16.0" style="-fx-padding: 12;" BorderPane.alignment="CENTER">
          <children>
-            <Button mnemonicParsing="false" onAction="#backToDashboard" text="Quay lai" />
-            <Label fx:id="lblTitle" text="Thong tin tai khoan">
+            <Button mnemonicParsing="false" onAction="#backToDashboard" text="Quay lại" />
+            <Label fx:id="lblTitle" text="Thông tin tài khoản">
                <font>
                   <Font size="20.0" />
                </font>
@@ -35,22 +35,22 @@
             <children>
                <Label text="Username:" />
                <Label fx:id="lblUsername" text="" />
-               <Label text="Ho ten:" />
+               <Label text="Họ tên:" />
                <Label fx:id="lblFullname" text="" />
                <Label text="Role:" />
                <Label fx:id="lblRole" text="" />
-               <Label text="Tong so du:" />
+               <Label text="Tổng số dư:" />
                <Label fx:id="lblBalance" text="0" />
-               <Label text="Tien dang khoa:" />
+               <Label text="Tiền đang khóa:" />
                <Label fx:id="lblLocked" text="0" />
-               <Label text="So du kha dung:" />
+               <Label text="Số dư khả dụng:" />
                <Label fx:id="lblAvailable" text="0" />
             </children>
          </VBox>
 
          <VBox fx:id="adminPane" spacing="10.0" visible="false" managed="false" style="-fx-background-color: white; -fx-padding: 14; -fx-background-radius: 8;">
             <children>
-               <Label text="Danh sach tai khoan quan ly" />
+               <Label text="Danh sách tài khoản quản lí" />
                <TableView fx:id="adminTable" prefHeight="330.0">
                   <columns>
                      <TableColumn fx:id="colUserId" prefWidth="80.0" text="User ID" />
@@ -64,13 +64,13 @@
                </TableView>
                <HBox alignment="CENTER" spacing="8.0">
                   <children>
-                     <Button mnemonicParsing="false" onAction="#goFirstPage" text="Dau" />
+                     <Button mnemonicParsing="false" onAction="#goFirstPage" text="Đầu" />
                      <Button mnemonicParsing="false" onAction="#goPrevPage" text="&lt;" />
                      <Label fx:id="lblPageInfo" text="Trang 1 / 1" />
                      <Button mnemonicParsing="false" onAction="#goNextPage" text="&gt;" />
-                     <Button mnemonicParsing="false" onAction="#goLastPage" text="Cuoi" />
-                     <TextField fx:id="txtPageInput" prefWidth="80.0" promptText="So trang" />
-                     <Button mnemonicParsing="false" onAction="#goToPage" text="Di chuyen" />
+                     <Button mnemonicParsing="false" onAction="#goLastPage" text="Cuối" />
+                     <TextField fx:id="txtPageInput" prefWidth="80.0" promptText="Số trang" />
+                     <Button mnemonicParsing="false" onAction="#goToPage" text="Di chuyển" />
                   </children>
                </HBox>
             </children>
