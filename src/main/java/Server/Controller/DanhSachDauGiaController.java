@@ -3,12 +3,16 @@ package Server.Controller;
 import Client.Controller.UILogin;
 import Common.DataBase.entities.Auction;
 import Common.DataBase.entities.Item;
+import Common.DataBase.entities.User;
 import Common.DataBase.repository.ItemRepository;
 import Common.Enum.AuctionState;
 import Common.Enum.UserRole;
 import Common.Model.user.UserAccount;
+import Server.service.AccountService;
 import Server.service.AuctionService;
+import Server.service.AutoBidService;
 import Server.service.BidService;
+import javafx.animation.Timeline;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
@@ -287,4 +291,3 @@ public class DanhSachDauGiaController {
         stage.show();
     }
 }
-
