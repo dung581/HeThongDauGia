@@ -4,12 +4,10 @@ import Client.Controller.UILogin;
 import Client.util.AlertUtil;
 import Common.DataBase.entities.Account;
 import Common.DataBase.entities.Stake;
-import Common.DataBase.entities.User;
-import Common.DataBase.repository.AccountRepository;
-import Common.DataBase.repository.StakeRepository;
-import Common.DataBase.repository.UserRepository;
 import Common.Enum.UserRole;
 import Common.Model.user.UserAccount;
+import Server.service.AccountService;
+import Server.service.StakeService;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -18,6 +16,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -29,9 +28,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class AccountController {
 
@@ -49,6 +46,10 @@ public class AccountController {
     private Node uploadItemNav;
     @FXML
     private Node depositNav;
+    @FXML
+    private Node accountSection;
+    @FXML
+    private Button accountNavButton;
 
     @FXML
     private Label lblTitle;
@@ -64,6 +65,12 @@ public class AccountController {
     private Label lblLocked;
     @FXML
     private Label lblAvailable;
+    @FXML
+    private Label lblBreadcrumb;
+    @FXML
+    private Label lblSubtitle;
+    @FXML
+    private Label lblFooter;
     @FXML
     private TableView<Stake> stakeTable;
     @FXML
@@ -81,29 +88,29 @@ public class AccountController {
 
 
     @FXML
-    private TableView<ManagedAccountRow> adminTable;
+    private TableView<AccountService.ManagedAccount> adminTable;
     @FXML
-    private TableColumn<ManagedAccountRow, Long> colUserId;
+    private TableColumn<AccountService.ManagedAccount, Long> colUserId;
     @FXML
-    private TableColumn<ManagedAccountRow, String> colUsername;
+    private TableColumn<AccountService.ManagedAccount, String> colUsername;
     @FXML
-    private TableColumn<ManagedAccountRow, String> colFullname;
+    private TableColumn<AccountService.ManagedAccount, String> colFullname;
     @FXML
-    private TableColumn<ManagedAccountRow, String> colRole;
+    private TableColumn<AccountService.ManagedAccount, String> colRole;
     @FXML
-    private TableColumn<ManagedAccountRow, String> colPassword;
+    private TableColumn<AccountService.ManagedAccount, String> colPassword;
     @FXML
-    private TableColumn<ManagedAccountRow, Long> colBalance;
+    private TableColumn<AccountService.ManagedAccount, Long> colBalance;
     @FXML
-    private TableColumn<ManagedAccountRow, Long> colLocked;
+    private TableColumn<AccountService.ManagedAccount, Long> colLocked;
     @FXML
     private Label lblPageInfo;
     @FXML
     private TextField txtPageInput;
 
-    private final UserRepository userRepository = new UserRepository();
-    private final AccountRepository accountRepository = new AccountRepository();
-    private final List<ManagedAccountRow> allAdminRows = new ArrayList<>();
+    private final AccountService accountService = new AccountService();
+    private final StakeService stakeService = new StakeService();
+    private final List<AccountService.ManagedAccount> allAdminRows = new ArrayList<>();
     private static final int PAGE_SIZE = 8;
     private int currentPage = 1;
 
@@ -123,12 +130,22 @@ public class AccountController {
         setVisibleManaged(browseItemsNav, role == UserRole.ADMIN);
         setVisibleManaged(uploadItemNav, role == UserRole.SELLER);
         setVisibleManaged(depositNav, role == UserRole.BIDDER);
+        setVisibleManaged(accountSection, role == UserRole.SELLER || role == UserRole.BIDDER);
+        if (accountNavButton != null) {
+            accountNavButton.setText(role == UserRole.ADMIN ? "Account Management" : "My Account");
+        }
     }
 
     private void setVisibleManaged(Node node, boolean visible) {
         if (node == null) return;
         node.setVisible(visible);
         node.setManaged(visible);
+    }
+
+    private void setLabel(Label label, String text) {
+        if (label != null) {
+            label.setText(text);
+        }
     }
 
     private void showUserInfoView() {
@@ -148,9 +165,16 @@ public class AccountController {
         String fullname = UserAccount.getCurrentFullname();
         UserRole role = UserAccount.getCurrentRole();
 
-        Account account = accountRepository.getAccountByUserId(userId);
+        Account account = null;
+        try {
+            account = accountService.getBalance(userId);
+        } catch (Exception ignored) {
+        }
         //thong tin tai khoan
         lblTitle.setText("Thông tin tài khoản");
+        setLabel(lblBreadcrumb, "BidNow / My Account");
+        setLabel(lblSubtitle, "Theo doi so du, tien dang khoa va lich su stake cua tai khoan.");
+        setLabel(lblFooter, "BidNow Desktop | JavaFX 21 | Account workspace");
         lblUsername.setText(username == null ? "" : username);
         lblFullname.setText(fullname == null ? "" : fullname);
         lblRole.setText(role == null ? "" : role.name());
@@ -206,6 +230,9 @@ public class AccountController {
         if (lblTitle != null) {
             lblTitle.setText("Quan ly tai khoan");
         }
+        setLabel(lblBreadcrumb, "BidNow / Account Management");
+        setLabel(lblSubtitle, "Xem danh sach nguoi dung, role, so du va tien dang khoa trong he thong.");
+        setLabel(lblFooter, "BidNow Desktop | JavaFX 21 | Account management workspace");
 
         ensurePasswordColumn();
 
@@ -268,7 +295,7 @@ public class AccountController {
 
         int fromIndex = (currentPage - 1) * PAGE_SIZE;
         int toIndex = Math.min(fromIndex + PAGE_SIZE, allAdminRows.size());
-        List<ManagedAccountRow> pageRows = fromIndex >= toIndex
+        List<AccountService.ManagedAccount> pageRows = fromIndex >= toIndex
                 ? List.of()
                 : allAdminRows.subList(fromIndex, toIndex);
 
@@ -286,32 +313,10 @@ public class AccountController {
     }
 
     private void loadAdminDataAsync() {
-        Task<List<ManagedAccountRow>> task = new Task<>() {
+        Task<List<AccountService.ManagedAccount>> task = new Task<>() {
             @Override
-            protected List<ManagedAccountRow> call() {
-                List<User> users = userRepository.getallUser();
-                List<Account> accounts = accountRepository.getAllAccount();
-                Map<Long, Account> accountByUserId = new HashMap<>();
-                for (Account account : accounts) {
-                    accountByUserId.put(account.getUser_id(), account);
-                }
-
-                List<ManagedAccountRow> rows = new ArrayList<>(users.size());
-                for (User user : users) {
-                    Account account = accountByUserId.get(user.getId());
-                    long balance = account == null ? 0 : account.getBalance();
-                    long locked = account == null ? 0 : account.getLocked_balance();
-                    rows.add(new ManagedAccountRow(
-                            user.getId(),
-                            user.getUsername(),
-                            user.getFullname(),
-                            user.getRole() == null ? "" : user.getRole().name(),
-                            user.getPassword(),
-                            balance,
-                            locked
-                    ));
-                }
-                return rows;
+            protected List<AccountService.ManagedAccount> call() {
+                return accountService.listManagedAccounts();
             }
         };
 
@@ -338,9 +343,7 @@ public class AccountController {
             @Override
             protected List<Stake> call() throws Exception {
 
-                StakeRepository repo = new StakeRepository();
-
-                return repo.getByUserId(UserAccount.getUserId());
+                return stakeService.getUserStakes(UserAccount.getUserId());
             }
         };
 
@@ -435,33 +438,5 @@ public class AccountController {
             currentScene.setRoot(root);
         }
         stage.show();
-    }
-
-    public static class ManagedAccountRow {
-        private final Long userId;
-        private final String username;
-        private final String fullname;
-        private final String role;
-        private final String password;
-        private final Long balance;
-        private final Long lockedBalance;
-
-        public ManagedAccountRow(Long userId, String username, String fullname, String role, String password, Long balance, Long lockedBalance) {
-            this.userId = userId;
-            this.username = username;
-            this.fullname = fullname;
-            this.role = role;
-            this.password = password;
-            this.balance = balance;
-            this.lockedBalance = lockedBalance;
-        }
-
-        public Long getUserId() { return userId; }
-        public String getUsername() { return username; }
-        public String getFullname() { return fullname; }
-        public String getRole() { return role; }
-        public String getPassword() { return password; }
-        public Long getBalance() { return balance; }
-        public Long getLockedBalance() { return lockedBalance; }
     }
 }

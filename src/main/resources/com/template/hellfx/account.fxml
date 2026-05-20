@@ -28,10 +28,10 @@
                 <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goHome" styleClass="nav-item" text="Home" />
                 <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goToSessions" styleClass="nav-item" text="Sessions" />
                 <Button fx:id="browseItemsNav" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToBrowseItems" styleClass="nav-item" text="Browse Items" />
-                <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goToAccount" styleClass="nav-active" text="My Account" />
+                <Button fx:id="accountNavButton" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToAccount" styleClass="nav-active" text="My Account" />
             </VBox>
 
-            <VBox spacing="12.0">
+            <VBox fx:id="accountSection" spacing="12.0">
                 <Label styleClass="section-label" text="ACCOUNT" />
                 <Button fx:id="depositNav" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToDeposit" styleClass="nav-item" text="Deposit" />
                 <Button fx:id="uploadItemNav" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToUploadItem" styleClass="nav-item" text="Upload Item" />
@@ -44,7 +44,7 @@
             <padding>
                 <Insets bottom="16.0" left="32.0" right="32.0" top="16.0" />
             </padding>
-            <Label styleClass="muted" text="BidNow / My Account" />
+            <Label fx:id="lblBreadcrumb" styleClass="muted" text="BidNow / My Account" />
             <HBox HBox.hgrow="ALWAYS" />
             <Button mnemonicParsing="false" onAction="#backToDashboard" styleClass="secondary-button" text="Tro lai" />
         </HBox>
@@ -58,7 +58,7 @@
 
             <VBox spacing="6.0">
                 <Label fx:id="lblTitle" styleClass="page-title" text="Thong tin tai khoan" />
-                <Label styleClass="page-subtitle" text="Theo doi so du, tien dang khoa va lich su stake cua tai khoan." />
+                <Label fx:id="lblSubtitle" styleClass="page-subtitle" text="Theo doi so du, tien dang khoa va lich su stake cua tai khoan." />
             </VBox>
 
             <HBox fx:id="accountSummaryPane" spacing="14.0">
@@ -151,7 +151,7 @@
             <padding>
                 <Insets bottom="10.0" left="42.0" right="42.0" top="10.0" />
             </padding>
-            <Label styleClass="muted" text="BidNow Desktop | JavaFX 21 | Account workspace" />
+            <Label fx:id="lblFooter" styleClass="muted" text="BidNow Desktop | JavaFX 21 | Account workspace" />
         </HBox>
     </bottom>
 </BorderPane>

@@ -18,7 +18,7 @@
             <Insets bottom="16.0" left="42.0" right="42.0" top="16.0" />
          </padding>
          <Button mnemonicParsing="false" onAction="#goToLogin" styleClass="secondary-button" text="Tro lai" />
-         <Label styleClass="muted" text="SCREEN 01 - REGISTER" />
+         <Label styleClass="muted" text="BidNow / Register" />
       </HBox>
    </top>
 

@@ -51,7 +51,10 @@ public class SessionDetailController {
     @FXML private Label balanceLabel;
     @FXML private Label winnerLabel;
     @FXML private Label autoBidStatusLabel;
+    @FXML private Label accountSectionLabel;
     @FXML private Node browseItemsNav;
+    @FXML private Node depositNav;
+    @FXML private Button accountNavButton;
 
     // O nhap gia dat thu cong va gia toi da cho auto bid.
     @FXML private TextField bidAmountField;
@@ -107,6 +110,13 @@ public class SessionDetailController {
     private void configureRoleUi() {
         UserRole role = UserAccount.getCurrentRole();
         setVisibleManaged(browseItemsNav, role == UserRole.ADMIN);
+        setVisibleManaged(depositNav, role == UserRole.BIDDER);
+        if (accountNavButton != null) {
+            accountNavButton.setText(role == UserRole.ADMIN ? "Account Management" : "My Account");
+        }
+        if (accountSectionLabel != null) {
+            accountSectionLabel.setText(role == UserRole.ADMIN ? "MANAGEMENT" : "ACCOUNT");
+        }
     }
 
     private void setVisibleManaged(Node node, boolean visible) {
@@ -204,6 +214,10 @@ public class SessionDetailController {
 
     @FXML
     public void goToDeposit(ActionEvent event) throws IOException {
+        if (UserAccount.getCurrentRole() != UserRole.BIDDER) {
+            AlertUtil.showError("Chuc nang nay chi danh cho nguoi dau gia.");
+            return;
+        }
         cancelPendingLoadAndStopTimer();
         switchScene(event, "/com/template/hellfx/Deposit.fxml");
     }
