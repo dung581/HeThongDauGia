@@ -3,11 +3,11 @@ package Server.Controller;
 
 import Common.DataBase.entities.Auction;
 import Common.DataBase.entities.Item;
-import Common.DataBase.repository.ItemRepository;
 import Common.Enum.AuctionState;
 import Common.Enum.UserRole;
 import Common.Model.user.UserAccount;
 import Server.service.AuctionService;
+import Server.service.ItemService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -28,7 +28,7 @@ public class WinnerController{
     @FXML private Label lblNote;
 
     private final AuctionService auctionService = new AuctionService();
-    private final ItemRepository itemRepo = new ItemRepository();
+    private final ItemService itemService = new ItemService();
     private static long pendingSessionId = 0L;
 
     public static void setSessionId(long sessionId) {
@@ -62,7 +62,11 @@ public class WinnerController{
     }
 
     private void populate(Auction auction){
-        Item item = itemRepo.getItemById(auction.getItem_id());
+        Item item = null;
+        try {
+            item = itemService.getById(auction.getItem_id());
+        } catch (Exception ignored) {
+        }
 
         if (lblItemName != null){
             lblItemName.setText(item == null ? "(?)" : item.getFullname());

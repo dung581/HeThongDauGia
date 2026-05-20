@@ -10,58 +10,88 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="760.0" prefWidth="1220.0" style="-fx-background-color: skyblue;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Server.Controller.SellerProductController">
-   <top>
-      <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-padding: 12;" BorderPane.alignment="CENTER">
-         <children>
-            <Button mnemonicParsing="false" onAction="#backToSellerDashboard" text="Trở lại" />
-            <Label style="-fx-font-size: 20px;" text="Đăng bán sản phẩm" />
-         </children>
-      </HBox>
-   </top>
+<BorderPane prefHeight="760.0" prefWidth="1220.0" styleClass="app-root" stylesheets="@bidnow-dark.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Server.Controller.SellerProductController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="topbar">
+            <padding>
+                <Insets bottom="16.0" left="32.0" right="32.0" top="16.0" />
+            </padding>
+            <Label styleClass="muted" text="BidNow / Seller / Upload Item" />
+            <HBox HBox.hgrow="ALWAYS" />
+            <Button mnemonicParsing="false" onAction="#backToSellerDashboard" styleClass="secondary-button" text="Tro lai" />
+        </HBox>
+    </top>
 
-   <left>
-      <VBox prefWidth="300.0" spacing="10.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 12;" BorderPane.alignment="CENTER">
-         <padding><Insets bottom="12.0" left="12.0" right="12.0" top="12.0" /></padding>
-         <children>
-            <Label text="Tên sản phẩm" />
-            <TextField fx:id="itemName" promptText="Nhập tên" />
-            <Label text="Giá khởi điểm" />
-            <TextField fx:id="itemPrice" promptText="Nhập giá" />
-            <Label text="Mô tả" />
-            <TextField fx:id="itemDescription" promptText="Nhập mô tả" />
-            <Button mnemonicParsing="false" onAction="#submitItem" text="Gửi duyệt" />
-         </children>
-      </VBox>
-   </left>
+    <center>
+        <HBox spacing="22.0">
+            <padding>
+                <Insets bottom="24.0" left="32.0" right="32.0" top="28.0" />
+            </padding>
 
-   <center>
-      <VBox spacing="8.0" BorderPane.alignment="CENTER">
-         <padding><Insets bottom="12.0" left="12.0" right="12.0" top="12.0" /></padding>
-         <children>
-            <Label style="-fx-font-size: 16px;" text="Sản phẩm của tôi" />
-            <TableView fx:id="table" prefHeight="520.0" prefWidth="860.0">
-               <columns>
-                  <TableColumn fx:id="colId" text="ID" />
-                  <TableColumn fx:id="colName" prefWidth="170.0" text="Tên" />
-                  <TableColumn fx:id="colPrice" prefWidth="110.0" text="Giá" />
-                  <TableColumn fx:id="colStatus" prefWidth="140.0" text="Trạng thái" />
-                  <TableColumn fx:id="colReason" prefWidth="330.0" text="Lý do phản hồi" />
-               </columns>
-            </TableView>
-            <HBox alignment="CENTER" spacing="8.0">
-               <children>
-                  <Button mnemonicParsing="false" onAction="#loadMyItems" text="Tải lại" />
-                  <Button mnemonicParsing="false" onAction="#goFirstPage" text="Đầu" />
-                  <Button mnemonicParsing="false" onAction="#goPrevPage" text="&lt;" />
-                  <Label fx:id="lblPageInfo" text="Trang 1 / 1" />
-                  <Button mnemonicParsing="false" onAction="#goNextPage" text="&gt;" />
-                  <Button mnemonicParsing="false" onAction="#goLastPage" text="Cuối" />
-                  <TextField fx:id="txtPageInput" prefWidth="80.0" promptText="Số trang" />
-                  <Button mnemonicParsing="false" onAction="#goToPage" text="Di chuyển" />
-               </children>
-            </HBox>
-         </children>
-      </VBox>
-   </center>
+            <VBox prefWidth="330.0" spacing="18.0">
+                <VBox spacing="6.0">
+                    <Label styleClass="page-title" text="Dang ban san pham" />
+                    <Label styleClass="page-subtitle" text="Gui item cho admin duyet truoc khi mo phien dau gia." wrapText="true" />
+                </VBox>
+
+                <VBox spacing="12.0" styleClass="card">
+                    <padding>
+                        <Insets bottom="22.0" left="22.0" right="22.0" top="22.0" />
+                    </padding>
+
+                    <Label styleClass="section-label" text="NEW ITEM" />
+                    <VBox spacing="8.0">
+                        <Label styleClass="field-name" text="TEN SAN PHAM" />
+                        <TextField fx:id="itemName" promptText="Nhap ten" styleClass="input" />
+                    </VBox>
+                    <VBox spacing="8.0">
+                        <Label styleClass="field-name" text="GIA KHOI DIEM" />
+                        <TextField fx:id="itemPrice" promptText="Nhap gia" styleClass="input" />
+                    </VBox>
+                    <VBox spacing="8.0">
+                        <Label styleClass="field-name" text="MO TA" />
+                        <TextField fx:id="itemDescription" promptText="Nhap mo ta" styleClass="input" />
+                    </VBox>
+                    <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#submitItem" styleClass="primary-button" text="Gui duyet" />
+                </VBox>
+            </VBox>
+
+            <VBox spacing="12.0" HBox.hgrow="ALWAYS">
+                <VBox spacing="6.0">
+                    <Label styleClass="page-title" text="San pham cua toi" />
+                    <Label styleClass="page-subtitle" text="Theo doi trang thai item da gui va phan hoi tu admin." />
+                </VBox>
+
+                <TableView fx:id="table" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colId" prefWidth="90.0" text="ID" />
+                        <TableColumn fx:id="colName" prefWidth="220.0" text="Ten" />
+                        <TableColumn fx:id="colPrice" prefWidth="140.0" text="Gia" />
+                        <TableColumn fx:id="colStatus" prefWidth="160.0" text="Trang thai" />
+                        <TableColumn fx:id="colReason" prefWidth="360.0" text="Ly do phan hoi" />
+                    </columns>
+                </TableView>
+
+                <HBox alignment="CENTER" spacing="10.0">
+                    <Button mnemonicParsing="false" onAction="#loadMyItems" styleClass="secondary-button" text="Tai lai" />
+                    <Button mnemonicParsing="false" onAction="#goFirstPage" styleClass="secondary-button" text="Dau" />
+                    <Button mnemonicParsing="false" onAction="#goPrevPage" styleClass="secondary-button" text="&lt;" />
+                    <Label fx:id="lblPageInfo" styleClass="field-value" text="Trang 1 / 1" />
+                    <Button mnemonicParsing="false" onAction="#goNextPage" styleClass="secondary-button" text="&gt;" />
+                    <Button mnemonicParsing="false" onAction="#goLastPage" styleClass="secondary-button" text="Cuoi" />
+                    <TextField fx:id="txtPageInput" prefWidth="90.0" promptText="So trang" styleClass="input" />
+                    <Button mnemonicParsing="false" onAction="#goToPage" styleClass="secondary-button" text="Di chuyen" />
+                </HBox>
+            </VBox>
+        </HBox>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_LEFT" styleClass="topbar">
+            <padding>
+                <Insets bottom="10.0" left="42.0" right="42.0" top="10.0" />
+            </padding>
+            <Label styleClass="muted" text="BidNow Desktop | JavaFX 21 | Seller item workspace" />
+        </HBox>
+    </bottom>
 </BorderPane>

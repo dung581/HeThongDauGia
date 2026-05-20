@@ -209,3 +209,28 @@
 .table-cell {
     -fx-text-fill: #e8edf4;
 }
+
+.choice-box {
+    -fx-background-color: #222832;
+    -fx-background-radius: 8;
+    -fx-border-color: #363f4c;
+    -fx-border-radius: 8;
+    -fx-mark-color: #9aa3af;
+}
+
+.choice-box .label {
+    -fx-text-fill: #e8edf4;
+}
+
+.choice-box .context-menu {
+    -fx-background-color: #171c24;
+    -fx-border-color: #303844;
+}
+
+.choice-box .menu-item:focused {
+    -fx-background-color: #0f335d;
+}
+
+.choice-box .menu-item > .label {
+    -fx-text-fill: #e8edf4;
+}

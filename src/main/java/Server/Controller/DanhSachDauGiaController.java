@@ -4,11 +4,11 @@ import Client.Controller.UILogin;
 import Client.util.AlertUtil;
 import Common.DataBase.entities.Auction;
 import Common.DataBase.entities.Item;
-import Common.DataBase.repository.ItemRepository;
 import Common.Enum.AuctionState;
 import Common.Enum.UserRole;
 import Common.Model.user.UserAccount;
 import Server.service.AuctionService;
+import Server.service.ItemService;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
@@ -18,6 +18,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -48,13 +49,16 @@ public class DanhSachDauGiaController {
     @FXML private Label trangthaiLabel;
     @FXML private Label thongtinLabel;
     @FXML private Label lblPageInfo;
+    @FXML private Label accountSectionLabel;
 
     @FXML private Node browseItemsNav;
     @FXML private Node uploadItemNav;
+    @FXML private Node depositNav;
+    @FXML private Button accountNavButton;
     @FXML private TextField txtPageInput;
 
-    private final ItemRepository itemRepository = new ItemRepository();
     private final AuctionService auctionService = new AuctionService();
+    private final ItemService itemService = new ItemService();
     private final List<Auction> allAuctions = new ArrayList<>();
     private final Map<Long, Item> itemById = new HashMap<>();
     private final Map<Long, String> itemNameById = new HashMap<>();
@@ -74,6 +78,13 @@ public class DanhSachDauGiaController {
         UserRole role = UserAccount.getCurrentRole();
         setVisibleManaged(browseItemsNav, role == UserRole.ADMIN);
         setVisibleManaged(uploadItemNav, role == UserRole.SELLER);
+        setVisibleManaged(depositNav, role == UserRole.BIDDER);
+        if (accountNavButton != null) {
+            accountNavButton.setText(role == UserRole.ADMIN ? "Account Management" : "My Account");
+        }
+        if (accountSectionLabel != null) {
+            accountSectionLabel.setText(role == UserRole.ADMIN ? "MANAGEMENT" : "ACCOUNT");
+        }
     }
 
     private void setVisibleManaged(Node node, boolean visible) {
@@ -134,7 +145,7 @@ public class DanhSachDauGiaController {
             @Override
             protected LoadAuctionData call() {
                 List<Auction> auctions = auctionService.getActive();
-                List<Item> items = itemRepository.getAllItem();
+                List<Item> items = itemService.listAll();
                 Map<Long, String> itemNames = new HashMap<>();
                 Map<Long, Item> itemsById = new HashMap<>();
 
@@ -263,6 +274,10 @@ public class DanhSachDauGiaController {
 
     @FXML
     public void goToDeposit(ActionEvent actionEvent) throws IOException {
+        if (UserAccount.getCurrentRole() != UserRole.BIDDER) {
+            AlertUtil.showError("Chuc nang nay chi danh cho nguoi dau gia.");
+            return;
+        }
         switchScene(actionEvent, "/com/template/hellfx/Deposit.fxml");
     }
 

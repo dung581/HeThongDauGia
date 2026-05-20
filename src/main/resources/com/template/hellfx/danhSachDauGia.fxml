@@ -31,9 +31,9 @@
             </VBox>
 
             <VBox spacing="12.0">
-                <Label styleClass="section-label" text="ACCOUNT" />
-                <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goToAccount" styleClass="nav-item" text="My Account" />
-                <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goToDeposit" styleClass="nav-item" text="Deposit" />
+                <Label fx:id="accountSectionLabel" styleClass="section-label" text="ACCOUNT" />
+                <Button fx:id="accountNavButton" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToAccount" styleClass="nav-item" text="My Account" />
+                <Button fx:id="depositNav" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToDeposit" styleClass="nav-item" text="Deposit" />
                 <Button fx:id="uploadItemNav" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToUploadItem" styleClass="nav-item" text="Upload Item" />
             </VBox>
         </VBox>
