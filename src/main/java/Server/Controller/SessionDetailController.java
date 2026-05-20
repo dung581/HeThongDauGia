@@ -4,6 +4,7 @@ import Client.Controller.UILogin;
 
 import Client.util.AlertUtil;
 import Common.DataBase.entities.Auction;
+import Common.DataBase.entities.Autobid;
 import Common.DataBase.entities.Bid;
 import Common.DataBase.entities.Item;
 import Common.Enum.UserRole;
@@ -17,6 +18,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -35,6 +37,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 public class SessionDetailController {
 
@@ -79,6 +82,7 @@ public class SessionDetailController {
     private Auction session;
     private Item item;
     private Timeline countdownTimer;
+    private long loadRequestToken;
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     public static void setSessionId(long sessionId) {
@@ -97,7 +101,7 @@ public class SessionDetailController {
             return;
         }
 
-        loadSession(pendingSessionId);
+        loadSessionAsync(pendingSessionId);
     }
 
     private void configureRoleUi() {
@@ -116,12 +120,12 @@ public class SessionDetailController {
             return;
         }
         pendingSessionId = session.getId();
-        loadSession(session.getId());
+        loadSessionAsync(session.getId());
     }
 
     public void setSessionIdInstance(long sessionId) {
         pendingSessionId = sessionId;
-        loadSession(sessionId);
+        loadSessionAsync(sessionId);
     }
 
     @FXML
@@ -172,13 +176,13 @@ public class SessionDetailController {
     @FXML
     public void onBackClick(ActionEvent event) throws IOException {
         // Quay lai man danh sach dau gia.
-        stopTimer();
+        cancelPendingLoadAndStopTimer();
         switchScene(event, "/com/template/hellfx/danhSachDauGia.fxml");
     }
 
     @FXML
     public void goToSessions(ActionEvent event) throws IOException {
-        stopTimer();
+        cancelPendingLoadAndStopTimer();
         switchScene(event, "/com/template/hellfx/danhSachDauGia.fxml");
     }
 
@@ -188,40 +192,57 @@ public class SessionDetailController {
             AlertUtil.showError("Chuc nang nay chi danh cho Admin.");
             return;
         }
-        stopTimer();
+        cancelPendingLoadAndStopTimer();
         switchScene(event, "/com/template/hellfx/ItemBrowse.fxml");
     }
 
     @FXML
     public void goToAccount(ActionEvent event) throws IOException {
-        stopTimer();
+        cancelPendingLoadAndStopTimer();
         switchScene(event, "/com/template/hellfx/account.fxml");
     }
 
     @FXML
     public void goToDeposit(ActionEvent event) throws IOException {
-        stopTimer();
+        cancelPendingLoadAndStopTimer();
         switchScene(event, "/com/template/hellfx/Deposit.fxml");
     }
 
-    private void loadSession(long sessionId) {
-        // Nap Auction va Item theo sessionId, sau do khoi dong countdown.
-        try {
-            session = auctionService.getById(sessionId);
-            if (session == null) {
-                disableActions(true);
-                AlertUtil.showError("Không tìm thấy phiên đấu giá.");
+    private void loadSessionAsync(long sessionId) {
+        // Nap du lieu DB tren background thread de FXMLLoader khong khoa UI khi chuyen man.
+        stopTimer();
+        long requestToken = ++loadRequestToken;
+        disableActions(true);
+        setText(itemNameLabel, "Dang tai phien dau gia...");
+        setText(itemDescriptionLabel, "");
+
+        Task<SessionDetailData> task = new Task<>() {
+            @Override
+            protected SessionDetailData call() {
+                return fetchSessionDetailData(sessionId);
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            if (requestToken != loadRequestToken) {
                 return;
             }
-
-            item = itemService.getById(session.getItem_id());
-            populateSession();
-            refreshData();
+            applySessionDetailData(task.getValue());
             startCountdown();
-        } catch (Exception e) {
+        });
+
+        task.setOnFailed(event -> {
+            if (requestToken != loadRequestToken) {
+                return;
+            }
             disableActions(true);
-            AlertUtil.showError("Không tải được phiên đấu giá: " + e.getMessage());
-        }
+            Throwable error = task.getException();
+            AlertUtil.showError("Không tải được phiên đấu giá: " + (error == null ? "" : error.getMessage()));
+        });
+
+        Thread worker = new Thread(task, "session-detail-load");
+        worker.setDaemon(true);
+        worker.start();
     }
 
     private void refreshData() {
@@ -230,16 +251,38 @@ public class SessionDetailController {
             return;
         }
 
-        session = auctionService.getById(session.getId());
-        if (session == null) {
+        loadSessionAsync(session.getId());
+    }
+
+    private SessionDetailData fetchSessionDetailData(long sessionId) {
+        Auction loadedSession = auctionService.getById(sessionId);
+        if (loadedSession == null) {
+            throw new RuntimeException("Không tìm thấy phiên đấu giá.");
+        }
+
+        Item loadedItem = itemService.getById(loadedSession.getItem_id());
+        List<Bid> bids = bidService.getHistory(loadedSession.getItem_id());
+        long available = accountService.getAvailable(UserAccount.getUserId());
+        Optional<Autobid> autobid = autoBidService.getLatestByUserAndItem(
+                UserAccount.getUserId(),
+                loadedSession.getItem_id()
+        );
+
+        return new SessionDetailData(loadedSession, loadedItem, bids, available, autobid);
+    }
+
+    private void applySessionDetailData(SessionDetailData data) {
+        if (data == null || data.session == null) {
             disableActions(true);
             return;
         }
 
+        session = data.session;
+        item = data.item;
         populateSession();
-        loadBidHistory();
-        refreshBalance();
-        refreshAutoBidStatus();
+        populateBidHistory(data.bids);
+        setText(balanceLabel, formatMoney(data.availableBalance));
+        setAutoBidStatus(data.autobid);
         updateActionState();
     }
 
@@ -271,7 +314,13 @@ public class SessionDetailController {
         }
 
         List<Bid> bids = bidService.getHistory(session.getItem_id());
-        bidTable.getItems().setAll(bids);
+        populateBidHistory(bids);
+    }
+
+    private void populateBidHistory(List<Bid> bids) {
+        if (bidTable != null) {
+            bidTable.getItems().setAll(bids == null ? List.of() : bids);
+        }
     }
 
     private void refreshBalance() {
@@ -288,6 +337,13 @@ public class SessionDetailController {
         // Hien trang thai auto bid cua user voi item dang dau gia.
         autoBidService.getLatestByUserAndItem(UserAccount.getUserId(), session.getItem_id())
                 .ifPresentOrElse(value -> {
+            String status = value.is_active() ? "Đang bật" : "Đang tắt";
+            setText(autoBidStatusLabel, status + " - tối đa " + formatMoney(value.getMax_price()));
+        }, () -> setText(autoBidStatusLabel, "Chưa cấu hình"));
+    }
+
+    private void setAutoBidStatus(Optional<Autobid> autobid) {
+        autobid.ifPresentOrElse(value -> {
             String status = value.is_active() ? "Đang bật" : "Đang tắt";
             setText(autoBidStatusLabel, status + " - tối đa " + formatMoney(value.getMax_price()));
         }, () -> setText(autoBidStatusLabel, "Chưa cấu hình"));
@@ -354,6 +410,11 @@ public class SessionDetailController {
         if (countdownTimer != null) {
             countdownTimer.stop();
         }
+    }
+
+    private void cancelPendingLoadAndStopTimer() {
+        loadRequestToken++;
+        stopTimer();
     }
 
     private long parsePositiveLong(TextField field, String errorMessage) {
@@ -452,5 +513,27 @@ public class SessionDetailController {
             currentScene.setRoot(root);
         }
         stage.show();
+    }
+
+    private static class SessionDetailData {
+        private final Auction session;
+        private final Item item;
+        private final List<Bid> bids;
+        private final long availableBalance;
+        private final Optional<Autobid> autobid;
+
+        private SessionDetailData(
+                Auction session,
+                Item item,
+                List<Bid> bids,
+                long availableBalance,
+                Optional<Autobid> autobid
+        ) {
+            this.session = session;
+            this.item = item;
+            this.bids = bids;
+            this.availableBalance = availableBalance;
+            this.autobid = autobid == null ? Optional.empty() : autobid;
+        }
     }
 }

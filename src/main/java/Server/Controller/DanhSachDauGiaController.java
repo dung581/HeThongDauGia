@@ -9,10 +9,6 @@ import Common.Enum.AuctionState;
 import Common.Enum.UserRole;
 import Common.Model.user.UserAccount;
 import Server.service.AuctionService;
-<<<<<<< HEAD
-import Server.service.BidService;
-=======
->>>>>>> a2a2de4 (chinh giao dien)
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
@@ -22,105 +18,57 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import lombok.Getter;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DanhSachDauGiaController {
-    @FXML
-    private TableView<Auction> table;
-
-    @FXML
-    private TableColumn<Auction, Long> colId;
-
-    @FXML
-    private TableColumn<Auction, Long> colItemId;
-
-    @FXML
-    private TableColumn<Auction, Long> colCurrentUserId;
-
-    @FXML
-    private TableColumn<Auction, Long> colCurrentPrice;
-
-    @FXML
-    private TableColumn<Auction, LocalDateTime> colStartTime;
-
-    @FXML
-    private TableColumn<Auction, LocalDateTime> colEndTime;
-
-    @FXML
-    private TableColumn<Auction, AuctionState> colState;
-
-    @FXML
-    private TableColumn<Auction, String> colItemName;
-
+    @FXML private TableView<Auction> table;
+    @FXML private TableColumn<Auction, Long> colId;
+    @FXML private TableColumn<Auction, Long> colItemId;
+    @FXML private TableColumn<Auction, String> colItemName;
+    @FXML private TableColumn<Auction, AuctionState> colState;
+    @FXML private TableColumn<Auction, LocalDateTime> colStartTime;
+    @FXML private TableColumn<Auction, LocalDateTime> colEndTime;
+    @FXML private TableColumn<Auction, Long> colCurrentPrice;
+    @FXML private TableColumn<Auction, Long> colCurrentUserId;
 
     @FXML private Label idLabel;
     @FXML private Label tenLabel;
     @FXML private Label giaLabel;
     @FXML private Label trangthaiLabel;
     @FXML private Label thongtinLabel;
-<<<<<<< HEAD
-
-    @FXML private TextField tiencuoc;
-    private BidService bidService = new BidService();
-=======
     @FXML private Label lblPageInfo;
+
     @FXML private Node browseItemsNav;
     @FXML private Node uploadItemNav;
-
     @FXML private TextField txtPageInput;
 
->>>>>>> a2a2de4 (chinh giao dien)
-    private ItemRepository Repo = new ItemRepository();
+    private final ItemRepository itemRepository = new ItemRepository();
     private final AuctionService auctionService = new AuctionService();
+    private final List<Auction> allAuctions = new ArrayList<>();
+    private final Map<Long, Item> itemById = new HashMap<>();
+    private final Map<Long, String> itemNameById = new HashMap<>();
 
-    //chua list phien dau gia
-    private List<Auction> allAuctions = new ArrayList<>();
-    private List<Item> items = new ArrayList<>();
-    private Map<Long, Item> itemById = new HashMap<>();
-    private Map<Long, String> names = new HashMap<>();
+    private static final int PAGE_SIZE = 8;
+    private int currentPage = 1;
 
     @FXML
     public void initialize() {
-<<<<<<< HEAD
-        // gán dữ liệu cho từng cột
-=======
-        // GÃ¡n dá»¯ liá»‡u cho tá»«ng cá»™t
         configureRoleUi();
->>>>>>> a2a2de4 (chinh giao dien)
-        colId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getId()));
-        colItemId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getItem_id()));
-        colCurrentUserId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getCurrent_user_id()));
-        colCurrentPrice.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getCurrent_price()));
-        colStartTime.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getStartTime()));
-        colEndTime.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getEndTime()));
-        colState.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getState()));
-        colItemName.setCellValueFactory(data -> new SimpleStringProperty(names.get(data.getValue().getItem_id())));
-
-
-        //nhan phan hoi khi an vao 1 phien dau gia
-        table.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, selectedAuction) -> {
-
-                    if (selectedAuction != null) {
-                        Item item = itemById.get(selectedAuction.getItem_id());
-                        idLabel.setText(String.valueOf(item.getId()));
-                        tenLabel.setText(item.getFullname());
-                        thongtinLabel.setText(item.getDescription());
-                        giaLabel.setText(String.valueOf(item.getBeginPrice()));
-                        trangthaiLabel.setText(item.getStatus().toString());
-                    }
-                }
-        );
+        configureTable();
+        configureSelection();
         loadAuctionDataAsync();
     }
-<<<<<<< HEAD
-=======
 
     private void configureRoleUi() {
         UserRole role = UserAccount.getCurrentRole();
@@ -133,20 +81,52 @@ public class DanhSachDauGiaController {
         node.setVisible(visible);
         node.setManaged(visible);
     }
-    public void loadData() {
-        List<Auction> auctions = auctionService.getActive();
 
-        table.getItems().setAll(auctions);
-
-        LocalDateTime now = LocalDateTime.now();
-
-        for (Auction a : auctions) {
-            if (!now.isBefore(a.getEndTime())) {
-                auctionService.closeSession(a.getId());
-            }
-        }
+    private void configureTable() {
+        colId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getId()));
+        colItemId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getItem_id()));
+        colItemName.setCellValueFactory(data ->
+                new SimpleStringProperty(itemNameById.getOrDefault(data.getValue().getItem_id(), "N/A")));
+        colState.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getState()));
+        colStartTime.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getStartTime()));
+        colEndTime.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getEndTime()));
+        colCurrentPrice.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getCurrent_price()));
+        colCurrentUserId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getCurrent_user_id()));
     }
->>>>>>> a2a2de4 (chinh giao dien)
+
+    private void configureSelection() {
+        table.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, selectedAuction) -> {
+            if (selectedAuction == null) {
+                clearSelectedItem();
+                return;
+            }
+
+            Item item = itemById.get(selectedAuction.getItem_id());
+            if (item == null) {
+                clearSelectedItem();
+                return;
+            }
+
+            idLabel.setText(String.valueOf(item.getId()));
+            tenLabel.setText(item.getFullname());
+            thongtinLabel.setText(item.getDescription());
+            giaLabel.setText(String.valueOf(item.getBeginPrice()));
+            trangthaiLabel.setText(item.getStatus() == null ? "" : item.getStatus().toString());
+        });
+    }
+
+    private void clearSelectedItem() {
+        idLabel.setText(" ");
+        tenLabel.setText(" ");
+        giaLabel.setText(" ");
+        trangthaiLabel.setText(" ");
+        thongtinLabel.setText(" ");
+    }
+
+    @FXML
+    public void loadData() {
+        loadAuctionDataAsync();
+    }
 
     @FXML
     private void loadAuctionDataAsync() {
@@ -154,35 +134,30 @@ public class DanhSachDauGiaController {
             @Override
             protected LoadAuctionData call() {
                 List<Auction> auctions = auctionService.getActive();
-                items = Repo.getAllItem();
-                Map<Long, String> names = new HashMap<>();
-                Map<Long, Item> itemMap = new HashMap<>();
+                List<Item> items = itemRepository.getAllItem();
+                Map<Long, String> itemNames = new HashMap<>();
+                Map<Long, Item> itemsById = new HashMap<>();
 
                 for (Item item : items) {
-                    names.put(item.getId(), item.getFullname());
-                    itemMap.put(item.getId(), item);
+                    itemNames.put(item.getId(), item.getFullname());
+                    itemsById.put(item.getId(), item);
                 }
-                return new LoadAuctionData(auctions, names, itemMap);
+
+                return new LoadAuctionData(auctions, itemNames, itemsById);
             }
         };
 
         task.setOnSucceeded(event -> {
-            //lay cai ham call ben tren tra ve kìa
             LoadAuctionData result = task.getValue();
-            //xoa list auction va cap nhat list moi
-            itemById = result.getItemById();
-            names = result.getNames();
-
             allAuctions.clear();
             allAuctions.addAll(result.auctions);
-<<<<<<< HEAD
-            // gan du lieu len bang
-            table.getItems().setAll(allAuctions);
-=======
+
             itemNameById.clear();
             itemNameById.putAll(result.itemNames);
+
             itemById.clear();
-            itemById.putAll(result.items);
+            itemById.putAll(result.itemsById);
+
             renderPage(1);
         });
 
@@ -190,43 +165,71 @@ public class DanhSachDauGiaController {
             allAuctions.clear();
             itemNameById.clear();
             itemById.clear();
+            clearSelectedItem();
             renderPage(1);
->>>>>>> a2a2de4 (chinh giao dien)
         });
 
         Thread worker = new Thread(task, "auction-list-load");
         worker.setDaemon(true);
         worker.start();
     }
-    private static class LoadAuctionData {
-        private final List<Auction> auctions;
-        private final Map<Long, Item> itemById;
-        private final Map<Long, String> names;
-        private LoadAuctionData(List<Auction> auctions, Map<Long, String> names , Map<Long, Item> items) {
-            this.auctions = auctions;
-            this.itemById = items;
-            this.names = names;
-        }
-        public Map<Long, Item> getItemById(){return itemById;}
-        public  Map<Long, String> getNames(){return names;}
-    }
-<<<<<<< HEAD
-    //hien thi loi -----------------------------------------------------------------------------------------------------
-    private void showWarning(String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Thong bao");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+
+    @FXML
+    public void goFirstPage() {
+        renderPage(1);
     }
 
-    private void showInfo(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Thong bao");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-=======
+    @FXML
+    public void goPrevPage() {
+        renderPage(currentPage - 1);
+    }
+
+    @FXML
+    public void goNextPage() {
+        renderPage(currentPage + 1);
+    }
+
+    @FXML
+    public void goLastPage() {
+        renderPage(getTotalPages());
+    }
+
+    @FXML
+    public void goToPage() {
+        if (txtPageInput == null || txtPageInput.getText() == null) {
+            return;
+        }
+        try {
+            renderPage(Integer.parseInt(txtPageInput.getText().trim()));
+        } catch (NumberFormatException ignored) {
+            renderPage(currentPage);
+        }
+    }
+
+    private void renderPage(int page) {
+        int totalPages = getTotalPages();
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+        currentPage = page;
+
+        int fromIndex = (currentPage - 1) * PAGE_SIZE;
+        int toIndex = Math.min(fromIndex + PAGE_SIZE, allAuctions.size());
+        List<Auction> rows = fromIndex >= toIndex ? List.of() : allAuctions.subList(fromIndex, toIndex);
+
+        table.getItems().setAll(rows);
+        table.refresh();
+
+        if (lblPageInfo != null) {
+            lblPageInfo.setText("Trang " + currentPage + " / " + totalPages);
+        }
+    }
+
+    private int getTotalPages() {
+        if (allAuctions.isEmpty()) {
+            return 1;
+        }
+        return (allAuctions.size() + PAGE_SIZE - 1) / PAGE_SIZE;
+    }
 
     public void trolai(ActionEvent actionEvent) throws IOException {
         UserRole role = UserAccount.getCurrentRole();
@@ -282,19 +285,8 @@ public class DanhSachDauGiaController {
 
         SessionDetailController.setSessionId(selected.getId());
         switchScene(actionEvent, "/com/template/hellfx/session-detail.fxml");
->>>>>>> a2a2de4 (chinh giao dien)
     }
-    // nut tro lại -----------------------------------------------------------------------------------------------------
-    public void trolai(ActionEvent actionEvent) throws IOException {
-        UserRole role = UserAccount.getCurrentRole();
-        if (role == UserRole.ADMIN) {
-            switchScene(actionEvent, "/com/template/hellfx/dashboard - Admin.fxml");
-        } else if (role == UserRole.SELLER) {
-            switchScene(actionEvent, "/com/template/hellfx/dashboard - Seller.fxml");
-        } else {
-            switchScene(actionEvent, "/com/template/hellfx/dashboard-Bidder.fxml");
-        }
-    }
+
     private void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
@@ -310,10 +302,16 @@ public class DanhSachDauGiaController {
         }
         stage.show();
     }
-<<<<<<< HEAD
-    //------------------------------------------------------------------------------------------------------------------
-}
 
-=======
+    private static class LoadAuctionData {
+        private final List<Auction> auctions;
+        private final Map<Long, String> itemNames;
+        private final Map<Long, Item> itemsById;
+
+        private LoadAuctionData(List<Auction> auctions, Map<Long, String> itemNames, Map<Long, Item> itemsById) {
+            this.auctions = auctions;
+            this.itemNames = itemNames;
+            this.itemsById = itemsById;
+        }
+    }
 }
->>>>>>> a2a2de4 (chinh giao dien)
