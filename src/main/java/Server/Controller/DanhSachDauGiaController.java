@@ -149,32 +149,6 @@ public class DanhSachDauGiaController {
         public Map<Long, Item> getItemById(){return itemById;}
         public  Map<Long, String> getNames(){return names;}
     }
-
-    //nut xac nhan dat gia ---------------------------------------------------------------------------------------------
-    public void submit() {
-        UserRole role = UserAccount.getCurrentRole();
-        if (role == UserRole.SELLER) {
-            showWarning("Seller khong duoc mua/dau gia.");
-            return;
-        }
-        Auction selected = table.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            showWarning("Vui long chon san pham truoc khi dat gia.");
-            return;
-        }
-        try {
-            long tiendaugia = Integer.parseInt(tiencuoc.getText().trim());
-            long accountid = UserAccount.getUserId();
-            bidService.placeBid(accountid, selected.getId(), tiendaugia);
-            showInfo("Dat gia thanh cong.");
-        } catch (NumberFormatException e) {
-            showWarning("So tien dat gia khong hop le.");
-        } catch (Exception e) {
-            showWarning("Dat gia that bai: " + e.getMessage());
-        }
-    }
-
-
     //hien thi loi -----------------------------------------------------------------------------------------------------
     private void showWarning(String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
