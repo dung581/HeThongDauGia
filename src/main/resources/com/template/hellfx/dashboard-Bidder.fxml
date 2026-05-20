@@ -2,33 +2,94 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="520.0" prefWidth="900.0" style="-fx-background-color: skyblue;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Server.Controller.DashBoardController">
-   <center>
-      <HBox alignment="CENTER" spacing="24.0" BorderPane.alignment="CENTER">
-         <padding><Insets bottom="24.0" left="24.0" right="24.0" top="24.0" /></padding>
-         <StackPane prefWidth="420.0">
-            <children>
-               <ImageView fitHeight="320.0" fitWidth="320.0" pickOnBounds="true" preserveRatio="true">
-                  <image><Image url="@hinh-meme-meo-dap-mat-na.jpg" /></image>
-               </ImageView>
-            </children>
-         </StackPane>
-         <Separator orientation="VERTICAL" prefHeight="460.0" />
-         <VBox alignment="CENTER" spacing="14.0" prefWidth="280.0">
-            <children>
-               <Button mnemonicParsing="false" onAction="#Sandaugia" prefHeight="36.0" prefWidth="200.0" text="Sàn đấu giá" />
-               <Button mnemonicParsing="false" onAction="#quanlytk" prefHeight="36.0" prefWidth="200.0" text="Thông tin tài khoản" />
-               <Button mnemonicParsing="false" onAction="#goToLogin" prefHeight="36.0" prefWidth="200.0" text="Đăng xuất" />
-            </children>
-         </VBox>
-      </HBox>
-   </center>
+<BorderPane prefHeight="760.0" prefWidth="1220.0" styleClass="app-root" stylesheets="@bidnow-dark.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Server.Controller.DashBoardController">
+    <left>
+        <VBox prefWidth="250.0" spacing="18.0" styleClass="sidebar">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="18.0" top="24.0" />
+            </padding>
+
+            <VBox spacing="4.0">
+                <Label styleClass="brand" text="BidNow" />
+                <Label styleClass="muted" text="Auction Platform" />
+            </VBox>
+
+            <VBox spacing="12.0">
+                <Label styleClass="section-label" text="BIDDER DASHBOARD" />
+                <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goHome" styleClass="nav-active" text="Home" />
+                <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#Sandaugia" styleClass="nav-item" text="Sessions" />
+                <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#quanlytk" styleClass="nav-item" text="My Account" />
+            </VBox>
+        </VBox>
+    </left>
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="topbar">
+            <padding>
+                <Insets bottom="16.0" left="32.0" right="32.0" top="16.0" />
+            </padding>
+            <Label styleClass="muted" text="BidNow / Bidder Dashboard" />
+            <HBox HBox.hgrow="ALWAYS" />
+            <Button mnemonicParsing="false" onAction="#goToLogin" styleClass="secondary-button" text="Dang xuat" />
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="24.0">
+            <padding>
+                <Insets bottom="32.0" left="42.0" right="42.0" top="38.0" />
+            </padding>
+
+            <VBox spacing="8.0">
+                <Label styleClass="page-title" text="Bidder Dashboard" />
+                <Label styleClass="page-subtitle" text="Theo doi phien dau gia, dat gia va quan ly tai khoan cua ban." />
+            </VBox>
+
+            <HBox spacing="18.0">
+                <VBox prefHeight="155.0" prefWidth="280.0" spacing="12.0" styleClass="card">
+                    <padding>
+                        <Insets bottom="22.0" left="22.0" right="22.0" top="22.0" />
+                    </padding>
+                    <Label styleClass="field-name" text="AUCTION FLOOR" />
+                    <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #f4f7fb;" text="San dau gia" />
+                    <Label styleClass="page-subtitle" text="Xem cac phien dang chay va tham gia dau gia." wrapText="true" />
+                    <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#Sandaugia" styleClass="primary-button" text="Vao san ->" />
+                </VBox>
+
+                <VBox prefHeight="155.0" prefWidth="280.0" spacing="12.0" styleClass="card">
+                    <padding>
+                        <Insets bottom="22.0" left="22.0" right="22.0" top="22.0" />
+                    </padding>
+                    <Label styleClass="field-name" text="ACCOUNT" />
+                    <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #f4f7fb;" text="Thong tin tai khoan" />
+                    <Label styleClass="page-subtitle" text="Kiem tra so du, tien khoa va lich su giao dich." wrapText="true" />
+                    <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#quanlytk" styleClass="secondary-button" text="Mo tai khoan" />
+                </VBox>
+
+                <VBox prefHeight="155.0" prefWidth="280.0" spacing="12.0" styleClass="card">
+                    <padding>
+                        <Insets bottom="22.0" left="22.0" right="22.0" top="22.0" />
+                    </padding>
+                    <Label styleClass="field-name" text="SESSION" />
+                    <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #f4f7fb;" text="Dang xuat" />
+                    <Label styleClass="page-subtitle" text="Ket thuc phien lam viec hien tai va quay lai man dang nhap." wrapText="true" />
+                    <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goToLogin" styleClass="danger-button" text="Dang xuat" />
+                </VBox>
+            </HBox>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_LEFT" styleClass="topbar">
+            <padding>
+                <Insets bottom="10.0" left="42.0" right="42.0" top="10.0" />
+            </padding>
+            <Label styleClass="muted" text="BidNow Desktop | JavaFX 21 | Bidder workspace" />
+        </HBox>
+    </bottom>
 </BorderPane>

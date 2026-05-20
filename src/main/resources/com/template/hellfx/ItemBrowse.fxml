@@ -39,7 +39,7 @@
 
     <bottom>
         <VBox spacing="8" style="-fx-padding: 10;">
-            <HBox alignment="CENTER_LEFT" spacing="8">
+            <HBox fx:id="adminInputBox" alignment="CENTER_LEFT" spacing="8">
                 <Label text="Lý do từ chối:" />
                 <TextField fx:id="rejectReason" prefWidth="220.0" promptText="Nhập lý do" />
                 <Label text="Số giờ đấu giá:" />
@@ -47,9 +47,11 @@
             </HBox>
             <HBox alignment="CENTER" spacing="10">
                 <Button onAction="#loadData" text="Tải lại" />
-                <Button onAction="#onApprove" text="Duyệt + Mở phiên" />
-                <Button onAction="#onReject" text="Từ chối" />
-                <Button onAction="#onCreateSession" text="Mở phiên (APPROVED)" />
+                <HBox fx:id="adminActionBox" alignment="CENTER" spacing="10">
+                    <Button onAction="#onApprove" text="Duyệt + Mở phiên" />
+                    <Button onAction="#onReject" text="Từ chối" />
+                    <Button onAction="#onCreateSession" text="Mở phiên (APPROVED)" />
+                </HBox>
                 <Button onAction="#onBack" text="Trở lại" />
             </HBox>
         </VBox>

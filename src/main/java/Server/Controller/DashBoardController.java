@@ -16,6 +16,17 @@ import java.net.URL;
 
 public class DashBoardController {
 
+    public void goHome(ActionEvent actionEvent) throws IOException {
+        UserRole role = UserAccount.getCurrentRole();
+        if (role == UserRole.ADMIN) {
+            switchScene(actionEvent, "/com/template/hellfx/dashboard - Admin.fxml");
+        } else if (role == UserRole.SELLER) {
+            switchScene(actionEvent, "/com/template/hellfx/dashboard - Seller.fxml");
+        } else {
+            switchScene(actionEvent, "/com/template/hellfx/dashboard-Bidder.fxml");
+        }
+    }
+
     public void goToLogin(ActionEvent actionEvent) throws IOException {
         UserAccount.clearSession();
         switchScene(actionEvent, "/com/template/hellfx/UILogin.fxml");
@@ -67,8 +78,12 @@ public class DashBoardController {
 
         Parent root = FXMLLoader.load(resource);
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        Scene scene = new Scene(root, UILogin.APP_WIDTH, UILogin.APP_HEIGHT);
-        stage.setScene(scene);
+        Scene currentScene = stage.getScene();
+        if (currentScene == null) {
+            stage.setScene(new Scene(root, UILogin.APP_WIDTH, UILogin.APP_HEIGHT));
+        } else {
+            currentScene.setRoot(root);
+        }
         stage.show();
     }
 }

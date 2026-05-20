@@ -251,16 +251,22 @@ public class UILoginController {
     private void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {
         root = FXMLLoader.load(getClass().getResource(fxmlPath));
         stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        Scene scene = new Scene(root, UILogin.APP_WIDTH, UILogin.APP_HEIGHT);
-        stage.setScene(scene);
-        stage.show();
+        replaceSceneRoot(stage, root);
     }
 
     private void switchScene(String fxmlPath) throws IOException {
         root = FXMLLoader.load(getClass().getResource(fxmlPath));
         stage = (Stage) name.getScene().getWindow();
-        Scene scene = new Scene(root, UILogin.APP_WIDTH, UILogin.APP_HEIGHT);
-        stage.setScene(scene);
+        replaceSceneRoot(stage, root);
+    }
+
+    private void replaceSceneRoot(Stage stage, Parent root) {
+        Scene currentScene = stage.getScene();
+        if (currentScene == null) {
+            stage.setScene(new Scene(root, UILogin.APP_WIDTH, UILogin.APP_HEIGHT));
+        } else {
+            currentScene.setRoot(root);
+        }
         stage.show();
     }
 

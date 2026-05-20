@@ -5,7 +5,9 @@ import Common.DataBase.entities.Autobid;
 import Common.DataBase.repository.AutoBidRepository;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 public class AutoBidService {
 
@@ -28,6 +30,30 @@ public class AutoBidService {
 
     public void deactivate(long id) {
         repo.updateActive(id, false);
+    }
+
+    public Autobid configureAndActivate(long userId, long itemId, long maxPrice) {
+        Autobid autobid = configure(userId, itemId, maxPrice);
+        Autobid saved = getLatestByUserAndItem(userId, itemId)
+                .orElseThrow(() -> new RuntimeException("AutoBid not found"));
+
+        activate(saved.getId());
+        saved.setMax_price(maxPrice);
+        saved.set_active(true);
+        return saved;
+    }
+
+    public void deactivateByUserAndItem(long userId, long itemId) {
+        Autobid autobid = getLatestByUserAndItem(userId, itemId)
+                .orElseThrow(() -> new RuntimeException("AutoBid not found"));
+        deactivate(autobid.getId());
+    }
+
+    public Optional<Autobid> getLatestByUserAndItem(long userId, long itemId) {
+        return repo.getByUserId(userId)
+                .stream()
+                .filter(ab -> ab.getItem_id() == itemId)
+                .max(Comparator.comparingLong(Autobid::getId));
     }
 
     public void trigger(long itemId, long currentPrice) {

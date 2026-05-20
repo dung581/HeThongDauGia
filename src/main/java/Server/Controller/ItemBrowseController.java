@@ -22,6 +22,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -42,6 +43,8 @@ public class    ItemBrowseController {
     @FXML private TextField endTime;
     @FXML private Label lblRole;
     @FXML private Label lblTotal;
+    @FXML private HBox adminInputBox;
+    @FXML private HBox adminActionBox;
 
     private final ItemService itemService = new ItemService();
     private final AuctionService auctionService = new AuctionService();
@@ -73,7 +76,20 @@ public class    ItemBrowseController {
             UserRole role = UserAccount.getCurrentRole();
             lblRole.setText("Vai trò: "+(role == null ? "?" : role.name()));
         }
+        configureRoleUi();
         loadData();
+    }
+
+    private void configureRoleUi() {
+        boolean isAdmin = UserAccount.getCurrentRole() == UserRole.ADMIN;
+        setVisibleManaged(adminInputBox, isAdmin);
+        setVisibleManaged(adminActionBox, isAdmin);
+    }
+
+    private void setVisibleManaged(Node node, boolean visible) {
+        if (node == null) return;
+        node.setVisible(visible);
+        node.setManaged(visible);
     }
     // tai du lieu bo loc
     public void loadData(){
@@ -253,7 +269,12 @@ public class    ItemBrowseController {
     private void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(root));
+        Scene currentScene = stage.getScene();
+        if (currentScene == null) {
+            stage.setScene(new Scene(root));
+        } else {
+            currentScene.setRoot(root);
+        }
         stage.show();
     }
 

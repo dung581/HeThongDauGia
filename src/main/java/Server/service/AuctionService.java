@@ -55,6 +55,12 @@ public class AuctionService{
     public void closeSession(long sessionId) {
 
         Auction auction = repo.getById(sessionId);
+        if (auction == null) {
+            throw new RuntimeException("Auction not found");
+        }
+        if (auction.getState() != AuctionState.RUNNING) {
+            return;
+        }
 
         long winnerId = auction.getCurrent_user_id();
         long price = auction.getCurrent_price();
