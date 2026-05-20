@@ -4,6 +4,7 @@ import Common.DataBase.entities.Account;
 import Common.Enum.UserRole;
 import Common.Model.user.UserAccount;
 import Server.service.AccountService;
+import Client.util.AlertUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -23,12 +24,27 @@ public class DepositController {
     @FXML private Label lblBalance;
     @FXML private Label lblLocked;
     @FXML private Label lblAvailable;
+    @FXML private Node browseItemsNav;
+    @FXML private Node uploadItemNav;
 
     private final AccountService accountService = new AccountService();
 
     @FXML
     public void initialize() {
+        configureRoleUi();
         refreshBalance();
+    }
+
+    private void configureRoleUi() {
+        UserRole role = UserAccount.getCurrentRole();
+        setVisibleManaged(browseItemsNav, role == UserRole.ADMIN);
+        setVisibleManaged(uploadItemNav, role == UserRole.SELLER);
+    }
+
+    private void setVisibleManaged(Node node, boolean visible) {
+        if (node == null) return;
+        node.setVisible(visible);
+        node.setManaged(visible);
     }
 
     // hien thi so du hien tai cua user
@@ -109,10 +125,58 @@ public class DepositController {
         }
         switchScene(actionEvent, target);
     }
+
+    @FXML
+    public void goHome(ActionEvent actionEvent) throws IOException {
+        onBack(actionEvent);
+    }
+
+    @FXML
+    public void goToSessions(ActionEvent actionEvent) throws IOException {
+        switchScene(actionEvent, "/com/template/hellfx/danhSachDauGia.fxml");
+    }
+
+    @FXML
+    public void goToBrowseItems(ActionEvent actionEvent) throws IOException {
+        if (UserAccount.getCurrentRole() != UserRole.ADMIN) {
+            AlertUtil.showError("Chuc nang nay chi danh cho Admin.");
+            return;
+        }
+        switchScene(actionEvent, "/com/template/hellfx/ItemBrowse.fxml");
+    }
+
+    @FXML
+    public void goToAccount(ActionEvent actionEvent) throws IOException {
+        switchScene(actionEvent, "/com/template/hellfx/account.fxml");
+    }
+
+    @FXML
+    public void goToDeposit(ActionEvent actionEvent) throws IOException {
+        if (UserAccount.getCurrentRole() != UserRole.BIDDER) {
+            AlertUtil.showError("Chuc nang nay chi danh cho nguoi dau gia.");
+            return;
+        }
+        switchScene(actionEvent, "/com/template/hellfx/Deposit.fxml");
+    }
+
+    @FXML
+    public void goToUploadItem(ActionEvent actionEvent) throws IOException {
+        if (UserAccount.getCurrentRole() != UserRole.SELLER) {
+            AlertUtil.showError("Chuc nang nay chi danh cho nguoi ban.");
+            return;
+        }
+        switchScene(actionEvent, "/com/template/hellfx/SellerProducts.fxml");
+    }
+
     private void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(root));
+        Scene currentScene = stage.getScene();
+        if (currentScene == null) {
+            stage.setScene(new Scene(root));
+        } else {
+            currentScene.setRoot(root);
+        }
         stage.show();
     }
 

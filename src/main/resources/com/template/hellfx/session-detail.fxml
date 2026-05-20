@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="760.0" prefWidth="1220.0" styleClass="app-root" stylesheets="@bidnow-dark.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Server.Controller.SessionDetailController">
+    <left>
+        <VBox prefWidth="250.0" spacing="18.0" styleClass="sidebar">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="18.0" top="24.0" />
+            </padding>
+            <VBox spacing="4.0">
+                <Label styleClass="brand" text="BidNow" />
+                <Label styleClass="muted" text="Auction Platform" />
+            </VBox>
+            <VBox spacing="12.0">
+                <Label styleClass="section-label" text="TRADING" />
+                <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goToSessions" styleClass="nav-item" text="Sessions" />
+                <Button maxWidth="Infinity" mnemonicParsing="false" styleClass="nav-active" text="Session Detail" />
+                <Button fx:id="browseItemsNav" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToBrowseItems" styleClass="nav-item" text="Browse Items" />
+            </VBox>
+
+            <VBox spacing="12.0">
+                <Label styleClass="section-label" text="ACCOUNT" />
+                <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goToAccount" styleClass="nav-item" text="My Account" />
+                <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goToDeposit" styleClass="nav-item" text="Deposit" />
+            </VBox>
+        </VBox>
+    </left>
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="topbar">
+            <padding>
+                <Insets bottom="16.0" left="32.0" right="32.0" top="16.0" />
+            </padding>
+            <Label styleClass="muted" text="BidNow / Sessions / Detail" />
+            <HBox HBox.hgrow="ALWAYS" />
+            <Label styleClass="field-name" text="ENDS IN" />
+            <Label fx:id="countdownLabel" styleClass="danger-value" text="--:--:--" />
+            <Button mnemonicParsing="false" onAction="#onBackClick" styleClass="secondary-button" text="Tro lai" />
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="18.0">
+            <padding>
+                <Insets bottom="22.0" left="32.0" right="24.0" top="24.0" />
+            </padding>
+
+            <VBox spacing="6.0">
+                <Label fx:id="itemNameLabel" styleClass="page-title" text="Session Detail" />
+                <Label fx:id="itemDescriptionLabel" styleClass="page-subtitle" text=" " wrapText="true" />
+            </VBox>
+
+            <HBox spacing="14.0">
+                <VBox prefHeight="78.0" prefWidth="180.0" spacing="6.0" styleClass="card">
+                    <padding><Insets bottom="12.0" left="18.0" right="18.0" top="12.0" /></padding>
+                    <Label styleClass="field-name" text="SESSION ID" />
+                    <Label fx:id="sessionIdLabel" styleClass="field-value" text=" " />
+                </VBox>
+                <VBox prefHeight="78.0" prefWidth="180.0" spacing="6.0" styleClass="card">
+                    <padding><Insets bottom="12.0" left="18.0" right="18.0" top="12.0" /></padding>
+                    <Label styleClass="field-name" text="ITEM ID" />
+                    <Label fx:id="itemIdLabel" styleClass="field-value" text=" " />
+                </VBox>
+                <VBox prefHeight="78.0" prefWidth="220.0" spacing="6.0" styleClass="card">
+                    <padding><Insets bottom="12.0" left="18.0" right="18.0" top="12.0" /></padding>
+                    <Label styleClass="field-name" text="CURRENT BID" />
+                    <Label fx:id="currentPriceLabel" styleClass="accent-value" text="0" />
+                </VBox>
+                <VBox prefHeight="78.0" prefWidth="220.0" spacing="6.0" styleClass="card">
+                    <padding><Insets bottom="12.0" left="18.0" right="18.0" top="12.0" /></padding>
+                    <Label styleClass="field-name" text="AVAILABLE" />
+                    <Label fx:id="balanceLabel" styleClass="success-value" text="0" />
+                </VBox>
+            </HBox>
+
+            <TableView fx:id="bidTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colBidId" prefWidth="110.0" text="ID" />
+                    <TableColumn fx:id="colBidUserId" prefWidth="170.0" text="Bidder" />
+                    <TableColumn fx:id="colBidPrice" prefWidth="190.0" text="Price" />
+                    <TableColumn fx:id="colBidTime" prefWidth="260.0" text="Time" />
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+
+    <right>
+        <VBox prefWidth="320.0" spacing="16.0">
+            <padding>
+                <Insets bottom="22.0" left="0.0" right="24.0" top="24.0" />
+            </padding>
+
+            <VBox spacing="14.0" styleClass="card">
+                <padding>
+                    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                </padding>
+                <Label styleClass="page-subtitle" text="BID PANEL" />
+                <Label fx:id="winnerLabel" styleClass="field-value" text="Chua co nguoi dat gia" wrapText="true" />
+
+                <GridPane hgap="10.0" vgap="8.0">
+                    <Label styleClass="field-name" text="AUTO BID" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <Label fx:id="autoBidStatusLabel" styleClass="field-value" text="Chua cau hinh" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                </GridPane>
+
+                <VBox spacing="8.0">
+                    <Label styleClass="field-name" text="PLACE BID" />
+                    <TextField fx:id="bidAmountField" promptText="Nhap gia dat" styleClass="input" />
+                    <Button fx:id="placeBidBtn" maxWidth="Infinity" mnemonicParsing="false" onAction="#onPlaceBidClick" styleClass="primary-button" text="Dat gia ->" />
+                </VBox>
+
+                <VBox spacing="8.0">
+                    <Label styleClass="field-name" text="AUTO BID MAX" />
+                    <TextField fx:id="autoMaxField" promptText="Gia toi da" styleClass="input" />
+                    <Button fx:id="activateAutobidBtn" maxWidth="Infinity" mnemonicParsing="false" onAction="#onActivateAutobidClick" styleClass="primary-button" text="Bat auto bid" />
+                    <Button fx:id="deactivateAutobidBtn" maxWidth="Infinity" mnemonicParsing="false" onAction="#onDeactivateAutobidClick" styleClass="danger-button" text="Tat auto bid" />
+                </VBox>
+
+                <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#onRefreshClick" styleClass="secondary-button" text="Tai lai du lieu" />
+            </VBox>
+        </VBox>
+    </right>
+</BorderPane>

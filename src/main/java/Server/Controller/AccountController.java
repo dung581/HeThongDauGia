@@ -1,6 +1,7 @@
 package Server.Controller;
 
 import Client.Controller.UILogin;
+import Client.util.AlertUtil;
 import Common.DataBase.entities.Account;
 import Common.DataBase.entities.Stake;
 import Common.DataBase.entities.User;
@@ -22,6 +23,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -37,6 +39,16 @@ public class AccountController {
     private VBox userInfoPane;
     @FXML
     private VBox adminPane;
+    @FXML
+    private VBox stakePane;
+    @FXML
+    private HBox accountSummaryPane;
+    @FXML
+    private Node browseItemsNav;
+    @FXML
+    private Node uploadItemNav;
+    @FXML
+    private Node depositNav;
 
     @FXML
     private Label lblTitle;
@@ -97,6 +109,7 @@ public class AccountController {
 
     @FXML
     public void initialize() {
+        configureRoleUi();
         UserRole role = UserAccount.getCurrentRole();
         if (role == UserRole.ADMIN) {
             showAdminView();
@@ -105,11 +118,26 @@ public class AccountController {
         }
     }
 
+    private void configureRoleUi() {
+        UserRole role = UserAccount.getCurrentRole();
+        setVisibleManaged(browseItemsNav, role == UserRole.ADMIN);
+        setVisibleManaged(uploadItemNav, role == UserRole.SELLER);
+        setVisibleManaged(depositNav, role == UserRole.BIDDER);
+    }
+
+    private void setVisibleManaged(Node node, boolean visible) {
+        if (node == null) return;
+        node.setVisible(visible);
+        node.setManaged(visible);
+    }
+
     private void showUserInfoView() {
         if (adminPane != null) {
             adminPane.setManaged(false);
             adminPane.setVisible(false);
         }
+        setVisibleManaged(accountSummaryPane, true);
+        setVisibleManaged(stakePane, true);
         if (userInfoPane != null) {
             userInfoPane.setManaged(true);
             userInfoPane.setVisible(true);
@@ -168,9 +196,15 @@ public class AccountController {
             userInfoPane.setManaged(false);
             userInfoPane.setVisible(false);
         }
+        setVisibleManaged(accountSummaryPane, false);
+        setVisibleManaged(stakePane, false);
         if (adminPane != null) {
             adminPane.setManaged(true);
             adminPane.setVisible(true);
+        }
+
+        if (lblTitle != null) {
+            lblTitle.setText("Quan ly tai khoan");
         }
 
         ensurePasswordColumn();
@@ -349,10 +383,57 @@ public class AccountController {
         switchScene(actionEvent, target);
     }
 
+    @FXML
+    public void goHome(ActionEvent actionEvent) throws IOException {
+        backToDashboard(actionEvent);
+    }
+
+    @FXML
+    public void goToSessions(ActionEvent actionEvent) throws IOException {
+        switchScene(actionEvent, "/com/template/hellfx/danhSachDauGia.fxml");
+    }
+
+    @FXML
+    public void goToBrowseItems(ActionEvent actionEvent) throws IOException {
+        if (UserAccount.getCurrentRole() != UserRole.ADMIN) {
+            AlertUtil.showError("Chuc nang nay chi danh cho Admin.");
+            return;
+        }
+        switchScene(actionEvent, "/com/template/hellfx/ItemBrowse.fxml");
+    }
+
+    @FXML
+    public void goToAccount(ActionEvent actionEvent) throws IOException {
+        switchScene(actionEvent, "/com/template/hellfx/account.fxml");
+    }
+
+    @FXML
+    public void goToDeposit(ActionEvent actionEvent) throws IOException {
+        if (UserAccount.getCurrentRole() != UserRole.BIDDER) {
+            AlertUtil.showError("Chuc nang nay chi danh cho nguoi dau gia.");
+            return;
+        }
+        switchScene(actionEvent, "/com/template/hellfx/Deposit.fxml");
+    }
+
+    @FXML
+    public void goToUploadItem(ActionEvent actionEvent) throws IOException {
+        if (UserAccount.getCurrentRole() != UserRole.SELLER) {
+            AlertUtil.showError("Chuc nang nay chi danh cho nguoi ban.");
+            return;
+        }
+        switchScene(actionEvent, "/com/template/hellfx/SellerProducts.fxml");
+    }
+
     private void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(root, UILogin.APP_WIDTH, UILogin.APP_HEIGHT));
+        Scene currentScene = stage.getScene();
+        if (currentScene == null) {
+            stage.setScene(new Scene(root, UILogin.APP_WIDTH, UILogin.APP_HEIGHT));
+        } else {
+            currentScene.setRoot(root);
+        }
         stage.show();
     }
 

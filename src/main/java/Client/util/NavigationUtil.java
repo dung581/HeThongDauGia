@@ -32,9 +32,12 @@ public class NavigationUtil {
             // Nạp file giao diện. Đảm bảo đường dẫn thư mục resources của bạn là đúng
             FXMLLoader loader = new FXMLLoader(NavigationUtil.class.getResource("/" + fxmlName));
             Parent root = loader.load();
-            Scene scene = new Scene(root);
-
-            mainStage.setScene(scene);
+            Scene currentScene = mainStage.getScene();
+            if (currentScene == null) {
+                mainStage.setScene(new Scene(root));
+            } else {
+                currentScene.setRoot(root);
+            }
             mainStage.show();
         } catch (Exception e) {
             e.printStackTrace();

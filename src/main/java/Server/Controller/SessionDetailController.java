@@ -3,12 +3,10 @@ package Server.Controller;
 import Client.Controller.UILogin;
 
 import Client.util.AlertUtil;
-import Common.DataBase.entities.Account;
 import Common.DataBase.entities.Auction;
-import Common.DataBase.entities.Autobid;
 import Common.DataBase.entities.Bid;
 import Common.DataBase.entities.Item;
-import Common.Enum.AuctionState;
+import Common.Enum.UserRole;
 import Common.Model.user.UserAccount;
 import Server.service.AccountService;
 import Server.service.AuctionService;
@@ -36,9 +34,7 @@ import javafx.util.Duration;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 public class SessionDetailController {
 
@@ -52,6 +48,7 @@ public class SessionDetailController {
     @FXML private Label balanceLabel;
     @FXML private Label winnerLabel;
     @FXML private Label autoBidStatusLabel;
+    @FXML private Node browseItemsNav;
 
     // O nhap gia dat thu cong va gia toi da cho auto bid.
     @FXML private TextField bidAmountField;
@@ -91,6 +88,7 @@ public class SessionDetailController {
     @FXML
     public void initialize() {
         // JavaFX tu goi sau khi load FXML: cau hinh bang va nap du lieu phien da chon.
+        configureRoleUi();
         configureBidTable();
 
         if (pendingSessionId <= 0) {
@@ -100,6 +98,17 @@ public class SessionDetailController {
         }
 
         loadSession(pendingSessionId);
+    }
+
+    private void configureRoleUi() {
+        UserRole role = UserAccount.getCurrentRole();
+        setVisibleManaged(browseItemsNav, role == UserRole.ADMIN);
+    }
+
+    private void setVisibleManaged(Node node, boolean visible) {
+        if (node == null) return;
+        node.setVisible(visible);
+        node.setManaged(visible);
     }
 
     public void setSession(Auction session) {
@@ -131,17 +140,10 @@ public class SessionDetailController {
 
     @FXML
     public void onActivateAutobidClick(ActionEvent event) {
-        // Controller tao yeu cau auto bid va de AutoBidService/Repository xu ly luu + active.
+        // Controller chi doc input va goi AutoBidService; service xu ly luu + active.
         try {
             long maxPrice = parsePositiveLong(autoMaxField, "Giá tối đa auto bid không hợp lệ.");
-
-            Autobid autobid = autoBidService.configure(UserAccount.getUserId(), session.getItem_id(), maxPrice);
-            long autobidId = resolveAutobidId(autobid, UserAccount.getUserId(), session.getItem_id());
-            if (autobidId <= 0) {
-                throw new RuntimeException("Không tìm thấy auto bid vừa tạo.");
-            }
-
-            autoBidService.activate(autobidId);
+            autoBidService.configureAndActivate(UserAccount.getUserId(), session.getItem_id(), maxPrice);
             AlertUtil.showSuccess("Đã bật auto bid.");
             refreshAutoBidStatus();
         } catch (Exception e) {
@@ -153,13 +155,7 @@ public class SessionDetailController {
     public void onDeactivateAutobidClick(ActionEvent event) {
         // Tat auto bid gan nhat cua user tren item hien tai.
         try {
-            Optional<Autobid> active = findUserAutoBid();
-            if (active.isEmpty()) {
-                AlertUtil.showError("Bạn chưa có auto bid cho phiên này.");
-                return;
-            }
-
-            autoBidService.deactivate(active.get().getId());
+            autoBidService.deactivateByUserAndItem(UserAccount.getUserId(), session.getItem_id());
             AlertUtil.showSuccess("Đã tắt auto bid.");
             refreshAutoBidStatus();
         } catch (Exception e) {
@@ -176,7 +172,36 @@ public class SessionDetailController {
     @FXML
     public void onBackClick(ActionEvent event) throws IOException {
         // Quay lai man danh sach dau gia.
+        stopTimer();
         switchScene(event, "/com/template/hellfx/danhSachDauGia.fxml");
+    }
+
+    @FXML
+    public void goToSessions(ActionEvent event) throws IOException {
+        stopTimer();
+        switchScene(event, "/com/template/hellfx/danhSachDauGia.fxml");
+    }
+
+    @FXML
+    public void goToBrowseItems(ActionEvent event) throws IOException {
+        if (UserAccount.getCurrentRole() != UserRole.ADMIN) {
+            AlertUtil.showError("Chuc nang nay chi danh cho Admin.");
+            return;
+        }
+        stopTimer();
+        switchScene(event, "/com/template/hellfx/ItemBrowse.fxml");
+    }
+
+    @FXML
+    public void goToAccount(ActionEvent event) throws IOException {
+        stopTimer();
+        switchScene(event, "/com/template/hellfx/account.fxml");
+    }
+
+    @FXML
+    public void goToDeposit(ActionEvent event) throws IOException {
+        stopTimer();
+        switchScene(event, "/com/template/hellfx/Deposit.fxml");
     }
 
     private void loadSession(long sessionId) {
@@ -246,15 +271,13 @@ public class SessionDetailController {
         }
 
         List<Bid> bids = bidService.getHistory(session.getItem_id());
-        bids.sort(Comparator.comparingLong(Bid::getPrice).reversed());
         bidTable.getItems().setAll(bids);
     }
 
     private void refreshBalance() {
-        // Tinh so du kha dung = balance - locked_balance cua user hien tai.
+        // Lay so du kha dung tu AccountService.
         try {
-            Account account = accountService.getBalance(UserAccount.getUserId());
-            long available = account.getBalance() - account.getLocked_balance();
+            long available = accountService.getAvailable(UserAccount.getUserId());
             setText(balanceLabel, formatMoney(available));
         } catch (Exception e) {
             setText(balanceLabel, "N/A");
@@ -263,14 +286,11 @@ public class SessionDetailController {
 
     private void refreshAutoBidStatus() {
         // Hien trang thai auto bid cua user voi item dang dau gia.
-        Optional<Autobid> autobid = findUserAutoBid();
-        if (autobid.isPresent()) {
-            Autobid value = autobid.get();
+        autoBidService.getLatestByUserAndItem(UserAccount.getUserId(), session.getItem_id())
+                .ifPresentOrElse(value -> {
             String status = value.is_active() ? "Đang bật" : "Đang tắt";
             setText(autoBidStatusLabel, status + " - tối đa " + formatMoney(value.getMax_price()));
-        } else {
-            setText(autoBidStatusLabel, "Chưa cấu hình");
-        }
+        }, () -> setText(autoBidStatusLabel, "Chưa cấu hình"));
     }
 
     private void startCountdown() {
@@ -308,7 +328,7 @@ public class SessionDetailController {
     }
 
     private void expireSession() {
-        // Dong phien dau gia neu con RUNNING, sau do mo man ket qua.
+        // Het countdown thi goi service dong phien, sau do mo man ket qua.
         if (countdownTimer != null) {
             countdownTimer.stop();
         }
@@ -316,20 +336,23 @@ public class SessionDetailController {
         disableActions(true);
 
         try {
-            if (session.getState() == AuctionState.RUNNING) {
-                auctionService.closeSession(session.getId());
-            }
+            auctionService.closeSession(session.getId());
 
             WinnerController.setSessionId(session.getId());
             Node source = getAnyNode();
             if (source != null) {
                 Parent root = FXMLLoader.load(getClass().getResource("/com/template/hellfx/Winner.fxml"));
                 Stage stage = (Stage) source.getScene().getWindow();
-                stage.setScene(new Scene(root, UILogin.APP_WIDTH, UILogin.APP_HEIGHT));
-                stage.show();
+                replaceSceneRoot(stage, root);
             }
         } catch (Exception e) {
             AlertUtil.showError("Phiên đã kết thúc nhưng không xử lý được kết quả: " + e.getMessage());
+        }
+    }
+
+    private void stopTimer() {
+        if (countdownTimer != null) {
+            countdownTimer.stop();
         }
     }
 
@@ -344,28 +367,6 @@ public class SessionDetailController {
             throw new IllegalArgumentException(errorMessage);
         }
         return value;
-    }
-
-    private Optional<Autobid> findUserAutoBid() {
-        // Tim ban ghi auto bid moi nhat cua user tren item hien tai.
-        return autoBidService.getByUserId(UserAccount.getUserId())
-                .stream()
-                .filter(ab -> ab.getItem_id() == session.getItem_id())
-                .max(Comparator.comparingLong(Autobid::getId));
-    }
-
-    private long resolveAutobidId(Autobid autobid, long userId, long itemId) {
-        // Service hien tai khong tra generated id, nen doc lai theo userId/itemId neu id = 0.
-        if (autobid != null && autobid.getId() > 0) {
-            return autobid.getId();
-        }
-
-        return autoBidService.getByUserId(userId)
-                .stream()
-                .filter(ab -> ab.getItem_id() == itemId)
-                .mapToLong(Autobid::getId)
-                .max()
-                .orElse(0L);
     }
 
     private void configureBidTable() {
@@ -389,9 +390,8 @@ public class SessionDetailController {
     }
 
     private void updateActionState() {
-        // Khoa cac nut thao tac khi phien khong con RUNNING.
-        boolean disabled = session == null || session.getState() != AuctionState.RUNNING;
-        disableActions(disabled);
+        // Controller chi khoa nut khi chua co du lieu phien; rule trang thai phien nam trong service.
+        disableActions(session == null);
     }
 
     private void disableActions(boolean disabled) {
@@ -441,7 +441,16 @@ public class SessionDetailController {
         // Doi scene theo duong dan FXML va giu kich thuoc ung dung thong nhat.
         Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(root, UILogin.APP_WIDTH, UILogin.APP_HEIGHT));
+        replaceSceneRoot(stage, root);
+    }
+
+    private void replaceSceneRoot(Stage stage, Parent root) {
+        Scene currentScene = stage.getScene();
+        if (currentScene == null) {
+            stage.setScene(new Scene(root, UILogin.APP_WIDTH, UILogin.APP_HEIGHT));
+        } else {
+            currentScene.setRoot(root);
+        }
         stage.show();
     }
 }

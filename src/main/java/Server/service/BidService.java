@@ -10,6 +10,7 @@ import Common.DataBase.repository.ItemRepository;
 import Common.Enum.AuctionState;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 import static Common.Enum.AuctionState.RUNNING;
@@ -72,6 +73,8 @@ public class BidService {
     }
 
     public List<Bid> getHistory(long itemId) {
-        return bidRepo.getByItemId(itemId);
+        List<Bid> bids = bidRepo.getByItemId(itemId);
+        bids.sort(Comparator.comparingLong(Bid::getPrice).reversed());
+        return bids;
     }
 }
