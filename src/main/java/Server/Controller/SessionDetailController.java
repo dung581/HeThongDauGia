@@ -9,7 +9,6 @@ import Common.DataBase.entities.Autobid;
 import Common.DataBase.entities.Bid;
 import Common.DataBase.entities.Item;
 import Common.Enum.AuctionState;
-import Common.Enum.UserRole;
 import Common.Model.user.UserAccount;
 import Server.service.AccountService;
 import Server.service.AuctionService;
@@ -118,18 +117,9 @@ public class SessionDetailController {
 
     @FXML
     public void onPlaceBidClick(ActionEvent event) {
-        // Xu ly nut dat gia: validate role, thoi gian, so tien roi goi BidService.
-        if (!ensureBidderCanBid()) {
-            return;
-        }
-
+        // Controller chi doc input va goi BidService; validate gia/lock tien nam trong service.
         try {
             long bidAmount = parsePositiveLong(bidAmountField, "Giá đặt không hợp lệ.");
-            if (bidAmount <= session.getCurrent_price()) {
-                AlertUtil.showError("Giá đặt phải cao hơn giá hiện tại.");
-                return;
-            }
-
             bidService.placeBid(UserAccount.getUserId(), session.getItem_id(), bidAmount);
             AlertUtil.showSuccess("Đặt giá thành công.");
             refreshData();
@@ -141,23 +131,9 @@ public class SessionDetailController {
 
     @FXML
     public void onActivateAutobidClick(ActionEvent event) {
-        // Bat auto bid voi muc gia toi da ma user nhap.
-        if (!ensureBidderCanBid()) {
-            return;
-        }
-
+        // Controller tao yeu cau auto bid va de AutoBidService/Repository xu ly luu + active.
         try {
             long maxPrice = parsePositiveLong(autoMaxField, "Giá tối đa auto bid không hợp lệ.");
-            if (maxPrice <= session.getCurrent_price()) {
-                AlertUtil.showError("Giá tối đa phải cao hơn giá hiện tại.");
-                return;
-            }
-
-            long available = accountService.getAvailable(UserAccount.getUserId());
-            if (maxPrice > available) {
-                AlertUtil.showError("Giá tối đa vượt quá số dư khả dụng.");
-                return;
-            }
 
             Autobid autobid = autoBidService.configure(UserAccount.getUserId(), session.getItem_id(), maxPrice);
             long autobidId = resolveAutobidId(autobid, UserAccount.getUserId(), session.getItem_id());
@@ -355,31 +331,6 @@ public class SessionDetailController {
         } catch (Exception e) {
             AlertUtil.showError("Phiên đã kết thúc nhưng không xử lý được kết quả: " + e.getMessage());
         }
-    }
-
-    private boolean ensureBidderCanBid() {
-        // Kiem tra cac dieu kien truoc khi cho dat gia hoac bat auto bid.
-        if (session == null || item == null) {
-            AlertUtil.showError("Dữ liệu phiên đấu giá chưa sẵn sàng.");
-            return false;
-        }
-
-        if (UserAccount.getCurrentRole() == UserRole.SELLER) {
-            AlertUtil.showError("Seller không được đặt giá.");
-            return false;
-        }
-
-        if (session.getState() != AuctionState.RUNNING) {
-            AlertUtil.showError("Phiên đấu giá đã kết thúc.");
-            return false;
-        }
-
-        if (session.getEndTime() != null && !LocalDateTime.now().isBefore(session.getEndTime())) {
-            expireSession();
-            return false;
-        }
-
-        return true;
     }
 
     private long parsePositiveLong(TextField field, String errorMessage) {
