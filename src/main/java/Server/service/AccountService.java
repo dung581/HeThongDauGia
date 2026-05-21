@@ -16,9 +16,7 @@ public class AccountService {
     private UserRepository userRepository = new UserRepository();
 
     public Account getBalance(long userId) {
-        Account acc = repo.getAccountByUserId(userId);
-        if (acc == null) throw new RuntimeException("Account not found");
-        return acc;
+        return requireAccount(userId);
     }
 
     public void deposit(long userId, long amount) {
@@ -76,7 +74,21 @@ public class AccountService {
     private Account requireAccount(long userId) {
         Account acc = repo.getAccountByUserId(userId);
         if (acc == null) {
-            throw new RuntimeException("Account not found for userId=" + userId);
+            User user = userRepository.getUserById(userId);
+            if (user == null) {
+                throw new RuntimeException("User not found for userId=" + userId);
+            }
+
+            Account created = new Account();
+            created.setUser_id(userId);
+            created.setBalance(0L);
+            created.setLocked_balance(0L);
+            repo.CreateAccount(created);
+
+            acc = repo.getAccountByUserId(userId);
+            if (acc == null) {
+                throw new RuntimeException("Could not create account for userId=" + userId);
+            }
         }
         return acc;
     }
