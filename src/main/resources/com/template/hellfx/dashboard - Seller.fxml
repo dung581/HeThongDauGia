@@ -3,8 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -132,27 +131,13 @@
                 <VBox spacing="10.0" HBox.hgrow="ALWAYS">
                     <Label styleClass="section-label" text="ITEM CUA BAN" />
                     <Label fx:id="sellerItemSummaryLabel" styleClass="page-subtitle" text="Dang tai du lieu..." />
-                    <TableView fx:id="sellerItemTable" VBox.vgrow="ALWAYS">
-                        <columns>
-                            <TableColumn fx:id="sellerItemIdColumn" prefWidth="80.0" text="ID" />
-                            <TableColumn fx:id="sellerItemNameColumn" prefWidth="190.0" text="Ten" />
-                            <TableColumn fx:id="sellerItemPriceColumn" prefWidth="150.0" text="Gia khoi diem" />
-                            <TableColumn fx:id="sellerItemStatusColumn" prefWidth="140.0" text="Trang thai" />
-                        </columns>
-                    </TableView>
+                    <ListView fx:id="sellerItemTable" styleClass="data-list" VBox.vgrow="ALWAYS" />
                 </VBox>
 
                 <VBox prefWidth="450.0" spacing="10.0">
                     <Label styleClass="section-label" text="PHIEN LIEN QUAN" />
                     <Label fx:id="sellerSessionSummaryLabel" styleClass="page-subtitle" text="Dang tai du lieu..." />
-                    <TableView fx:id="sellerSessionTable" VBox.vgrow="ALWAYS">
-                        <columns>
-                            <TableColumn fx:id="sellerSessionItemColumn" prefWidth="150.0" text="Item" />
-                            <TableColumn fx:id="sellerSessionPriceColumn" prefWidth="120.0" text="Gia hien tai" />
-                            <TableColumn fx:id="sellerSessionLeaderColumn" prefWidth="80.0" text="Leader" />
-                            <TableColumn fx:id="sellerSessionStatusColumn" prefWidth="95.0" text="Trang thai" />
-                        </columns>
-                    </TableView>
+                    <ListView fx:id="sellerSessionTable" styleClass="data-list" VBox.vgrow="ALWAYS" />
                 </VBox>
             </HBox>
         </VBox>

@@ -2,9 +2,9 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.GridPane?>
@@ -27,15 +27,8 @@
                 <Label styleClass="section-label" text="TRADING" />
                 <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goToSessions" styleClass="nav-active" text="Sessions" />
                 <Button fx:id="browseItemsNav" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToBrowseItems" styleClass="nav-item" text="Browse Items" />
-                <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#openSessionDetail" styleClass="nav-item" text="Session Detail" />
             </VBox>
 
-            <VBox spacing="12.0">
-                <Label fx:id="accountSectionLabel" styleClass="section-label" text="ACCOUNT" />
-                <Button fx:id="accountNavButton" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToAccount" styleClass="nav-item" text="My Account" />
-                <Button fx:id="depositNav" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToDeposit" styleClass="nav-item" text="Deposit" />
-                <Button fx:id="uploadItemNav" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToUploadItem" styleClass="nav-item" text="Upload Item" />
-            </VBox>
         </VBox>
     </left>
 
@@ -79,18 +72,15 @@
                 </VBox>
             </HBox>
 
-            <TableView fx:id="table" VBox.vgrow="ALWAYS">
-                <columns>
-                    <TableColumn fx:id="colId" prefWidth="70.0" text="ID" />
-                    <TableColumn fx:id="colItemId" prefWidth="110.0" text="Item ID" />
-                    <TableColumn fx:id="colItemName" prefWidth="180.0" text="Item Name" />
-                    <TableColumn fx:id="colState" prefWidth="110.0" text="State" />
-                    <TableColumn fx:id="colStartTime" prefWidth="170.0" text="Start" />
-                    <TableColumn fx:id="colEndTime" prefWidth="170.0" text="End" />
-                    <TableColumn fx:id="colCurrentPrice" prefWidth="150.0" text="Current Bid" />
-                    <TableColumn fx:id="colCurrentUserId" prefWidth="130.0" text="Leader" />
-                </columns>
-            </TableView>
+            <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="filter-bar">
+                <TextField fx:id="searchField" prefWidth="280.0" promptText="Tim theo ten, ID item, leader" styleClass="input" />
+                <ChoiceBox fx:id="stateFilter" prefWidth="160.0" />
+                <Button mnemonicParsing="false" onAction="#loadData" styleClass="secondary-button" text="Tai lai" />
+                <HBox HBox.hgrow="ALWAYS" />
+                <Button mnemonicParsing="false" onAction="#openSessionDetail" styleClass="primary-button" text="Tham gia ->" />
+            </HBox>
+
+            <ListView fx:id="table" styleClass="data-list" VBox.vgrow="ALWAYS" />
         </VBox>
     </center>
 
@@ -128,21 +118,4 @@
             </VBox>
         </VBox>
     </right>
-
-    <bottom>
-        <HBox alignment="CENTER" spacing="10.0" styleClass="topbar">
-            <padding>
-                <Insets bottom="10.0" left="24.0" right="24.0" top="10.0" />
-            </padding>
-            <Button mnemonicParsing="false" onAction="#loadData" styleClass="secondary-button" text="Tai lai" />
-            <Button mnemonicParsing="false" onAction="#openSessionDetail" styleClass="primary-button" text="Tham gia ->" />
-            <Button mnemonicParsing="false" onAction="#goFirstPage" styleClass="secondary-button" text="Dau" />
-            <Button mnemonicParsing="false" onAction="#goPrevPage" styleClass="secondary-button" text="&lt;" />
-            <Label fx:id="lblPageInfo" styleClass="field-value" text="Trang 1 / 1" />
-            <Button mnemonicParsing="false" onAction="#goNextPage" styleClass="secondary-button" text="&gt;" />
-            <Button mnemonicParsing="false" onAction="#goLastPage" styleClass="secondary-button" text="Cuoi" />
-            <TextField fx:id="txtPageInput" prefWidth="90.0" promptText="So trang" styleClass="input" />
-            <Button mnemonicParsing="false" onAction="#goToPage" styleClass="secondary-button" text="Di chuyen" />
-        </HBox>
-    </bottom>
 </BorderPane>

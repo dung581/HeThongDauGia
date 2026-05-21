@@ -17,18 +17,23 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class AccountController {
 
@@ -72,47 +77,25 @@ public class AccountController {
     @FXML
     private Label lblFooter;
     @FXML
-    private TableView<Stake> stakeTable;
-    @FXML
-    private TableColumn<Stake, Long> colStakeId;
-    @FXML
-    private TableColumn<Stake, Long> colAuctionId;
-    @FXML
-    private TableColumn<Stake, Long> colItemId;
-    @FXML
-    private TableColumn<Stake, Long> colStakeUserId;
-    @FXML
-    private TableColumn<Stake, Long> colAmount;
-    @FXML
-    private TableColumn<Stake, String> colStakeStatus;
+    private ListView<Stake> stakeTable;
 
 
     @FXML
-    private TableView<AccountService.ManagedAccount> adminTable;
+    private ListView<AccountService.ManagedAccount> adminTable;
     @FXML
-    private TableColumn<AccountService.ManagedAccount, Long> colUserId;
+    private TextField accountSearchField;
     @FXML
-    private TableColumn<AccountService.ManagedAccount, String> colUsername;
+    private ChoiceBox<String> accountRoleFilter;
     @FXML
-    private TableColumn<AccountService.ManagedAccount, String> colFullname;
+    private TextField stakeSearchField;
     @FXML
-    private TableColumn<AccountService.ManagedAccount, String> colRole;
-    @FXML
-    private TableColumn<AccountService.ManagedAccount, String> colPassword;
-    @FXML
-    private TableColumn<AccountService.ManagedAccount, Long> colBalance;
-    @FXML
-    private TableColumn<AccountService.ManagedAccount, Long> colLocked;
-    @FXML
-    private Label lblPageInfo;
-    @FXML
-    private TextField txtPageInput;
+    private ChoiceBox<String> stakeStatusFilter;
 
     private final AccountService accountService = new AccountService();
     private final StakeService stakeService = new StakeService();
     private final List<AccountService.ManagedAccount> allAdminRows = new ArrayList<>();
-    private static final int PAGE_SIZE = 8;
-    private int currentPage = 1;
+    private final List<Stake> allStakeRows = new ArrayList<>();
+    private static final String ALL_FILTER = "Tat ca";
 
     // JavaFX tự gọi sau khi load FXML: cấu hình menu theo role và chọn view tài khoản phù hợp.
     @FXML
@@ -184,25 +167,8 @@ public class AccountController {
         lblFullname.setText(fullname == null ? "" : fullname);
         lblRole.setText(role == null ? "" : role.name());
 
-        // Cấu hình cột lịch sử stake.
-        colStakeId.setCellValueFactory(new PropertyValueFactory<>("id")
-        );
-
-        colAuctionId.setCellValueFactory(new PropertyValueFactory<>("aution_id")
-        );
-
-        colItemId.setCellValueFactory(new PropertyValueFactory<>("locked_item_id")
-        );
-
-        colStakeUserId.setCellValueFactory(new PropertyValueFactory<>("user_id")
-        );
-
-        colAmount.setCellValueFactory(new PropertyValueFactory<>("amount")
-        );
-
-        colStakeStatus.setCellValueFactory(new PropertyValueFactory<>("status")
-        );
-
+        configureStakeList();
+        configureStakeFilters();
 
         // Tải dữ liệu lịch sử stake.
         loadStakeDataAsync();
@@ -240,89 +206,158 @@ public class AccountController {
         setLabel(lblSubtitle, "Xem danh sach nguoi dung, role, so du va tien dang khoa trong he thong.");
         setLabel(lblFooter, "BidNow Desktop | JavaFX 21 | Account management workspace");
 
-        ensurePasswordColumn();
-
-        colUserId.setCellValueFactory(new PropertyValueFactory<>("userId"));
-        colUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
-        colFullname.setCellValueFactory(new PropertyValueFactory<>("fullname"));
-        colRole.setCellValueFactory(new PropertyValueFactory<>("role"));
-        colPassword.setCellValueFactory(new PropertyValueFactory<>("password"));
-        colBalance.setCellValueFactory(new PropertyValueFactory<>("balance"));
-        colLocked.setCellValueFactory(new PropertyValueFactory<>("lockedBalance"));
-
+        configureAdminList();
+        configureAdminFilters();
         loadAdminDataAsync();
     }
 
-    // Chuyển bảng tài khoản Admin về trang đầu tiên.
-    @FXML
-    public void goFirstPage() {
-        renderPage(1);
-    }
-
-    // Chuyển bảng tài khoản Admin về trang trước.
-    @FXML
-    public void goPrevPage() {
-        renderPage(currentPage - 1);
-    }
-
-    // Chuyển bảng tài khoản Admin sang trang tiếp theo.
-    @FXML
-    public void goNextPage() {
-        renderPage(currentPage + 1);
-    }
-
-    // Chuyển bảng tài khoản Admin sang trang cuối cùng.
-    @FXML
-    public void goLastPage() {
-        renderPage(getTotalPages());
-    }
-
-    // Đọc số trang người dùng nhập và render trang tương ứng.
-    @FXML
-    public void goToPage() {
-        if (txtPageInput == null || txtPageInput.getText() == null) {
+    // Cấu hình lịch sử stake thành danh sách card.
+    private void configureStakeList() {
+        if (stakeTable == null) {
             return;
         }
-        try {
-            int page = Integer.parseInt(txtPageInput.getText().trim());
-            renderPage(page);
-        } catch (NumberFormatException ignored) {
-            renderPage(currentPage);
+        stakeTable.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(Stake stake, boolean empty) {
+                super.updateItem(stake, empty);
+                if (empty || stake == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                setText(null);
+                setGraphic(createStakeCard(stake));
+            }
+        });
+    }
+
+    // Cấu hình danh sách tài khoản Admin thành card.
+    private void configureAdminList() {
+        if (adminTable == null) {
+            return;
+        }
+        adminTable.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(AccountService.ManagedAccount account, boolean empty) {
+                super.updateItem(account, empty);
+                if (empty || account == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                setText(null);
+                setGraphic(createManagedAccountCard(account));
+            }
+        });
+    }
+
+    // Tạo card hiển thị một stake.
+    private Node createStakeCard(Stake stake) {
+        HBox row = new HBox(14.0);
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.setPadding(new Insets(14.0, 16.0, 14.0, 16.0));
+        row.getStyleClass().add("data-row");
+
+        VBox main = new VBox(5.0);
+        HBox.setHgrow(main, Priority.ALWAYS);
+        Label title = new Label("Stake #" + stake.getId());
+        title.getStyleClass().add("data-title");
+        HBox meta = new HBox(10.0);
+        Label auction = new Label("Auction #" + stake.getAution_id());
+        auction.getStyleClass().add("data-meta");
+        Label item = new Label("Item #" + stake.getLocked_item_id());
+        item.getStyleClass().add("data-meta");
+        Label user = new Label("User #" + stake.getUser_id());
+        user.getStyleClass().add("data-meta");
+        meta.getChildren().addAll(auction, item, user);
+        main.getChildren().addAll(title, meta);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        VBox value = new VBox(6.0);
+        value.setAlignment(Pos.CENTER_RIGHT);
+        Label amount = new Label(String.format("%,d", stake.getAmount()));
+        amount.getStyleClass().add("data-money");
+        Label status = new Label(stake.getStatus() == null ? "" : stake.getStatus().name());
+        status.getStyleClass().add("data-pill");
+        value.getChildren().addAll(amount, status);
+
+        row.getChildren().addAll(main, spacer, value);
+        return row;
+    }
+
+    // Tạo card hiển thị một tài khoản quản lý.
+    private Node createManagedAccountCard(AccountService.ManagedAccount account) {
+        HBox row = new HBox(14.0);
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.setPadding(new Insets(14.0, 16.0, 14.0, 16.0));
+        row.getStyleClass().add("data-row");
+
+        VBox main = new VBox(5.0);
+        HBox.setHgrow(main, Priority.ALWAYS);
+        Label title = new Label(account.getUsername() == null ? "User #" + account.getUserId() : account.getUsername());
+        title.getStyleClass().add("data-title");
+        Label fullname = new Label(account.getFullname() == null ? "" : account.getFullname());
+        fullname.getStyleClass().add("product-description");
+        HBox meta = new HBox(10.0);
+        Label id = new Label("User #" + account.getUserId());
+        id.getStyleClass().add("data-meta");
+        Label password = new Label("Pass: " + (account.getPassword() == null ? "" : account.getPassword()));
+        password.getStyleClass().add("data-meta");
+        meta.getChildren().addAll(id, password);
+        main.getChildren().addAll(title, fullname, meta);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        VBox value = new VBox(6.0);
+        value.setAlignment(Pos.CENTER_RIGHT);
+        Label balance = new Label(String.format("%,d", account.getBalance()));
+        balance.getStyleClass().add("data-money");
+        Label locked = new Label("Locked " + String.format("%,d", account.getLockedBalance()));
+        locked.getStyleClass().add("data-meta");
+        Label role = new Label(account.getRole() == null ? "" : account.getRole());
+        role.getStyleClass().add("data-pill");
+        value.getChildren().addAll(balance, locked, role);
+
+        row.getChildren().addAll(main, spacer, value);
+        return row;
+    }
+
+    // Cấu hình tìm kiếm/lọc lịch sử stake cho tài khoản cá nhân.
+    private void configureStakeFilters() {
+        if (stakeStatusFilter != null) {
+            stakeStatusFilter.setItems(FXCollections.observableArrayList(ALL_FILTER, "LOCKED", "RELEASED", "WON"));
+            if (stakeStatusFilter.getValue() == null) {
+                stakeStatusFilter.setValue(ALL_FILTER);
+            }
+            stakeStatusFilter.setOnAction(event -> applyStakeFilters());
+        }
+
+        if (stakeSearchField != null) {
+            stakeSearchField.textProperty().addListener((observable, oldValue, newValue) -> applyStakeFilters());
         }
     }
 
-    // Cắt danh sách tài khoản theo trang và đổ dữ liệu lên bảng Admin.
-    private void renderPage(int page) {
-        int totalPages = getTotalPages();
-        if (totalPages <= 0) {
-            totalPages = 1;
+    // Cấu hình tìm kiếm/lọc tài khoản cho Admin.
+    private void configureAdminFilters() {
+        if (accountRoleFilter != null) {
+            accountRoleFilter.setItems(FXCollections.observableArrayList(
+                    ALL_FILTER,
+                    UserRole.ADMIN.name(),
+                    UserRole.SELLER.name(),
+                    UserRole.BIDDER.name()
+            ));
+            if (accountRoleFilter.getValue() == null) {
+                accountRoleFilter.setValue(ALL_FILTER);
+            }
+            accountRoleFilter.setOnAction(event -> applyAdminFilters());
         }
-        if (page < 1) {
-            page = 1;
-        }
-        if (page > totalPages) {
-            page = totalPages;
-        }
-        currentPage = page;
 
-        int fromIndex = (currentPage - 1) * PAGE_SIZE;
-        int toIndex = Math.min(fromIndex + PAGE_SIZE, allAdminRows.size());
-        List<AccountService.ManagedAccount> pageRows = fromIndex >= toIndex
-                ? List.of()
-                : allAdminRows.subList(fromIndex, toIndex);
-
-        adminTable.setItems(FXCollections.observableArrayList(pageRows));
-        if (lblPageInfo != null) {
-            lblPageInfo.setText("Trang " + currentPage + " / " + totalPages);
+        if (accountSearchField != null) {
+            accountSearchField.textProperty().addListener((observable, oldValue, newValue) -> applyAdminFilters());
         }
-    }
-
-    // Tính tổng số trang của bảng quản lý tài khoản.
-    private int getTotalPages() {
-        if (allAdminRows.isEmpty()) {
-            return 1;
-        }
-        return (allAdminRows.size() + PAGE_SIZE - 1) / PAGE_SIZE;
     }
 
     // Tải danh sách tài khoản quản lý trên background thread để không khóa UI.
@@ -338,12 +373,12 @@ public class AccountController {
         task.setOnSucceeded(event -> {
             allAdminRows.clear();
             allAdminRows.addAll(task.getValue());
-            renderPage(1);
+            applyAdminFilters();
         });
 
         task.setOnFailed(event -> {
             allAdminRows.clear();
-            renderPage(1);
+            applyAdminFilters();
         });
 
         Thread worker = new Thread(task, "account-admin-load");
@@ -365,8 +400,9 @@ public class AccountController {
         };
 
         task.setOnSucceeded(event -> {
-            stakeTable.getItems().setAll(task.getValue()
-            );
+            allStakeRows.clear();
+            allStakeRows.addAll(task.getValue());
+            applyStakeFilters();
         });
 
         task.setOnFailed(event -> {
@@ -375,20 +411,105 @@ public class AccountController {
         new Thread(task).start();
     }
 
-    // Đảm bảo cột password tồn tại trong bảng Admin khi FXML chưa khai báo sẵn.
-    private void ensurePasswordColumn() {
-        if (colPassword == null) {
-            colPassword = new TableColumn<>("Password");
-            colPassword.setPrefWidth(130.0);
-        }
-
-        if (adminTable == null || adminTable.getColumns().contains(colPassword)) {
+    // Lọc danh sách tài khoản theo keyword và role, bảng sẽ tự cuộn thay vì phân trang.
+    private void applyAdminFilters() {
+        if (adminTable == null) {
             return;
         }
 
-        int roleIndex = adminTable.getColumns().indexOf(colRole);
-        int insertIndex = roleIndex >= 0 ? roleIndex + 1 : adminTable.getColumns().size();
-        adminTable.getColumns().add(insertIndex, colPassword);
+        String query = normalize(accountSearchField == null ? "" : accountSearchField.getText());
+        String role = accountRoleFilter == null ? ALL_FILTER : accountRoleFilter.getValue();
+        List<AccountService.ManagedAccount> rows = new ArrayList<>();
+
+        for (AccountService.ManagedAccount account : allAdminRows) {
+            if (!matchesAccountRole(account, role)) {
+                continue;
+            }
+            if (!matchesAccountSearch(account, query)) {
+                continue;
+            }
+            rows.add(account);
+        }
+
+        adminTable.setItems(FXCollections.observableArrayList(rows));
+    }
+
+    // Lọc lịch sử stake theo keyword và trạng thái.
+    private void applyStakeFilters() {
+        if (stakeTable == null) {
+            return;
+        }
+
+        String query = normalize(stakeSearchField == null ? "" : stakeSearchField.getText());
+        String status = stakeStatusFilter == null ? ALL_FILTER : stakeStatusFilter.getValue();
+        List<Stake> rows = new ArrayList<>();
+
+        for (Stake stake : allStakeRows) {
+            if (!matchesStakeStatus(stake, status)) {
+                continue;
+            }
+            if (!matchesStakeSearch(stake, query)) {
+                continue;
+            }
+            rows.add(stake);
+        }
+
+        stakeTable.setItems(FXCollections.observableArrayList(rows));
+    }
+
+    // Kiểm tra role tài khoản có khớp bộ lọc Admin không.
+    private boolean matchesAccountRole(AccountService.ManagedAccount account, String selectedRole) {
+        if (selectedRole == null || selectedRole.equals(ALL_FILTER)) {
+            return true;
+        }
+        return selectedRole.equals(account.getRole());
+    }
+
+    // Kiểm tra keyword theo user ID, username, họ tên, role và số dư.
+    private boolean matchesAccountSearch(AccountService.ManagedAccount account, String query) {
+        if (query.isEmpty()) {
+            return true;
+        }
+
+        String target = String.join(" ",
+                String.valueOf(account.getUserId()),
+                account.getUsername() == null ? "" : account.getUsername(),
+                account.getFullname() == null ? "" : account.getFullname(),
+                account.getRole() == null ? "" : account.getRole(),
+                String.valueOf(account.getBalance()),
+                String.valueOf(account.getLockedBalance())
+        );
+        return normalize(target).contains(query);
+    }
+
+    // Kiểm tra trạng thái stake có khớp bộ lọc không.
+    private boolean matchesStakeStatus(Stake stake, String selectedStatus) {
+        if (selectedStatus == null || selectedStatus.equals(ALL_FILTER)) {
+            return true;
+        }
+        return stake.getStatus() != null && stake.getStatus().name().equals(selectedStatus);
+    }
+
+    // Kiểm tra keyword theo ID stake, auction, item, user, số tiền và trạng thái.
+    private boolean matchesStakeSearch(Stake stake, String query) {
+        if (query.isEmpty()) {
+            return true;
+        }
+
+        String target = String.join(" ",
+                String.valueOf(stake.getId()),
+                String.valueOf(stake.getAution_id()),
+                String.valueOf(stake.getLocked_item_id()),
+                String.valueOf(stake.getUser_id()),
+                String.valueOf(stake.getAmount()),
+                stake.getStatus() == null ? "" : stake.getStatus().name()
+        );
+        return normalize(target).contains(query);
+    }
+
+    // Chuẩn hóa chuỗi để tìm kiếm không phân biệt hoa thường.
+    private String normalize(String value) {
+        return value == null ? "" : value.toLowerCase(Locale.ROOT).trim();
     }
 
     // Quay lại dashboard đúng với role hiện tại.

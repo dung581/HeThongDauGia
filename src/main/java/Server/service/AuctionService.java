@@ -70,12 +70,18 @@ public class AuctionService{
         long winnerId = auction.getCurrent_user_id();
         long price = auction.getCurrent_price();
 
-        // 🔥 lấy item
         Item item = itemRepo.getItemById(auction.getItem_id());
+        if (item == null) {
+            throw new RuntimeException("Item not found");
+        }
 
         if (winnerId != 0) {
 
+            // Trừ tiền đã khóa của người thắng, sau đó cộng đúng giá thắng cho seller.
             accountService.deductLockedFunds(winnerId, price);
+            if (item.getOwner_user_id() > 0 && item.getOwner_user_id() != winnerId) {
+                accountService.creditSaleProceeds(item.getOwner_user_id(), price);
+            }
 
             Stake s = stakeService.getActiveStake(sessionId, winnerId);
             if (s != null) {

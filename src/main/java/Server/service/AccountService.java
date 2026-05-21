@@ -27,6 +27,14 @@ public class AccountService {
         repo.update(acc);
     }
 
+    public void creditSaleProceeds(long sellerId, long amount) {
+        if (amount <= 0) throw new RuntimeException("Invalid amount");
+
+        Account acc = requireAccount(sellerId);
+        acc.setBalance(acc.getBalance() + amount);
+        repo.update(acc);
+    }
+
     public void lockFunds(long userId, long amount) {
         Account acc = requireAccount(userId);
 
@@ -41,11 +49,8 @@ public class AccountService {
     public void releaseFunds(long userId, long amount) {
         Account acc = requireAccount(userId);
 
-        if (acc.getLocked_balance() < amount) {
-            throw new RuntimeException("Locked balance is not enough");
-        }
-
-        acc.setLocked_balance(acc.getLocked_balance() - amount);
+        long releasable = Math.min(acc.getLocked_balance(), amount);
+        acc.setLocked_balance(acc.getLocked_balance() - releasable);
 
         repo.update(acc);
     }
@@ -53,14 +58,12 @@ public class AccountService {
     public void deductLockedFunds(long userId, long amount) {
         Account acc = requireAccount(userId);
 
-        if (acc.getLocked_balance() < amount) {
-            throw new RuntimeException("Locked balance is not enough");
-        }
         if (acc.getBalance() < amount) {
             throw new RuntimeException("Balance is not enough");
         }
 
-        acc.setLocked_balance(acc.getLocked_balance() - amount);
+        long lockedToDeduct = Math.min(acc.getLocked_balance(), amount);
+        acc.setLocked_balance(acc.getLocked_balance() - lockedToDeduct);
         acc.setBalance(acc.getBalance() - amount);
 
         repo.update(acc);

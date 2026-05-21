@@ -2,10 +2,10 @@ package Server.Controller;
 
 import Client.Controller.UILogin;
 import Common.DataBase.entities.Item;
+import Common.Enum.ItemStatus;
 import Common.Model.user.UserAccount;
 import Server.service.ItemService;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,14 +14,23 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class SellerProductController {
 
@@ -29,106 +38,131 @@ public class SellerProductController {
     @FXML private TextField itemPrice;
     @FXML private TextField itemDescription;
 
-    @FXML private TableView<Item> table;
-    @FXML private TableColumn<Item, Long> colId;
-    @FXML private TableColumn<Item, String> colName;
-    @FXML private TableColumn<Item, Long> colPrice;
-    @FXML private TableColumn<Item, String> colStatus;
-    @FXML private TableColumn<Item, String> colReason;
-    @FXML private Label lblPageInfo;
-    @FXML private TextField txtPageInput;
+    @FXML private ListView<Item> table;
+    @FXML private TextField searchField;
+    @FXML private ChoiceBox<String> statusFilter;
 
     private final ItemService itemService = new ItemService();
-    private static final int PAGE_SIZE = 8;
-    private int currentPage = 1;
-    private int totalItems = 0;
+    private final List<Item> allItems = new ArrayList<>();
+    private static final String ALL_FILTER = "Tat ca";
     private boolean loading = false;
 
     // JavaFX tự gọi sau khi load FXML: cấu hình cột bảng và tải danh sách item của seller.
     @FXML
     public void initialize() {
-        colId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getId()));
-        colName.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getFullname()));
-        colPrice.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getBeginPrice()));
-        colStatus.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus().name()));
-        colReason.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getMota() == null ? "" : data.getValue().getMota()));
+        configureList();
+        configureFilters();
         loadMyItems();
     }
 
-    // Tải lại danh sách sản phẩm của seller từ trang đầu tiên.
+    // Cấu hình danh sách sản phẩm của seller theo dạng card mềm.
+    private void configureList() {
+        table.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(Item item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                setText(null);
+                setGraphic(createItemCard(item));
+            }
+        });
+    }
+
+    // Tạo card hiển thị trạng thái một sản phẩm seller đã gửi.
+    private Node createItemCard(Item item) {
+        HBox row = new HBox(14.0);
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.setPadding(new Insets(14.0, 16.0, 14.0, 16.0));
+        row.getStyleClass().add("data-row");
+
+        VBox main = new VBox(5.0);
+        HBox.setHgrow(main, Priority.ALWAYS);
+        Label title = new Label(nullToText(item.getFullname(), "Item " + item.getId()));
+        title.getStyleClass().add("data-title");
+        title.setWrapText(true);
+        Label note = new Label(nullToText(item.getMota(), "Chua co phan hoi"));
+        note.getStyleClass().add("product-description");
+        note.setWrapText(true);
+        HBox meta = new HBox(10.0);
+        Label id = new Label("ID #" + item.getId());
+        id.getStyleClass().add("data-meta");
+        Label description = new Label(nullToText(item.getDescription(), ""));
+        description.getStyleClass().add("data-meta");
+        meta.getChildren().addAll(id, description);
+        main.getChildren().addAll(title, note, meta);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        VBox value = new VBox(6.0);
+        value.setAlignment(Pos.CENTER_RIGHT);
+        Label price = new Label(String.format("%,d", item.getBeginPrice()));
+        price.getStyleClass().add("data-money");
+        Label status = new Label(item.getStatus() == null ? "" : item.getStatus().name());
+        status.getStyleClass().add("data-pill");
+        value.getChildren().addAll(price, status);
+
+        row.getChildren().addAll(main, spacer, value);
+        return row;
+    }
+
+    // Trả chuỗi dự phòng khi dữ liệu null/rỗng.
+    private String nullToText(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value;
+    }
+
+    // Tải lại toàn bộ danh sách sản phẩm của seller, bảng tự cuộn nên không cần phân trang.
     public void loadMyItems() {
-        loadPageAsync(1);
+        loadItemsAsync();
     }
 
-    // Chuyển tới trang đầu tiên của bảng sản phẩm.
-    @FXML public void goFirstPage() { loadPageAsync(1); }
-    // Chuyển tới trang trước của bảng sản phẩm.
-    @FXML public void goPrevPage() { loadPageAsync(currentPage - 1); }
-    // Chuyển tới trang tiếp theo của bảng sản phẩm.
-    @FXML public void goNextPage() { loadPageAsync(currentPage + 1); }
-    // Chuyển tới trang cuối cùng của bảng sản phẩm.
-    @FXML public void goLastPage() { loadPageAsync(getTotalPages()); }
+    // Cấu hình tìm kiếm theo tên/ID/ghi chú và lọc trạng thái item.
+    private void configureFilters() {
+        if (statusFilter != null) {
+            List<String> options = new ArrayList<>();
+            options.add(ALL_FILTER);
+            for (ItemStatus status : ItemStatus.values()) {
+                options.add(status.name());
+            }
+            statusFilter.setItems(FXCollections.observableArrayList(options));
+            statusFilter.setValue(ALL_FILTER);
+            statusFilter.setOnAction(event -> applyFilters());
+        }
 
-    // Đọc số trang người dùng nhập và tải trang tương ứng.
-    @FXML
-    public void goToPage() {
-        if (txtPageInput == null || txtPageInput.getText() == null) return;
-        try {
-            int page = Integer.parseInt(txtPageInput.getText().trim());
-            loadPageAsync(page);
-        } catch (NumberFormatException ignored) {
-            loadPageAsync(currentPage);
+        if (searchField != null) {
+            searchField.textProperty().addListener((observable, oldValue, newValue) -> applyFilters());
         }
     }
 
-    // Đổ dữ liệu một trang lên TableView và cập nhật nhãn phân trang.
-    private void renderPage(int page, List<Item> pageRows) {
-        int totalPages = getTotalPages();
-        if (page < 1) page = 1;
-        if (page > totalPages) page = totalPages;
-        currentPage = page;
-        table.getItems().setAll(pageRows);
-
-        if (lblPageInfo != null) {
-            lblPageInfo.setText("Trang " + currentPage + " / " + totalPages);
-        }
-    }
-
-    // Tính tổng số trang dựa trên tổng item và kích thước trang.
-    private int getTotalPages() {
-        if (totalItems <= 0) return 1;
-        return (totalItems + PAGE_SIZE - 1) / PAGE_SIZE;
-    }
-
-    // Tải dữ liệu sản phẩm theo trang trên background thread để không khóa UI.
-    private void loadPageAsync(int requestedPage) {
+    // Tải dữ liệu sản phẩm trên background thread để không khóa UI.
+    private void loadItemsAsync() {
         if (loading) return;
         loading = true;
-        if (lblPageInfo != null) lblPageInfo.setText("Đang tải...");
 
-        Task<PageData> task = new Task<>() {
+        Task<List<Item>> task = new Task<>() {
             @Override
-            // Hàm chạy trong background task: đếm và lấy sản phẩm của seller theo trang.
-            protected PageData call() {
+            // Hàm chạy trong background task: lấy toàn bộ sản phẩm của seller để lọc/cuộn trực tiếp.
+            protected List<Item> call() {
                 long ownerId = UserAccount.getUserId();
-                int total = itemService.countByOwner(ownerId);
-                int totalPages = Math.max(1, (total + PAGE_SIZE - 1) / PAGE_SIZE);
-                int safePage = Math.max(1, Math.min(requestedPage, totalPages));
-                List<Item> rows = itemService.listByOwnerPaged(ownerId, safePage, PAGE_SIZE);
-                return new PageData(total, safePage, rows);
+                return itemService.listByOwner(ownerId);
             }
         };
 
         task.setOnSucceeded(event -> {
-            PageData result = task.getValue();
-            totalItems = result.totalItems;
-            renderPage(result.page, result.rows);
+            allItems.clear();
+            allItems.addAll(task.getValue());
+            applyFilters();
             loading = false;
         });
 
         task.setOnFailed(event -> {
+            allItems.clear();
+            applyFilters();
             loading = false;
-            if (lblPageInfo != null) lblPageInfo.setText("Tải thất bại");
         });
 
         Thread worker = new Thread(task, "seller-item-page-load");
@@ -136,17 +170,54 @@ public class SellerProductController {
         worker.start();
     }
 
-    private static class PageData {
-        private final int totalItems;
-        private final int page;
-        private final List<Item> rows;
+    // Lọc sản phẩm theo từ khóa và trạng thái.
+    private void applyFilters() {
+        String query = normalize(searchField == null ? "" : searchField.getText());
+        String status = statusFilter == null ? ALL_FILTER : statusFilter.getValue();
+        List<Item> rows = new ArrayList<>();
 
-        // Gói dữ liệu trả về từ background task khi tải một trang sản phẩm.
-        private PageData(int totalItems, int page, List<Item> rows) {
-            this.totalItems = totalItems;
-            this.page = page;
-            this.rows = rows;
+        for (Item item : allItems) {
+            if (!matchesStatus(item, status)) {
+                continue;
+            }
+            if (!matchesSearch(item, query)) {
+                continue;
+            }
+            rows.add(item);
         }
+
+        table.getItems().setAll(rows);
+        table.refresh();
+    }
+
+    // Kiểm tra trạng thái sản phẩm có khớp bộ lọc không.
+    private boolean matchesStatus(Item item, String selectedStatus) {
+        if (selectedStatus == null || selectedStatus.equals(ALL_FILTER)) {
+            return true;
+        }
+        return item.getStatus() != null && item.getStatus().name().equals(selectedStatus);
+    }
+
+    // Kiểm tra keyword theo ID, tên, giá, trạng thái, mô tả và ghi chú phản hồi.
+    private boolean matchesSearch(Item item, String query) {
+        if (query.isEmpty()) {
+            return true;
+        }
+
+        String target = String.join(" ",
+                String.valueOf(item.getId()),
+                item.getFullname() == null ? "" : item.getFullname(),
+                String.valueOf(item.getBeginPrice()),
+                item.getStatus() == null ? "" : item.getStatus().name(),
+                item.getDescription() == null ? "" : item.getDescription(),
+                item.getMota() == null ? "" : item.getMota()
+        );
+        return normalize(target).contains(query);
+    }
+
+    // Chuẩn hóa chuỗi để tìm kiếm không phân biệt hoa thường.
+    private String normalize(String value) {
+        return value == null ? "" : value.toLowerCase(Locale.ROOT).trim();
     }
 
     // Xử lý form đăng bán: đọc input, tạo Item và gửi yêu cầu upload qua ItemService.

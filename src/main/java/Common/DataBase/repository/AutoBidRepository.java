@@ -16,6 +16,16 @@ public class AutoBidRepository {
 
     DbConnection db = new DbConnection();
 
+    private Autobid map(ResultSet rs) throws Exception {
+        Autobid a = new Autobid();
+        a.setId(rs.getLong("id"));
+        a.setUser_id(rs.getLong("user_id"));
+        a.setItem_id(rs.getLong("item_id"));
+        a.setMax_price(rs.getLong("max_price"));
+        a.set_active(rs.getBoolean("is_active"));
+        return a;
+    }
+
     public List<Autobid> getAllAutobid() {
 
         List<Autobid> Autobids = new ArrayList<>();
@@ -28,15 +38,7 @@ public class AutoBidRepository {
 
             while (rs.next()) {
 
-                Autobid a = new Autobid();
-
-                a.setId(rs.getLong("id"));
-                a.setUser_id(rs.getLong("user_id"));
-                a.setItem_id(rs.getLong("item_id"));
-                a.setMax_price(rs.getLong("max_price"));
-                a.set_active(rs.getBoolean("is_active"));
-
-                Autobids.add(a);
+                Autobids.add(map(rs));
             }
 
         } catch (Exception e) {
@@ -98,15 +100,7 @@ public class AutoBidRepository {
 
             while (rs.next()) {
 
-                Autobid a = new Autobid();
-
-                a.setId(rs.getLong("id"));
-                a.setUser_id(rs.getLong("user_id"));
-                a.setItem_id(rs.getLong("item_id"));
-                a.setMax_price(rs.getLong("max_price"));
-                a.set_active(rs.getBoolean("is_active"));
-
-                list.add(a);
+                list.add(map(rs));
             }
 
         } catch (Exception e) {
@@ -174,15 +168,7 @@ public class AutoBidRepository {
 
             while (rs.next()) {
 
-                Autobid a = new Autobid();
-
-                a.setId(rs.getLong("id"));
-                a.setUser_id(rs.getLong("user_id"));
-                a.setItem_id(rs.getLong("item_id"));
-                a.setMax_price(rs.getLong("max_price"));
-                a.set_active(rs.getBoolean("is_active"));
-
-                list.add(a);
+                list.add(map(rs));
             }
 
         } catch (Exception e) {
@@ -190,6 +176,32 @@ public class AutoBidRepository {
         }
 
         return list;
+    }
+
+    public Autobid getLatestByUserAndItem(long userId, long itemId) {
+        String sql = """
+            SELECT *
+            FROM autobid
+            WHERE user_id = ? AND item_id = ?
+            ORDER BY id DESC
+            LIMIT 1
+        """;
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, userId);
+            ps.setLong(2, itemId);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return map(rs);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return null;
     }
 
     // them 5p neu dat gia qua gan endtime

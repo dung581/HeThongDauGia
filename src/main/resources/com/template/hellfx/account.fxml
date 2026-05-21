@@ -2,9 +2,9 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.GridPane?>
@@ -25,16 +25,7 @@
 
             <VBox spacing="12.0">
                 <Label styleClass="section-label" text="NAVIGATION" />
-                <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goHome" styleClass="nav-item" text="Home" />
-                <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goToSessions" styleClass="nav-item" text="Sessions" />
-                <Button fx:id="browseItemsNav" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToBrowseItems" styleClass="nav-item" text="Browse Items" />
                 <Button fx:id="accountNavButton" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToAccount" styleClass="nav-active" text="My Account" />
-            </VBox>
-
-            <VBox fx:id="accountSection" spacing="12.0">
-                <Label styleClass="section-label" text="ACCOUNT" />
-                <Button fx:id="depositNav" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToDeposit" styleClass="nav-item" text="Deposit" />
-                <Button fx:id="uploadItemNav" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToUploadItem" styleClass="nav-item" text="Upload Item" />
             </VBox>
         </VBox>
     </left>
@@ -81,16 +72,11 @@
 
             <VBox fx:id="stakePane" spacing="10.0" VBox.vgrow="ALWAYS">
                 <Label styleClass="section-label" text="LICH SU STAKE" />
-                <TableView fx:id="stakeTable" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn fx:id="colStakeId" prefWidth="90.0" text="ID" />
-                        <TableColumn fx:id="colAuctionId" prefWidth="140.0" text="Auction ID" />
-                        <TableColumn fx:id="colItemId" prefWidth="140.0" text="Item ID" />
-                        <TableColumn fx:id="colStakeUserId" prefWidth="140.0" text="User ID" />
-                        <TableColumn fx:id="colAmount" prefWidth="190.0" text="So tien" />
-                        <TableColumn fx:id="colStakeStatus" prefWidth="190.0" text="Trang thai" />
-                    </columns>
-                </TableView>
+                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="filter-bar">
+                    <TextField fx:id="stakeSearchField" prefWidth="280.0" promptText="Tim theo auction, item, so tien" styleClass="input" />
+                    <ChoiceBox fx:id="stakeStatusFilter" prefWidth="160.0" />
+                </HBox>
+                <ListView fx:id="stakeTable" styleClass="data-list" VBox.vgrow="ALWAYS" />
             </VBox>
 
             <VBox fx:id="adminPane" managed="false" spacing="12.0" styleClass="card" visible="false" VBox.vgrow="ALWAYS">
@@ -98,26 +84,11 @@
                     <Insets bottom="18.0" left="18.0" right="18.0" top="18.0" />
                 </padding>
                 <Label styleClass="section-label" text="DANH SACH TAI KHOAN" />
-                <TableView fx:id="adminTable" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn fx:id="colUserId" prefWidth="80.0" text="User ID" />
-                        <TableColumn fx:id="colUsername" prefWidth="150.0" text="Username" />
-                        <TableColumn fx:id="colFullname" prefWidth="170.0" text="Fullname" />
-                        <TableColumn fx:id="colRole" prefWidth="100.0" text="Role" />
-                        <TableColumn fx:id="colPassword" prefWidth="130.0" text="Password" />
-                        <TableColumn fx:id="colBalance" prefWidth="140.0" text="Balance" />
-                        <TableColumn fx:id="colLocked" prefWidth="140.0" text="Locked" />
-                    </columns>
-                </TableView>
-                <HBox alignment="CENTER" spacing="10.0">
-                    <Button mnemonicParsing="false" onAction="#goFirstPage" styleClass="secondary-button" text="Dau" />
-                    <Button mnemonicParsing="false" onAction="#goPrevPage" styleClass="secondary-button" text="&lt;" />
-                    <Label fx:id="lblPageInfo" styleClass="field-value" text="Trang 1 / 1" />
-                    <Button mnemonicParsing="false" onAction="#goNextPage" styleClass="secondary-button" text="&gt;" />
-                    <Button mnemonicParsing="false" onAction="#goLastPage" styleClass="secondary-button" text="Cuoi" />
-                    <TextField fx:id="txtPageInput" prefWidth="90.0" promptText="So trang" styleClass="input" />
-                    <Button mnemonicParsing="false" onAction="#goToPage" styleClass="secondary-button" text="Di chuyen" />
+                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="filter-bar">
+                    <TextField fx:id="accountSearchField" prefWidth="300.0" promptText="Tim username, ho ten, user ID" styleClass="input" />
+                    <ChoiceBox fx:id="accountRoleFilter" prefWidth="160.0" />
                 </HBox>
+                <ListView fx:id="adminTable" styleClass="data-list" VBox.vgrow="ALWAYS" />
             </VBox>
         </VBox>
     </center>
