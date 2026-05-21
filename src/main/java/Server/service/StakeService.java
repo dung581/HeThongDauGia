@@ -15,16 +15,25 @@ public class StakeService {
     public Stake createStake(long userId, long itemId, long amount) {
 
         Auction auction = auctionRepo.getByItemId(itemId);
+        if (auction == null) {
+            throw new RuntimeException("Auction not found");
+        }
 
         accountService.lockFunds(userId, amount);
 
         Stake s = new Stake();
         s.setAution_id(auction.getId());
+        s.setLocked_item_id(itemId);
         s.setUser_id(userId);
         s.setAmount(amount);
         s.setStatus(StakeStatus.LOCKED);
 
-        repo.saveStake(s);
+        try {
+            repo.saveStake(s);
+        } catch (RuntimeException e) {
+            accountService.releaseFunds(userId, amount);
+            throw e;
+        }
 
         return s;
     }
@@ -33,10 +42,15 @@ public class StakeService {
 
         Stake s = repo.getById(stakeId);
         if (s == null) return;
+        if (s.getStatus() != StakeStatus.LOCKED) return;
 
         accountService.releaseFunds(s.getUser_id(), s.getAmount());
 
-        repo.updateStatus(stakeId, StakeStatus.LOST);
+        repo.updateStatus(stakeId, StakeStatus.RELEASED);
+    }
+
+    public void markWon(long stakeId) {
+        repo.updateStatus(stakeId, StakeStatus.WON);
     }
 
     // list lich dat gia

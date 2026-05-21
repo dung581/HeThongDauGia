@@ -6,12 +6,44 @@ import Common.DataBase.entities.Bid;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BidRepository {
 
     private static DbConnection db = new DbConnection();
+
+    private Bid mapResultSet(ResultSet rs) throws Exception {
+        Bid b = new Bid();
+        b.setId(rs.getLong("id"));
+        b.setAuction_id(readLong(rs, "session_id", "auction_id"));
+        b.setUser_id(rs.getLong("user_id"));
+        b.setItem_id(readLong(rs, "items_id", "item_id"));
+        b.setPrice(rs.getLong("price"));
+
+        Timestamp createdAt = readTimestamp(rs, "created_at");
+        if (createdAt != null) {
+            b.setCreated_at(createdAt.toLocalDateTime());
+        }
+        return b;
+    }
+
+    private long readLong(ResultSet rs, String primaryColumn, String fallbackColumn) throws Exception {
+        try {
+            return rs.getLong(primaryColumn);
+        } catch (Exception ignored) {
+            return rs.getLong(fallbackColumn);
+        }
+    }
+
+    private Timestamp readTimestamp(ResultSet rs, String column) {
+        try {
+            return rs.getTimestamp(column);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
 
     public List<Bid> getAllBid() {
 
@@ -25,19 +57,7 @@ public class BidRepository {
 
             while (rs.next()) {
 
-                Bid b = new Bid();
-
-                b.setId(rs.getLong("id"));
-                b.setAuction_id(rs.getLong("session_id"));
-                b.setUser_id(rs.getLong("user_id"));
-                b.setItem_id(rs.getLong("item_id"));
-                b.setPrice(rs.getLong("price"));
-
-                b.setCreated_at(
-                        rs.getTimestamp("created_at").toLocalDateTime()
-                );
-
-                bids.add(b);
+                bids.add(mapResultSet(rs));
             }
 
         } catch (Exception e) {
@@ -89,15 +109,36 @@ public class BidRepository {
 
             while (rs.next()) {
 
-                Bid b = new Bid();
+                list.add(mapResultSet(rs));
+            }
 
-                b.setId(rs.getLong("id"));
-                b.setAuction_id(rs.getLong("auction_id"));
-                b.setUser_id(rs.getLong("user_id"));
-                b.setItem_id(rs.getLong("item_id"));
-                b.setPrice(rs.getLong("price"));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
-                list.add(b);
+        return list;
+    }
+
+    public List<Bid> getBySessionId(long sessionId) {
+
+        List<Bid> list = new ArrayList<>();
+
+        String sql = """
+            SELECT *
+            FROM bid
+            WHERE session_id = ?
+            ORDER BY id ASC
+        """;
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, sessionId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                list.add(mapResultSet(rs));
             }
 
         } catch (Exception e) {

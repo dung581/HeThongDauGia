@@ -114,6 +114,7 @@ public class AccountController {
     private static final int PAGE_SIZE = 8;
     private int currentPage = 1;
 
+    // JavaFX tự gọi sau khi load FXML: cấu hình menu theo role và chọn view tài khoản phù hợp.
     @FXML
     public void initialize() {
         configureRoleUi();
@@ -125,6 +126,7 @@ public class AccountController {
         }
     }
 
+    // Ẩn/hiện các mục điều hướng theo role hiện tại của user.
     private void configureRoleUi() {
         UserRole role = UserAccount.getCurrentRole();
         setVisibleManaged(browseItemsNav, role == UserRole.ADMIN);
@@ -136,18 +138,21 @@ public class AccountController {
         }
     }
 
+    // Set đồng thời visible và managed để node ẩn không chiếm chỗ trong layout.
     private void setVisibleManaged(Node node, boolean visible) {
         if (node == null) return;
         node.setVisible(visible);
         node.setManaged(visible);
     }
 
+    // Set text an toàn cho Label có thể không tồn tại trong một số FXML.
     private void setLabel(Label label, String text) {
         if (label != null) {
             label.setText(text);
         }
     }
 
+    // Hiển thị view tài khoản cá nhân cho Bidder/Seller, gồm số dư và lịch sử stake.
     private void showUserInfoView() {
         if (adminPane != null) {
             adminPane.setManaged(false);
@@ -170,7 +175,7 @@ public class AccountController {
             account = accountService.getBalance(userId);
         } catch (Exception ignored) {
         }
-        //thong tin tai khoan
+        // Thông tin tài khoản.
         lblTitle.setText("Thông tin tài khoản");
         setLabel(lblBreadcrumb, "BidNow / My Account");
         setLabel(lblSubtitle, "Theo doi so du, tien dang khoa va lich su stake cua tai khoan.");
@@ -179,14 +184,14 @@ public class AccountController {
         lblFullname.setText(fullname == null ? "" : fullname);
         lblRole.setText(role == null ? "" : role.name());
 
-        //cot lich su dau gia
+        // Cấu hình cột lịch sử stake.
         colStakeId.setCellValueFactory(new PropertyValueFactory<>("id")
         );
 
-        colAuctionId.setCellValueFactory(new PropertyValueFactory<>("auction_id")
+        colAuctionId.setCellValueFactory(new PropertyValueFactory<>("aution_id")
         );
 
-        colItemId.setCellValueFactory(new PropertyValueFactory<>("item_id")
+        colItemId.setCellValueFactory(new PropertyValueFactory<>("locked_item_id")
         );
 
         colStakeUserId.setCellValueFactory(new PropertyValueFactory<>("user_id")
@@ -199,7 +204,7 @@ public class AccountController {
         );
 
 
-        // LOAD DATA
+        // Tải dữ liệu lịch sử stake.
         loadStakeDataAsync();
 
         if (account != null) {
@@ -215,6 +220,7 @@ public class AccountController {
         }
     }
 
+    // Hiển thị view quản lý tài khoản cho Admin.
     private void showAdminView() {
         if (userInfoPane != null) {
             userInfoPane.setManaged(false);
@@ -247,26 +253,31 @@ public class AccountController {
         loadAdminDataAsync();
     }
 
+    // Chuyển bảng tài khoản Admin về trang đầu tiên.
     @FXML
     public void goFirstPage() {
         renderPage(1);
     }
 
+    // Chuyển bảng tài khoản Admin về trang trước.
     @FXML
     public void goPrevPage() {
         renderPage(currentPage - 1);
     }
 
+    // Chuyển bảng tài khoản Admin sang trang tiếp theo.
     @FXML
     public void goNextPage() {
         renderPage(currentPage + 1);
     }
 
+    // Chuyển bảng tài khoản Admin sang trang cuối cùng.
     @FXML
     public void goLastPage() {
         renderPage(getTotalPages());
     }
 
+    // Đọc số trang người dùng nhập và render trang tương ứng.
     @FXML
     public void goToPage() {
         if (txtPageInput == null || txtPageInput.getText() == null) {
@@ -280,6 +291,7 @@ public class AccountController {
         }
     }
 
+    // Cắt danh sách tài khoản theo trang và đổ dữ liệu lên bảng Admin.
     private void renderPage(int page) {
         int totalPages = getTotalPages();
         if (totalPages <= 0) {
@@ -305,6 +317,7 @@ public class AccountController {
         }
     }
 
+    // Tính tổng số trang của bảng quản lý tài khoản.
     private int getTotalPages() {
         if (allAdminRows.isEmpty()) {
             return 1;
@@ -312,9 +325,11 @@ public class AccountController {
         return (allAdminRows.size() + PAGE_SIZE - 1) / PAGE_SIZE;
     }
 
+    // Tải danh sách tài khoản quản lý trên background thread để không khóa UI.
     private void loadAdminDataAsync() {
         Task<List<AccountService.ManagedAccount>> task = new Task<>() {
             @Override
+            // Hàm chạy trong background task: lấy danh sách tài khoản để Admin quản lý.
             protected List<AccountService.ManagedAccount> call() {
                 return accountService.listManagedAccounts();
             }
@@ -336,11 +351,13 @@ public class AccountController {
         worker.start();
     }
 
+    // Tải lịch sử stake của user hiện tại trên background thread.
     private void loadStakeDataAsync() {
 
         Task<List<Stake>> task = new Task<>() {
 
             @Override
+            // Hàm chạy trong background task: lấy lịch sử stake của user hiện tại.
             protected List<Stake> call() throws Exception {
 
                 return stakeService.getUserStakes(UserAccount.getUserId());
@@ -358,6 +375,7 @@ public class AccountController {
         new Thread(task).start();
     }
 
+    // Đảm bảo cột password tồn tại trong bảng Admin khi FXML chưa khai báo sẵn.
     private void ensurePasswordColumn() {
         if (colPassword == null) {
             colPassword = new TableColumn<>("Password");
@@ -373,6 +391,7 @@ public class AccountController {
         adminTable.getColumns().add(insertIndex, colPassword);
     }
 
+    // Quay lại dashboard đúng với role hiện tại.
     public void backToDashboard(ActionEvent actionEvent) throws IOException {
         UserRole role = UserAccount.getCurrentRole();
         String target;
@@ -386,16 +405,19 @@ public class AccountController {
         switchScene(actionEvent, target);
     }
 
+    // Điều hướng về dashboard.
     @FXML
     public void goHome(ActionEvent actionEvent) throws IOException {
         backToDashboard(actionEvent);
     }
 
+    // Điều hướng sang màn danh sách phiên đấu giá.
     @FXML
     public void goToSessions(ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/danhSachDauGia.fxml");
     }
 
+    // Điều hướng sang màn duyệt/quản lý item, chỉ cho Admin.
     @FXML
     public void goToBrowseItems(ActionEvent actionEvent) throws IOException {
         if (UserAccount.getCurrentRole() != UserRole.ADMIN) {
@@ -405,11 +427,13 @@ public class AccountController {
         switchScene(actionEvent, "/com/template/hellfx/ItemBrowse.fxml");
     }
 
+    // Điều hướng sang chính màn tài khoản.
     @FXML
     public void goToAccount(ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/account.fxml");
     }
 
+    // Điều hướng sang màn nạp tiền, chỉ cho Bidder.
     @FXML
     public void goToDeposit(ActionEvent actionEvent) throws IOException {
         if (UserAccount.getCurrentRole() != UserRole.BIDDER) {
@@ -419,6 +443,7 @@ public class AccountController {
         switchScene(actionEvent, "/com/template/hellfx/Deposit.fxml");
     }
 
+    // Điều hướng sang màn sản phẩm của Seller, chỉ cho Seller.
     @FXML
     public void goToUploadItem(ActionEvent actionEvent) throws IOException {
         if (UserAccount.getCurrentRole() != UserRole.SELLER) {
@@ -428,6 +453,7 @@ public class AccountController {
         switchScene(actionEvent, "/com/template/hellfx/SellerProducts.fxml");
     }
 
+    // Thay root scene hiện tại bằng FXML mới và giữ kích thước chuẩn của ứng dụng.
     private void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();

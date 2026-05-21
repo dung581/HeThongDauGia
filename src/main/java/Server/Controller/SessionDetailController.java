@@ -7,6 +7,7 @@ import Common.DataBase.entities.Auction;
 import Common.DataBase.entities.Autobid;
 import Common.DataBase.entities.Bid;
 import Common.DataBase.entities.Item;
+import Common.Enum.AuctionState;
 import Common.Enum.UserRole;
 import Common.Model.user.UserAccount;
 import Server.service.AccountService;
@@ -41,7 +42,7 @@ import java.util.Optional;
 
 public class SessionDetailController {
 
-    // Cac label hien thong tin chinh cua phien dau gia tren man session-detail.fxml.
+    // Các label hiển thị thông tin chính của phiên đấu giá trên màn session-detail.fxml.
     @FXML private Label itemNameLabel;
     @FXML private Label itemDescriptionLabel;
     @FXML private Label sessionIdLabel;
@@ -52,30 +53,33 @@ public class SessionDetailController {
     @FXML private Label winnerLabel;
     @FXML private Label autoBidStatusLabel;
     @FXML private Label accountSectionLabel;
+    @FXML private Label bidPanelMessageLabel;
     @FXML private Node browseItemsNav;
     @FXML private Node depositNav;
+    @FXML private Node placeBidBox;
+    @FXML private Node autoBidBox;
     @FXML private Button accountNavButton;
 
-    // O nhap gia dat thu cong va gia toi da cho auto bid.
+    // Ô nhập giá đặt thủ công và giá tối đa cho auto bid.
     @FXML private TextField bidAmountField;
     @FXML private TextField autoMaxField;
 
-    // Cac nut thao tac cua nguoi dung trong man chi tiet phien.
+    // Các nút thao tác của người dùng trong màn chi tiết phiên.
     @FXML private Button placeBidBtn;
     @FXML private Button activateAutobidBtn;
     @FXML private Button deactivateAutobidBtn;
 
-    // Bang lich su dat gia cua item trong phien hien tai.
+    // Bảng lịch sử đặt giá của item trong phiên hiện tại.
     @FXML private TableView<Bid> bidTable;
     @FXML private TableColumn<Bid, Long> colBidId;
     @FXML private TableColumn<Bid, Long> colBidUserId;
     @FXML private TableColumn<Bid, Long> colBidPrice;
     @FXML private TableColumn<Bid, String> colBidTime;
 
-    // Luu sessionId tam thoi truoc khi FXMLLoader tao controller moi.
+    // Lưu sessionId tạm thời trước khi FXMLLoader tạo controller mới.
     private static long pendingSessionId;
 
-    // Controller chi goi service, khong goi repository truc tiep.
+    // Controller chỉ gọi service, không gọi repository trực tiếp.
     private final AuctionService auctionService = new AuctionService();
     private final BidService bidService = new BidService();
     private final AccountService accountService = new AccountService();
@@ -88,13 +92,14 @@ public class SessionDetailController {
     private long loadRequestToken;
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
+    // Nhận sessionId từ màn danh sách phiên trước khi load session-detail.fxml.
     public static void setSessionId(long sessionId) {
         pendingSessionId = sessionId;
     }
 
+    // JavaFX tự gọi sau khi load FXML: cấu hình UI, bảng bid và tải phiên được chọn.
     @FXML
     public void initialize() {
-        // JavaFX tu goi sau khi load FXML: cau hinh bang va nap du lieu phien da chon.
         configureRoleUi();
         configureBidTable();
 
@@ -107,24 +112,32 @@ public class SessionDetailController {
         loadSessionAsync(pendingSessionId);
     }
 
+    // Ẩn/hiện panel đặt giá theo role và đổi nhãn điều hướng tài khoản.
     private void configureRoleUi() {
         UserRole role = UserAccount.getCurrentRole();
         setVisibleManaged(browseItemsNav, role == UserRole.ADMIN);
         setVisibleManaged(depositNav, role == UserRole.BIDDER);
+        setVisibleManaged(placeBidBox, role == UserRole.BIDDER);
+        setVisibleManaged(autoBidBox, role == UserRole.BIDDER);
         if (accountNavButton != null) {
             accountNavButton.setText(role == UserRole.ADMIN ? "Account Management" : "My Account");
         }
         if (accountSectionLabel != null) {
             accountSectionLabel.setText(role == UserRole.ADMIN ? "MANAGEMENT" : "ACCOUNT");
         }
+        setText(bidPanelMessageLabel, role == UserRole.BIDDER
+                ? ""
+                : "Tai khoan nay chi duoc xem phien. Dang nhap BIDDER de dat gia.");
     }
 
+    // Set đồng thời visible và managed để node ẩn không chiếm chỗ layout.
     private void setVisibleManaged(Node node, boolean visible) {
         if (node == null) return;
         node.setVisible(visible);
         node.setManaged(visible);
     }
 
+    // Nhận entity Auction từ controller khác rồi tải lại chi tiết phiên theo id.
     public void setSession(Auction session) {
         if (session == null) {
             return;
@@ -133,69 +146,106 @@ public class SessionDetailController {
         loadSessionAsync(session.getId());
     }
 
+    // Nhận sessionId theo instance controller và tải chi tiết phiên.
     public void setSessionIdInstance(long sessionId) {
         pendingSessionId = sessionId;
         loadSessionAsync(sessionId);
     }
 
+    // Xử lý nút đặt giá: đọc input và gọi BidService trên background thread.
     @FXML
     public void onPlaceBidClick(ActionEvent event) {
-        // Controller chi doc input va goi BidService; validate gia/lock tien nam trong service.
+        if (!isBidder()) {
+            AlertUtil.showError("Chuc nang dat gia chi danh cho nguoi dau gia.");
+            return;
+        }
         try {
             long bidAmount = parsePositiveLong(bidAmountField, "Giá đặt không hợp lệ.");
-            bidService.placeBid(UserAccount.getUserId(), session.getItem_id(), bidAmount);
-            AlertUtil.showSuccess("Đặt giá thành công.");
-            refreshData();
-            clearBidInput();
+            placeBidAsync(bidAmount);
         } catch (Exception e) {
             AlertUtil.showError("Đặt giá thất bại: " + e.getMessage());
         }
     }
 
+    // Gửi lệnh đặt giá trên background thread để thao tác DB không làm treo UI.
+    private void placeBidAsync(long bidAmount) {
+        disableActions(true);
+        Task<Bid> task = new Task<>() {
+            @Override
+            // Hàm chạy trong background task: gọi BidService để đặt giá.
+            protected Bid call() {
+                return bidService.placeBid(UserAccount.getUserId(), session.getItem_id(), bidAmount);
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            clearBidInput();
+            refreshData();
+        });
+
+        task.setOnFailed(event -> {
+            updateActionState();
+            Throwable error = task.getException();
+            AlertUtil.showError("Đặt giá thất bại: " + (error == null ? "" : error.getMessage()));
+        });
+
+        Thread worker = new Thread(task, "place-bid");
+        worker.setDaemon(true);
+        worker.start();
+    }
+
+    // Xử lý nút bật auto bid: đọc giá tối đa và gọi AutoBidService.
     @FXML
     public void onActivateAutobidClick(ActionEvent event) {
-        // Controller chi doc input va goi AutoBidService; service xu ly luu + active.
+        if (!isBidder()) {
+            AlertUtil.showError("Chuc nang auto bid chi danh cho nguoi dau gia.");
+            return;
+        }
         try {
             long maxPrice = parsePositiveLong(autoMaxField, "Giá tối đa auto bid không hợp lệ.");
             autoBidService.configureAndActivate(UserAccount.getUserId(), session.getItem_id(), maxPrice);
-            AlertUtil.showSuccess("Đã bật auto bid.");
             refreshAutoBidStatus();
         } catch (Exception e) {
             AlertUtil.showError("Bật auto bid thất bại: " + e.getMessage());
         }
     }
 
+    // Xử lý nút tắt auto bid của user hiện tại trên item đang đấu giá.
     @FXML
     public void onDeactivateAutobidClick(ActionEvent event) {
-        // Tat auto bid gan nhat cua user tren item hien tai.
+        if (!isBidder()) {
+            AlertUtil.showError("Chuc nang auto bid chi danh cho nguoi dau gia.");
+            return;
+        }
         try {
             autoBidService.deactivateByUserAndItem(UserAccount.getUserId(), session.getItem_id());
-            AlertUtil.showSuccess("Đã tắt auto bid.");
             refreshAutoBidStatus();
         } catch (Exception e) {
             AlertUtil.showError("Tắt auto bid thất bại: " + e.getMessage());
         }
     }
 
+    // Tải lại dữ liệu phiên, lịch sử bid, số dư và trạng thái auto bid.
     @FXML
     public void onRefreshClick(ActionEvent event) {
-        // Tai lai gia hien tai, lich su bid, so du va trang thai auto bid.
         refreshData();
     }
 
+    // Quay lại màn danh sách đấu giá.
     @FXML
     public void onBackClick(ActionEvent event) throws IOException {
-        // Quay lai man danh sach dau gia.
         cancelPendingLoadAndStopTimer();
         switchScene(event, "/com/template/hellfx/danhSachDauGia.fxml");
     }
 
+    // Điều hướng sang màn danh sách đấu giá.
     @FXML
     public void goToSessions(ActionEvent event) throws IOException {
         cancelPendingLoadAndStopTimer();
         switchScene(event, "/com/template/hellfx/danhSachDauGia.fxml");
     }
 
+    // Điều hướng sang màn duyệt/quản lý item, chỉ cho Admin.
     @FXML
     public void goToBrowseItems(ActionEvent event) throws IOException {
         if (UserAccount.getCurrentRole() != UserRole.ADMIN) {
@@ -206,12 +256,14 @@ public class SessionDetailController {
         switchScene(event, "/com/template/hellfx/ItemBrowse.fxml");
     }
 
+    // Điều hướng sang màn tài khoản.
     @FXML
     public void goToAccount(ActionEvent event) throws IOException {
         cancelPendingLoadAndStopTimer();
         switchScene(event, "/com/template/hellfx/account.fxml");
     }
 
+    // Điều hướng sang màn nạp tiền, chỉ cho Bidder.
     @FXML
     public void goToDeposit(ActionEvent event) throws IOException {
         if (UserAccount.getCurrentRole() != UserRole.BIDDER) {
@@ -222,8 +274,8 @@ public class SessionDetailController {
         switchScene(event, "/com/template/hellfx/Deposit.fxml");
     }
 
+    // Tải dữ liệu session-detail trên background thread để FXMLLoader không khóa UI.
     private void loadSessionAsync(long sessionId) {
-        // Nap du lieu DB tren background thread de FXMLLoader khong khoa UI khi chuyen man.
         stopTimer();
         long requestToken = ++loadRequestToken;
         disableActions(true);
@@ -232,6 +284,7 @@ public class SessionDetailController {
 
         Task<SessionDetailData> task = new Task<>() {
             @Override
+            // Hàm chạy trong background task: tải toàn bộ dữ liệu cần cho màn chi tiết phiên.
             protected SessionDetailData call() {
                 return fetchSessionDetailData(sessionId);
             }
@@ -259,8 +312,8 @@ public class SessionDetailController {
         worker.start();
     }
 
+    // Đồng bộ lại dữ liệu mới nhất của phiên hiện tại.
     private void refreshData() {
-        // Dong bo lai du lieu moi nhat sau khi dat gia, auto bid hoac bam refresh.
         if (session == null) {
             return;
         }
@@ -268,6 +321,7 @@ public class SessionDetailController {
         loadSessionAsync(session.getId());
     }
 
+    // Gọi các service cần thiết để lấy phiên, item, lịch sử bid, số dư và auto bid.
     private SessionDetailData fetchSessionDetailData(long sessionId) {
         Auction loadedSession = auctionService.getById(sessionId);
         if (loadedSession == null) {
@@ -275,16 +329,21 @@ public class SessionDetailController {
         }
 
         Item loadedItem = itemService.getById(loadedSession.getItem_id());
-        List<Bid> bids = bidService.getHistory(loadedSession.getItem_id());
-        long available = accountService.getAvailable(UserAccount.getUserId());
-        Optional<Autobid> autobid = autoBidService.getLatestByUserAndItem(
-                UserAccount.getUserId(),
-                loadedSession.getItem_id()
-        );
+        List<Bid> bids = bidService.getHistoryBySession(loadedSession.getId());
+        long available = 0;
+        Optional<Autobid> autobid = Optional.empty();
+        if (isBidder()) {
+            available = accountService.getAvailable(UserAccount.getUserId());
+            autobid = autoBidService.getLatestByUserAndItem(
+                    UserAccount.getUserId(),
+                    loadedSession.getItem_id()
+            );
+        }
 
         return new SessionDetailData(loadedSession, loadedItem, bids, available, autobid);
     }
 
+    // Đổ dữ liệu đã tải lên UI và cập nhật trạng thái nút.
     private void applySessionDetailData(SessionDetailData data) {
         if (data == null || data.session == null) {
             disableActions(true);
@@ -295,13 +354,13 @@ public class SessionDetailController {
         item = data.item;
         populateSession();
         populateBidHistory(data.bids);
-        setText(balanceLabel, formatMoney(data.availableBalance));
+        setText(balanceLabel, isBidder() ? formatMoney(data.availableBalance) : "N/A");
         setAutoBidStatus(data.autobid);
         updateActionState();
     }
 
+    // Đổ dữ liệu Auction/Item lên các label trong FXML.
     private void populateSession() {
-        // Do du lieu Auction/Item len cac label trong FXML.
         setText(sessionIdLabel, String.valueOf(session.getId()));
         setText(itemIdLabel, String.valueOf(session.getItem_id()));
         setText(currentPriceLabel, formatMoney(session.getCurrent_price()));
@@ -314,31 +373,40 @@ public class SessionDetailController {
             setText(itemDescriptionLabel, "");
         }
 
-        if (session.getCurrent_user_id() > 0) {
+        if (session.getState() != AuctionState.RUNNING && session.getCurrent_user_id() > 0) {
+            setText(winnerLabel, "Người thắng: " + session.getCurrent_user_id());
+        } else if (session.getState() != AuctionState.RUNNING) {
+            setText(winnerLabel, "Không có người thắng");
+        } else if (session.getCurrent_user_id() > 0) {
             setText(winnerLabel, "Người đang dẫn: " + session.getCurrent_user_id());
         } else {
             setText(winnerLabel, "Chưa có người đặt giá");
         }
     }
 
+    // Tải lại lịch sử bid theo phiên hiện tại.
     private void loadBidHistory() {
-        // Lay lich su bid theo item va hien gia cao nhat len truoc.
         if (bidTable == null) {
             return;
         }
 
-        List<Bid> bids = bidService.getHistory(session.getItem_id());
+        List<Bid> bids = bidService.getHistoryBySession(session.getId());
         populateBidHistory(bids);
     }
 
+    // Đổ danh sách bid lên bảng lịch sử.
     private void populateBidHistory(List<Bid> bids) {
         if (bidTable != null) {
             bidTable.getItems().setAll(bids == null ? List.of() : bids);
         }
     }
 
+    // Cập nhật số dư khả dụng của Bidder hiện tại.
     private void refreshBalance() {
-        // Lay so du kha dung tu AccountService.
+        if (!isBidder()) {
+            setText(balanceLabel, "N/A");
+            return;
+        }
         try {
             long available = accountService.getAvailable(UserAccount.getUserId());
             setText(balanceLabel, formatMoney(available));
@@ -347,8 +415,12 @@ public class SessionDetailController {
         }
     }
 
+    // Tải và hiển thị trạng thái auto bid mới nhất của user trên item hiện tại.
     private void refreshAutoBidStatus() {
-        // Hien trang thai auto bid cua user voi item dang dau gia.
+        if (!isBidder()) {
+            setText(autoBidStatusLabel, "Khong ap dung");
+            return;
+        }
         autoBidService.getLatestByUserAndItem(UserAccount.getUserId(), session.getItem_id())
                 .ifPresentOrElse(value -> {
             String status = value.is_active() ? "Đang bật" : "Đang tắt";
@@ -356,15 +428,20 @@ public class SessionDetailController {
         }, () -> setText(autoBidStatusLabel, "Chưa cấu hình"));
     }
 
+    // Hiển thị trạng thái auto bid đã được tải sẵn trong SessionDetailData.
     private void setAutoBidStatus(Optional<Autobid> autobid) {
+        if (!isBidder()) {
+            setText(autoBidStatusLabel, "Khong ap dung");
+            return;
+        }
         autobid.ifPresentOrElse(value -> {
             String status = value.is_active() ? "Đang bật" : "Đang tắt";
             setText(autoBidStatusLabel, status + " - tối đa " + formatMoney(value.getMax_price()));
         }, () -> setText(autoBidStatusLabel, "Chưa cấu hình"));
     }
 
+    // Khởi động timer cập nhật thời gian còn lại của phiên.
     private void startCountdown() {
-        // Tao timer chay moi giay de cap nhat thoi gian con lai.
         if (countdownTimer != null) {
             countdownTimer.stop();
         }
@@ -375,8 +452,8 @@ public class SessionDetailController {
         updateCountdown();
     }
 
+    // Cập nhật countdown; nếu hết giờ thì đóng phiên và mở màn Winner.
     private void updateCountdown() {
-        // Neu het gio thi dong phien va chuyen sang man Winner.
         if (session == null || session.getEndTime() == null) {
             setText(countdownLabel, "N/A");
             return;
@@ -397,8 +474,8 @@ public class SessionDetailController {
         setText(countdownLabel, String.format("%02d:%02d:%02d", hours, minutes, seconds));
     }
 
+    // Đóng phiên khi countdown hết và chuyển sang màn kết quả người thắng.
     private void expireSession() {
-        // Het countdown thi goi service dong phien, sau do mo man ket qua.
         if (countdownTimer != null) {
             countdownTimer.stop();
         }
@@ -420,19 +497,21 @@ public class SessionDetailController {
         }
     }
 
+    // Dừng countdown timer nếu đang chạy.
     private void stopTimer() {
         if (countdownTimer != null) {
             countdownTimer.stop();
         }
     }
 
+    // Hủy request load cũ và dừng timer trước khi rời màn.
     private void cancelPendingLoadAndStopTimer() {
         loadRequestToken++;
         stopTimer();
     }
 
+    // Chuyển text input thành số dương, ném lỗi nếu rỗng/không phải số/<=0.
     private long parsePositiveLong(TextField field, String errorMessage) {
-        // Chuyen text thanh so duong, nem loi neu rong/khong phai so/<=0.
         if (field == null || field.getText() == null || field.getText().trim().isEmpty()) {
             throw new IllegalArgumentException(errorMessage);
         }
@@ -444,8 +523,8 @@ public class SessionDetailController {
         return value;
     }
 
+    // Gán các cột TableView với field trong entity Bid.
     private void configureBidTable() {
-        // Gan cot TableView voi cac field trong entity Bid.
         if (colBidId != null) {
             colBidId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getId()));
         }
@@ -464,13 +543,13 @@ public class SessionDetailController {
         }
     }
 
+    // Cập nhật trạng thái bật/tắt nút theo dữ liệu phiên và role.
     private void updateActionState() {
-        // Controller chi khoa nut khi chua co du lieu phien; rule trang thai phien nam trong service.
-        disableActions(session == null);
+        disableActions(session == null || !isBidder());
     }
 
+    // Bật/tắt đồng loạt các nút có thể làm thay đổi phiên.
     private void disableActions(boolean disabled) {
-        // Bat/tat dong loat cac nut co the lam thay doi phien.
         if (placeBidBtn != null) {
             placeBidBtn.setDisable(disabled);
         }
@@ -482,27 +561,32 @@ public class SessionDetailController {
         }
     }
 
+    // Kiểm tra user hiện tại có phải Bidder hay không.
+    private boolean isBidder() {
+        return UserAccount.getCurrentRole() == UserRole.BIDDER;
+    }
+
+    // Xóa ô nhập giá sau khi đặt giá thành công.
     private void clearBidInput() {
-        // Xoa o nhap gia sau khi dat gia thanh cong.
         if (bidAmountField != null) {
             bidAmountField.clear();
         }
     }
 
+    // Set text an toàn vì một số fx:id có thể chưa tồn tại trong FXML.
     private void setText(Label label, String value) {
-        // Set text an toan vi mot so fx:id co the chua ton tai trong FXML.
         if (label != null) {
             label.setText(value == null ? "" : value);
         }
     }
 
+    // Định dạng tiền có dấu phẩy ngăn cách hàng nghìn.
     private String formatMoney(long amount) {
-        // Dinh dang tien co dau phay ngan cach hang nghin.
         return String.format("%,d", amount);
     }
 
+    // Lấy một node bất kỳ trên scene để tìm Stage hiện tại khi tự động chuyển màn.
     private Node getAnyNode() {
-        // Lay mot node bat ky tren scene de tim Stage hien tai khi tu dong chuyen man.
         if (countdownLabel != null) {
             return countdownLabel;
         }
@@ -512,13 +596,14 @@ public class SessionDetailController {
         return bidTable;
     }
 
+    // Load FXML mới và thay root scene hiện tại.
     private void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {
-        // Doi scene theo duong dan FXML va giu kich thuoc ung dung thong nhat.
         Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
         replaceSceneRoot(stage, root);
     }
 
+    // Thay root scene hiện tại và giữ kích thước cửa sổ thống nhất.
     private void replaceSceneRoot(Stage stage, Parent root) {
         Scene currentScene = stage.getScene();
         if (currentScene == null) {
@@ -536,6 +621,7 @@ public class SessionDetailController {
         private final long availableBalance;
         private final Optional<Autobid> autobid;
 
+        // Gói dữ liệu cần thiết để render màn session detail sau khi background task tải xong.
         private SessionDetailData(
                 Auction session,
                 Item item,

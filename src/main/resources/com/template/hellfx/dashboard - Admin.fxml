@@ -3,6 +3,8 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -22,15 +24,21 @@
             <VBox spacing="12.0">
                 <Label styleClass="section-label" text="ADMIN DASHBOARD" />
                 <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goHome" styleClass="nav-active" text="Home" />
+            </VBox>
+
+            <VBox spacing="12.0">
+                <Label styleClass="section-label" text="MANAGEMENT" />
                 <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#Sandaugia" styleClass="nav-item" text="Sessions" />
                 <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#duyetsp" styleClass="nav-item" text="Pending Items" />
                 <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#quanlyvatpham" styleClass="nav-item" text="Item Management" />
                 <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#quanlytk" styleClass="nav-item" text="Account Management" />
             </VBox>
 
-            <VBox spacing="12.0">
-                <Label styleClass="section-label" text="SESSION" />
-                <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goToLogin" styleClass="nav-item" text="Dang xuat" />
+            <VBox spacing="8.0">
+                <Label styleClass="section-label" text="OPERATION" />
+                <Label fx:id="adminSidebarUserLabel" styleClass="field-value" text="-" />
+                <Label fx:id="adminSidebarPendingLabel" styleClass="accent-value" text="-" />
+                <Label styleClass="muted" text="item dang cho duyet" />
             </VBox>
         </VBox>
     </left>
@@ -47,67 +55,107 @@
     </top>
 
     <center>
-        <VBox spacing="24.0">
+        <VBox spacing="18.0">
             <padding>
                 <Insets bottom="32.0" left="42.0" right="42.0" top="38.0" />
             </padding>
 
             <VBox spacing="8.0">
                 <Label styleClass="page-title" text="Admin Dashboard" />
-                <Label styleClass="page-subtitle" text="Quan ly phien dau gia, duyet san pham va theo doi tai khoan trong he thong." />
+                <Label styleClass="page-subtitle" text="Theo doi van hanh dau gia, duyet item va quan ly du lieu he thong." />
             </VBox>
 
-            <HBox spacing="18.0">
-                <VBox prefHeight="165.0" prefWidth="260.0" spacing="12.0" styleClass="card">
+            <HBox spacing="14.0">
+                <VBox prefHeight="78.0" prefWidth="210.0" spacing="8.0" styleClass="card">
                     <padding>
-                        <Insets bottom="22.0" left="22.0" right="22.0" top="22.0" />
+                        <Insets bottom="16.0" left="18.0" right="18.0" top="16.0" />
                     </padding>
-                    <Label styleClass="field-name" text="AUCTION FLOOR" />
-                    <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #f4f7fb;" text="San dau gia" />
-                    <Label styleClass="page-subtitle" text="Xem cac phien dang chay va trang thai dau gia hien tai." wrapText="true" />
-                    <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#Sandaugia" styleClass="primary-button" text="Mo san ->" />
+                    <Label styleClass="field-name" text="PHIEN DANG CHAY" />
+                    <Label fx:id="adminActiveSessionsLabel" styleClass="accent-value" text="-" />
                 </VBox>
 
-                <VBox prefHeight="165.0" prefWidth="260.0" spacing="12.0" styleClass="card">
+                <VBox prefHeight="78.0" prefWidth="210.0" spacing="8.0" styleClass="card">
                     <padding>
-                        <Insets bottom="22.0" left="22.0" right="22.0" top="22.0" />
+                        <Insets bottom="16.0" left="18.0" right="18.0" top="16.0" />
                     </padding>
-                    <Label styleClass="field-name" text="APPROVAL" />
-                    <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #f4f7fb;" text="San pham dang ban" />
-                    <Label styleClass="page-subtitle" text="Duyet item seller gui len va tao phien dau gia moi." wrapText="true" />
-                    <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#duyetsp" styleClass="secondary-button" text="Duyet san pham" />
+                    <Label styleClass="field-name" text="CHO DUYET" />
+                    <Label fx:id="adminPendingItemsLabel" styleClass="danger-value" text="-" />
                 </VBox>
 
-                <VBox prefHeight="165.0" prefWidth="260.0" spacing="12.0" styleClass="card">
+                <VBox prefHeight="78.0" prefWidth="210.0" spacing="8.0" styleClass="card">
                     <padding>
-                        <Insets bottom="22.0" left="22.0" right="22.0" top="22.0" />
+                        <Insets bottom="16.0" left="18.0" right="18.0" top="16.0" />
                     </padding>
-                    <Label styleClass="field-name" text="INVENTORY" />
-                    <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #f4f7fb;" text="Quan ly vat pham" />
-                    <Label styleClass="page-subtitle" text="Kiem tra toan bo item theo trang thai va nguoi ban." wrapText="true" />
-                    <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#quanlyvatpham" styleClass="secondary-button" text="Mo danh sach" />
+                    <Label styleClass="field-name" text="TONG ITEM" />
+                    <Label fx:id="adminTotalItemsLabel" styleClass="success-value" text="-" />
+                </VBox>
+
+                <VBox prefHeight="78.0" prefWidth="210.0" spacing="8.0" styleClass="card">
+                    <padding>
+                        <Insets bottom="16.0" left="18.0" right="18.0" top="16.0" />
+                    </padding>
+                    <Label styleClass="field-name" text="TAI KHOAN" />
+                    <Label fx:id="adminTotalUsersLabel" styleClass="success-value" text="-" />
                 </VBox>
             </HBox>
 
             <HBox spacing="18.0">
-                <VBox prefHeight="165.0" prefWidth="260.0" spacing="12.0" styleClass="card">
+                <VBox prefHeight="145.0" prefWidth="280.0" spacing="12.0" styleClass="card">
                     <padding>
-                        <Insets bottom="22.0" left="22.0" right="22.0" top="22.0" />
+                        <Insets bottom="20.0" left="22.0" right="22.0" top="20.0" />
+                    </padding>
+                    <Label styleClass="field-name" text="APPROVAL" />
+                    <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #f4f7fb;" text="Duyet san pham" />
+                    <Label styleClass="page-subtitle" text="Xu ly item seller gui len va mo phien dau gia moi." wrapText="true" />
+                    <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#duyetsp" styleClass="primary-button" text="Mo hang doi ->" />
+                </VBox>
+
+                <VBox prefHeight="145.0" prefWidth="280.0" spacing="12.0" styleClass="card">
+                    <padding>
+                        <Insets bottom="20.0" left="22.0" right="22.0" top="20.0" />
+                    </padding>
+                    <Label styleClass="field-name" text="INVENTORY" />
+                    <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #f4f7fb;" text="Quan ly vat pham" />
+                    <Label styleClass="page-subtitle" text="Kiem tra item theo trang thai, gia va nguoi ban." wrapText="true" />
+                    <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#quanlyvatpham" styleClass="secondary-button" text="Mo item" />
+                </VBox>
+
+                <VBox prefHeight="145.0" prefWidth="280.0" spacing="12.0" styleClass="card">
+                    <padding>
+                        <Insets bottom="20.0" left="22.0" right="22.0" top="20.0" />
                     </padding>
                     <Label styleClass="field-name" text="ACCOUNTS" />
                     <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #f4f7fb;" text="Quan ly tai khoan" />
-                    <Label styleClass="page-subtitle" text="Xem thong tin user, so du va tien dang khoa." wrapText="true" />
+                    <Label styleClass="page-subtitle" text="Xem role, so du va tien dang khoa cua user." wrapText="true" />
                     <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#quanlytk" styleClass="secondary-button" text="Mo tai khoan" />
                 </VBox>
+            </HBox>
 
-                <VBox prefHeight="165.0" prefWidth="260.0" spacing="12.0" styleClass="card">
-                    <padding>
-                        <Insets bottom="22.0" left="22.0" right="22.0" top="22.0" />
-                    </padding>
-                    <Label styleClass="field-name" text="SESSION" />
-                    <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #f4f7fb;" text="Dang xuat" />
-                    <Label styleClass="page-subtitle" text="Ket thuc phien lam viec admin va quay lai man dang nhap." wrapText="true" />
-                    <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goToLogin" styleClass="danger-button" text="Dang xuat" />
+            <HBox spacing="18.0" VBox.vgrow="ALWAYS">
+                <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                    <Label styleClass="section-label" text="PHIEN DAU GIA GAN DAY" />
+                    <Label fx:id="adminSessionSummaryLabel" styleClass="page-subtitle" text="Dang tai du lieu..." />
+                    <TableView fx:id="adminSessionTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="adminSessionItemColumn" prefWidth="180.0" text="Item" />
+                            <TableColumn fx:id="adminSessionPriceColumn" prefWidth="150.0" text="Gia hien tai" />
+                            <TableColumn fx:id="adminSessionLeaderColumn" prefWidth="100.0" text="Leader" />
+                            <TableColumn fx:id="adminSessionStatusColumn" prefWidth="130.0" text="Trang thai" />
+                        </columns>
+                    </TableView>
+                </VBox>
+
+                <VBox prefWidth="450.0" spacing="10.0">
+                    <Label styleClass="section-label" text="ITEM CAN DUYET" />
+                    <Label fx:id="adminPendingSummaryLabel" styleClass="page-subtitle" text="Dang tai du lieu..." />
+                    <TableView fx:id="adminPendingItemTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="adminPendingIdColumn" prefWidth="70.0" text="ID" />
+                            <TableColumn fx:id="adminPendingNameColumn" prefWidth="150.0" text="Ten" />
+                            <TableColumn fx:id="adminPendingSellerColumn" prefWidth="90.0" text="Seller" />
+                            <TableColumn fx:id="adminPendingPriceColumn" prefWidth="120.0" text="Gia" />
+                        </columns>
+                    </TableView>
                 </VBox>
             </HBox>
         </VBox>

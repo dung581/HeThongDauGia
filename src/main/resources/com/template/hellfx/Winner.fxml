@@ -26,25 +26,34 @@
                 <Insets bottom="32.0" left="42.0" right="42.0" top="32.0" />
             </padding>
 
-            <VBox maxWidth="620.0" spacing="20.0" styleClass="card">
+            <VBox maxWidth="720.0" spacing="22.0" styleClass="card">
                 <padding>
-                    <Insets bottom="30.0" left="34.0" right="34.0" top="30.0" />
+                    <Insets bottom="32.0" left="36.0" right="36.0" top="32.0" />
                 </padding>
 
                 <VBox spacing="8.0">
                     <Label fx:id="lblTitle" styleClass="page-title" text="Ket qua phien dau gia" />
-                    <Label styleClass="page-subtitle" text="Thong tin ket thuc phien va nguoi chien thang neu co." />
+                    <Label styleClass="page-subtitle" text="Tong ket phien dau gia vua ket thuc." />
                 </VBox>
 
                 <GridPane hgap="24.0" vgap="16.0">
-                    <Label styleClass="field-name" text="SAN PHAM" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <Label fx:id="lblItemName" styleClass="field-value" text="(?)" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    <Label styleClass="field-name" text="SESSION ID" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <Label fx:id="lblSessionId" styleClass="field-value" text="(?)" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                    <Label styleClass="field-name" text="GIA THANG" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                    <Label fx:id="lblWinningPrice" styleClass="accent-value" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <Label styleClass="field-name" text="TRANG THAI" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <Label fx:id="lblSessionState" styleClass="field-value" text="(?)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                    <Label styleClass="field-name" text="NGUOI THANG" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                    <Label fx:id="lblWinnerId" styleClass="field-value" text="(?)" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                    <Label styleClass="field-name" text="ITEM ID" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <Label fx:id="lblItemId" styleClass="field-value" text="(?)" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                    <Label styleClass="field-name" text="SAN PHAM" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <Label fx:id="lblItemName" styleClass="field-value" text="(?)" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                    <Label styleClass="field-name" text="GIA THANG" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <Label fx:id="lblWinningPrice" styleClass="accent-value" text="0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                    <Label styleClass="field-name" text="NGUOI THANG" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <Label fx:id="lblWinnerId" styleClass="field-value" text="(?)" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                 </GridPane>
 
                 <Label fx:id="lblNote" styleClass="page-subtitle" text="" wrapText="true" />

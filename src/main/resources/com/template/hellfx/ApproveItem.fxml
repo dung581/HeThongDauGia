@@ -48,7 +48,6 @@
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                     <Button onAction="#onChapNhan" styleClass="primary-button" text="Chap nhan" />
                     <Button onAction="#onTuChoi" styleClass="danger-button" text="Tu choi" />
-                    <Button mnemonicParsing="false" onAction="#trolai" styleClass="secondary-button" text="Tro lai" />
                 </HBox>
 
                 <VBox fx:id="approvePane" managed="false" spacing="12.0" styleClass="card" visible="false">

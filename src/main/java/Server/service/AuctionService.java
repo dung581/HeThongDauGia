@@ -18,6 +18,7 @@ public class AuctionService{
     private StakeService stakeService = new StakeService();
     private AccountRepository accountRepo = new AccountRepository();
     private ItemRepository itemRepo= new ItemRepository();
+    private AccountService accountService = new AccountService();
 
     public Auction createSession(long itemId, LocalDateTime endTime) {
 
@@ -48,6 +49,10 @@ public class AuctionService{
         return repo.getActive();
     }
 
+    public List<Auction> getAll() {
+        return repo.getAll();
+    }
+
     public Auction getById(long id) {
         return repo.getById(id);
     }
@@ -70,12 +75,12 @@ public class AuctionService{
 
         if (winnerId != 0) {
 
-            Account acc = accountRepo.getAccountByUserId(winnerId);
-
-            acc.setLocked_balance(acc.getLocked_balance() - price);
-            accountRepo.update(acc);
+            accountService.deductLockedFunds(winnerId, price);
 
             Stake s = stakeService.getActiveStake(sessionId, winnerId);
+            if (s != null) {
+                stakeService.markWon(s.getId());
+            }
 
             auction.setState(AuctionState.PAID);
 

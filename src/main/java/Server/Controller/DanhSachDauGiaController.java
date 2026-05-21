@@ -66,6 +66,7 @@ public class DanhSachDauGiaController {
     private static final int PAGE_SIZE = 8;
     private int currentPage = 1;
 
+    // JavaFX tự gọi sau khi load FXML: cấu hình UI, bảng, selection và tải danh sách phiên.
     @FXML
     public void initialize() {
         configureRoleUi();
@@ -74,6 +75,7 @@ public class DanhSachDauGiaController {
         loadAuctionDataAsync();
     }
 
+    // Ẩn/hiện các mục điều hướng theo role hiện tại của user.
     private void configureRoleUi() {
         UserRole role = UserAccount.getCurrentRole();
         setVisibleManaged(browseItemsNav, role == UserRole.ADMIN);
@@ -87,12 +89,14 @@ public class DanhSachDauGiaController {
         }
     }
 
+    // Set đồng thời visible và managed để node ẩn không chiếm chỗ layout.
     private void setVisibleManaged(Node node, boolean visible) {
         if (node == null) return;
         node.setVisible(visible);
         node.setManaged(visible);
     }
 
+    // Gán các cột TableView với dữ liệu Auction và tên item tương ứng.
     private void configureTable() {
         colId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getId()));
         colItemId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getItem_id()));
@@ -105,6 +109,7 @@ public class DanhSachDauGiaController {
         colCurrentUserId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getCurrent_user_id()));
     }
 
+    // Lắng nghe dòng phiên được chọn để hiển thị thông tin item ở panel bên phải.
     private void configureSelection() {
         table.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, selectedAuction) -> {
             if (selectedAuction == null) {
@@ -126,6 +131,7 @@ public class DanhSachDauGiaController {
         });
     }
 
+    // Xóa thông tin item đang chọn khỏi panel bên phải.
     private void clearSelectedItem() {
         idLabel.setText(" ");
         tenLabel.setText(" ");
@@ -134,15 +140,18 @@ public class DanhSachDauGiaController {
         thongtinLabel.setText(" ");
     }
 
+    // Tải lại dữ liệu phiên đấu giá từ service.
     @FXML
     public void loadData() {
         loadAuctionDataAsync();
     }
 
+    // Tải danh sách phiên và item trên background thread để không làm lag UI.
     @FXML
     private void loadAuctionDataAsync() {
         Task<LoadAuctionData> task = new Task<>() {
             @Override
+            // Hàm chạy trong background task: lấy phiên active và map thông tin item liên quan.
             protected LoadAuctionData call() {
                 List<Auction> auctions = auctionService.getActive();
                 List<Item> items = itemService.listAll();
@@ -185,26 +194,31 @@ public class DanhSachDauGiaController {
         worker.start();
     }
 
+    // Chuyển bảng về trang đầu tiên.
     @FXML
     public void goFirstPage() {
         renderPage(1);
     }
 
+    // Chuyển bảng về trang trước.
     @FXML
     public void goPrevPage() {
         renderPage(currentPage - 1);
     }
 
+    // Chuyển bảng sang trang tiếp theo.
     @FXML
     public void goNextPage() {
         renderPage(currentPage + 1);
     }
 
+    // Chuyển bảng sang trang cuối cùng.
     @FXML
     public void goLastPage() {
         renderPage(getTotalPages());
     }
 
+    // Đọc số trang người dùng nhập và render trang tương ứng.
     @FXML
     public void goToPage() {
         if (txtPageInput == null || txtPageInput.getText() == null) {
@@ -217,6 +231,7 @@ public class DanhSachDauGiaController {
         }
     }
 
+    // Cắt danh sách phiên theo trang và đổ dữ liệu lên TableView.
     private void renderPage(int page) {
         int totalPages = getTotalPages();
         if (page < 1) page = 1;
@@ -235,6 +250,7 @@ public class DanhSachDauGiaController {
         }
     }
 
+    // Tính tổng số trang dựa trên số phiên đang có.
     private int getTotalPages() {
         if (allAuctions.isEmpty()) {
             return 1;
@@ -242,6 +258,7 @@ public class DanhSachDauGiaController {
         return (allAuctions.size() + PAGE_SIZE - 1) / PAGE_SIZE;
     }
 
+    // Quay lại dashboard đúng với role hiện tại.
     public void trolai(ActionEvent actionEvent) throws IOException {
         UserRole role = UserAccount.getCurrentRole();
         if (role == UserRole.ADMIN) {
@@ -253,11 +270,13 @@ public class DanhSachDauGiaController {
         }
     }
 
+    // Điều hướng tới màn danh sách phiên đấu giá.
     @FXML
     public void goToSessions(ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/danhSachDauGia.fxml");
     }
 
+    // Điều hướng tới màn duyệt/quản lý item, chỉ cho Admin.
     @FXML
     public void goToBrowseItems(ActionEvent actionEvent) throws IOException {
         if (UserAccount.getCurrentRole() != UserRole.ADMIN) {
@@ -267,11 +286,13 @@ public class DanhSachDauGiaController {
         switchScene(actionEvent, "/com/template/hellfx/ItemBrowse.fxml");
     }
 
+    // Điều hướng tới màn tài khoản.
     @FXML
     public void goToAccount(ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/account.fxml");
     }
 
+    // Điều hướng tới màn nạp tiền, chỉ cho Bidder.
     @FXML
     public void goToDeposit(ActionEvent actionEvent) throws IOException {
         if (UserAccount.getCurrentRole() != UserRole.BIDDER) {
@@ -281,6 +302,7 @@ public class DanhSachDauGiaController {
         switchScene(actionEvent, "/com/template/hellfx/Deposit.fxml");
     }
 
+    // Điều hướng tới màn upload/quản lý sản phẩm của Seller, chỉ cho Seller.
     @FXML
     public void goToUploadItem(ActionEvent actionEvent) throws IOException {
         if (UserAccount.getCurrentRole() != UserRole.SELLER) {
@@ -290,6 +312,7 @@ public class DanhSachDauGiaController {
         switchScene(actionEvent, "/com/template/hellfx/SellerProducts.fxml");
     }
 
+    // Mở màn chi tiết của phiên đang được chọn trong bảng.
     @FXML
     public void openSessionDetail(ActionEvent actionEvent) throws IOException {
         Auction selected = table.getSelectionModel().getSelectedItem();
@@ -302,12 +325,14 @@ public class DanhSachDauGiaController {
         switchScene(actionEvent, "/com/template/hellfx/session-detail.fxml");
     }
 
+    // Load FXML mới và thay root scene hiện tại.
     private void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
         replaceSceneRoot(stage, root);
     }
 
+    // Giữ nguyên Scene/Stage hiện tại, chỉ thay root để tránh chồng màn.
     private void replaceSceneRoot(Stage stage, Parent root) {
         Scene currentScene = stage.getScene();
         if (currentScene == null) {
@@ -323,6 +348,7 @@ public class DanhSachDauGiaController {
         private final Map<Long, String> itemNames;
         private final Map<Long, Item> itemsById;
 
+        // Gói dữ liệu phiên + item trả về từ background task tải danh sách đấu giá.
         private LoadAuctionData(List<Auction> auctions, Map<Long, String> itemNames, Map<Long, Item> itemsById) {
             this.auctions = auctions;
             this.itemNames = itemNames;

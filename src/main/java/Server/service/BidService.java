@@ -77,4 +77,10 @@ public class BidService {
         bids.sort(Comparator.comparingLong(Bid::getPrice).reversed());
         return bids;
     }
+
+    public List<Bid> getHistoryBySession(long sessionId) {
+        List<Bid> bids = bidRepo.getBySessionId(sessionId);
+        bids.sort(Comparator.comparingLong(Bid::getPrice).reversed());
+        return bids;
+    }
 }

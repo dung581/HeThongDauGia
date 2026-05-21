@@ -11,6 +11,7 @@ public class UILogin extends Application {
     public static final double APP_WIDTH = 1220;
     public static final double APP_HEIGHT = 760;
 
+    // Khởi động ứng dụng JavaFX, load màn đăng nhập đầu tiên và cấu hình kích thước cửa sổ.
     @Override
     public void start(Stage stage) throws IOException {
 
