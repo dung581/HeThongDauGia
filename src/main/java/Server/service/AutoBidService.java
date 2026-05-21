@@ -5,7 +5,6 @@ import Common.DataBase.entities.Autobid;
 import Common.DataBase.repository.AutoBidRepository;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,10 +45,7 @@ public class AutoBidService {
     }
 
     public Optional<Autobid> getLatestByUserAndItem(long userId, long itemId) {
-        return repo.getByUserId(userId)
-                .stream()
-                .filter(ab -> ab.getItem_id() == itemId)
-                .max(Comparator.comparingLong(Autobid::getId));
+        return Optional.ofNullable(repo.getLatestByUserAndItem(userId, itemId));
     }
 
     private Autobid createAutobid(long userId, long itemId, long maxPrice, boolean active) {

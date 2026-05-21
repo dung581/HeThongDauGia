@@ -2,9 +2,9 @@ package Server.Controller;
 
 import Client.Controller.UILogin;
 import Common.DataBase.entities.Item;
+import Common.Enum.ItemStatus;
 import Server.service.ItemService;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -12,75 +12,130 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class AdminItemManagementController {
 
-    @FXML private TableView<Item> table;
-    @FXML private TableColumn<Item, Long> colId;
-    @FXML private TableColumn<Item, String> colName;
-    @FXML private TableColumn<Item, Long> colOwnerId;
-    @FXML private TableColumn<Item, Long> colPrice;
-    @FXML private TableColumn<Item, String> colStatus;
-    @FXML private TableColumn<Item, String> colDescription;
-    @FXML private TableColumn<Item, String> colReason;
-    @FXML private Label lblPageInfo;
-    @FXML private TextField txtPageInput;
+    @FXML private ListView<Item> table;
+    @FXML private TextField searchField;
+    @FXML private ChoiceBox<String> statusFilter;
+    @FXML private TextField ownerSearchField;
 
     private final ItemService itemService = new ItemService();
-    private static final int PAGE_SIZE = 12;
-    private int currentPage = 1;
-    private int totalItems = 0;
+    private final List<Item> allItems = new ArrayList<>();
+    private static final String ALL_FILTER = "Tat ca";
     private boolean loading = false;
 
     // JavaFX tự gọi sau khi load FXML: cấu hình bảng và tải danh sách toàn bộ item.
     @FXML
     public void initialize() {
-        colId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getId()));
-        colName.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getFullname()));
-        colOwnerId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getOwner_user_id()));
-        colPrice.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getBeginPrice()));
-        colStatus.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus().name()));
-        colDescription.setCellValueFactory(data -> new SimpleStringProperty(
-                data.getValue().getDescription() == null ? "" : data.getValue().getDescription()
-        ));
-        colReason.setCellValueFactory(data -> new SimpleStringProperty(
-                data.getValue().getMota() == null ? "" : data.getValue().getMota()
-        ));
-
+        configureList();
+        configureFilters();
         loadAllItems();
     }
 
-    // Tải lại danh sách item từ trang đầu tiên.
-    public void loadAllItems() {
-        loadPageAsync(1);
+    // Cấu hình danh sách item dạng card để thay bảng cứng.
+    private void configureList() {
+        table.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(Item item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                setText(null);
+                setGraphic(createItemCard(item));
+            }
+        });
     }
 
-    // Chuyển tới trang đầu tiên của bảng item.
-    @FXML public void goFirstPage() { loadPageAsync(1); }
-    // Chuyển tới trang trước của bảng item.
-    @FXML public void goPrevPage() { loadPageAsync(currentPage - 1); }
-    // Chuyển tới trang tiếp theo của bảng item.
-    @FXML public void goNextPage() { loadPageAsync(currentPage + 1); }
-    // Chuyển tới trang cuối cùng của bảng item.
-    @FXML public void goLastPage() { loadPageAsync(getTotalPages()); }
+    // Tạo một card item cho màn quản lý vật phẩm Admin.
+    private Node createItemCard(Item item) {
+        HBox row = new HBox(14.0);
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.setPadding(new Insets(14.0, 16.0, 14.0, 16.0));
+        row.getStyleClass().add("data-row");
 
-    // Đọc số trang người dùng nhập và tải trang tương ứng.
-    @FXML
-    public void goToPage() {
-        if (txtPageInput == null || txtPageInput.getText() == null) return;
-        try {
-            int page = Integer.parseInt(txtPageInput.getText().trim());
-            loadPageAsync(page);
-        } catch (NumberFormatException ignored) {
-            loadPageAsync(currentPage);
+        VBox main = new VBox(5.0);
+        HBox.setHgrow(main, Priority.ALWAYS);
+        Label title = new Label(nullToText(item.getFullname(), "Item " + item.getId()));
+        title.getStyleClass().add("data-title");
+        title.setWrapText(true);
+        Label description = new Label(nullToText(item.getDescription(), "Khong co mo ta"));
+        description.getStyleClass().add("product-description");
+        description.setWrapText(true);
+        HBox meta = new HBox(10.0);
+        meta.setAlignment(Pos.CENTER_LEFT);
+        Label id = new Label("ID #" + item.getId());
+        id.getStyleClass().add("data-meta");
+        Label owner = new Label("Seller #" + item.getOwner_user_id());
+        owner.getStyleClass().add("data-meta");
+        Label note = new Label(nullToText(item.getMota(), ""));
+        note.getStyleClass().add("data-meta");
+        meta.getChildren().addAll(id, owner, note);
+        main.getChildren().addAll(title, description, meta);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        VBox value = new VBox(6.0);
+        value.setAlignment(Pos.CENTER_RIGHT);
+        Label price = new Label(String.format("%,d", item.getBeginPrice()));
+        price.getStyleClass().add("data-money");
+        Label status = new Label(item.getStatus() == null ? "" : item.getStatus().name());
+        status.getStyleClass().add("data-pill");
+        value.getChildren().addAll(price, status);
+
+        row.getChildren().addAll(main, spacer, value);
+        return row;
+    }
+
+    // Trả chuỗi dự phòng khi dữ liệu null/rỗng.
+    private String nullToText(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value;
+    }
+
+    // Tải lại toàn bộ danh sách item; bảng tự cuộn nên không cần phân trang.
+    public void loadAllItems() {
+        loadItemsAsync();
+    }
+
+    // Cấu hình tìm kiếm theo tên/ID/mô tả, lọc trạng thái và lọc ID người bán.
+    private void configureFilters() {
+        if (statusFilter != null) {
+            List<String> options = new ArrayList<>();
+            options.add(ALL_FILTER);
+            for (ItemStatus status : ItemStatus.values()) {
+                options.add(status.name());
+            }
+            statusFilter.setItems(FXCollections.observableArrayList(options));
+            statusFilter.setValue(ALL_FILTER);
+            statusFilter.setOnAction(event -> applyFilters());
+        }
+
+        if (searchField != null) {
+            searchField.textProperty().addListener((observable, oldValue, newValue) -> applyFilters());
+        }
+        if (ownerSearchField != null) {
+            ownerSearchField.textProperty().addListener((observable, oldValue, newValue) -> applyFilters());
         }
     }
 
@@ -89,53 +144,30 @@ public class AdminItemManagementController {
         switchScene(actionEvent, "/com/template/hellfx/dashboard - Admin.fxml");
     }
 
-    // Đổ dữ liệu một trang lên TableView và cập nhật nhãn phân trang.
-    private void renderPage(int page, List<Item> pageRows) {
-        int totalPages = getTotalPages();
-        if (page < 1) page = 1;
-        if (page > totalPages) page = totalPages;
-        currentPage = page;
-        table.getItems().setAll(pageRows);
-
-        if (lblPageInfo != null) {
-            lblPageInfo.setText("Trang " + currentPage + " / " + totalPages);
-        }
-    }
-
-    // Tính tổng số trang dựa trên tổng item và kích thước trang.
-    private int getTotalPages() {
-        if (totalItems <= 0) return 1;
-        return (totalItems + PAGE_SIZE - 1) / PAGE_SIZE;
-    }
-
-    // Tải item theo trang trên background thread để không khóa UI.
-    private void loadPageAsync(int requestedPage) {
+    // Tải toàn bộ item trên background thread để không khóa UI.
+    private void loadItemsAsync() {
         if (loading) return;
         loading = true;
-        if (lblPageInfo != null) lblPageInfo.setText("Đang tải...");
 
-        Task<PageData> task = new Task<>() {
+        Task<List<Item>> task = new Task<>() {
             @Override
-            // Hàm chạy trong background task: đếm và lấy toàn bộ item theo trang.
-            protected PageData call() {
-                int total = itemService.countAll();
-                int totalPages = Math.max(1, (total + PAGE_SIZE - 1) / PAGE_SIZE);
-                int safePage = Math.max(1, Math.min(requestedPage, totalPages));
-                List<Item> rows = itemService.listAllPaged(safePage, PAGE_SIZE);
-                return new PageData(total, safePage, rows);
+            // Hàm chạy trong background task: lấy toàn bộ item để lọc và cuộn trực tiếp.
+            protected List<Item> call() {
+                return itemService.listAll();
             }
         };
 
         task.setOnSucceeded(event -> {
-            PageData result = task.getValue();
-            totalItems = result.totalItems;
-            renderPage(result.page, result.rows);
+            allItems.clear();
+            allItems.addAll(task.getValue());
+            applyFilters();
             loading = false;
         });
 
         task.setOnFailed(event -> {
+            allItems.clear();
+            applyFilters();
             loading = false;
-            if (lblPageInfo != null) lblPageInfo.setText("Tải thất bại");
         });
 
         Thread worker = new Thread(task, "admin-item-page-load");
@@ -143,17 +175,63 @@ public class AdminItemManagementController {
         worker.start();
     }
 
-    private static class PageData {
-        private final int totalItems;
-        private final int page;
-        private final List<Item> rows;
+    // Lọc item theo từ khóa, trạng thái và ID người bán.
+    private void applyFilters() {
+        String query = normalize(searchField == null ? "" : searchField.getText());
+        String status = statusFilter == null ? ALL_FILTER : statusFilter.getValue();
+        String ownerQuery = normalize(ownerSearchField == null ? "" : ownerSearchField.getText());
+        List<Item> rows = new ArrayList<>();
 
-        // Gói dữ liệu trả về từ background task khi tải một trang item.
-        private PageData(int totalItems, int page, List<Item> rows) {
-            this.totalItems = totalItems;
-            this.page = page;
-            this.rows = rows;
+        for (Item item : allItems) {
+            if (!matchesStatus(item, status)) {
+                continue;
+            }
+            if (!matchesOwner(item, ownerQuery)) {
+                continue;
+            }
+            if (!matchesSearch(item, query)) {
+                continue;
+            }
+            rows.add(item);
         }
+
+        table.getItems().setAll(rows);
+        table.refresh();
+    }
+
+    // Kiểm tra trạng thái item có khớp bộ lọc không.
+    private boolean matchesStatus(Item item, String selectedStatus) {
+        if (selectedStatus == null || selectedStatus.equals(ALL_FILTER)) {
+            return true;
+        }
+        return item.getStatus() != null && item.getStatus().name().equals(selectedStatus);
+    }
+
+    // Kiểm tra ID người bán có chứa từ khóa lọc không.
+    private boolean matchesOwner(Item item, String ownerQuery) {
+        return ownerQuery.isEmpty() || String.valueOf(item.getOwner_user_id()).contains(ownerQuery);
+    }
+
+    // Kiểm tra keyword theo ID, tên, giá, trạng thái, mô tả và phản hồi.
+    private boolean matchesSearch(Item item, String query) {
+        if (query.isEmpty()) {
+            return true;
+        }
+
+        String target = String.join(" ",
+                String.valueOf(item.getId()),
+                item.getFullname() == null ? "" : item.getFullname(),
+                String.valueOf(item.getBeginPrice()),
+                item.getStatus() == null ? "" : item.getStatus().name(),
+                item.getDescription() == null ? "" : item.getDescription(),
+                item.getMota() == null ? "" : item.getMota()
+        );
+        return normalize(target).contains(query);
+    }
+
+    // Chuẩn hóa chuỗi để tìm kiếm không phân biệt hoa thường.
+    private String normalize(String value) {
+        return value == null ? "" : value.toLowerCase(Locale.ROOT).trim();
     }
 
     // Thay root scene hiện tại bằng FXML mới và giữ kích thước chuẩn của ứng dụng.

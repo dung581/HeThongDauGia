@@ -3,8 +3,8 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -99,63 +99,25 @@
                 </VBox>
             </HBox>
 
-            <HBox spacing="18.0">
-                <VBox prefHeight="145.0" prefWidth="280.0" spacing="12.0" styleClass="card">
-                    <padding>
-                        <Insets bottom="20.0" left="22.0" right="22.0" top="20.0" />
-                    </padding>
-                    <Label styleClass="field-name" text="APPROVAL" />
-                    <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #f4f7fb;" text="Duyet san pham" />
-                    <Label styleClass="page-subtitle" text="Xu ly item seller gui len va mo phien dau gia moi." wrapText="true" />
-                    <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#duyetsp" styleClass="primary-button" text="Mo hang doi ->" />
-                </VBox>
-
-                <VBox prefHeight="145.0" prefWidth="280.0" spacing="12.0" styleClass="card">
-                    <padding>
-                        <Insets bottom="20.0" left="22.0" right="22.0" top="20.0" />
-                    </padding>
-                    <Label styleClass="field-name" text="INVENTORY" />
-                    <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #f4f7fb;" text="Quan ly vat pham" />
-                    <Label styleClass="page-subtitle" text="Kiem tra item theo trang thai, gia va nguoi ban." wrapText="true" />
-                    <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#quanlyvatpham" styleClass="secondary-button" text="Mo item" />
-                </VBox>
-
-                <VBox prefHeight="145.0" prefWidth="280.0" spacing="12.0" styleClass="card">
-                    <padding>
-                        <Insets bottom="20.0" left="22.0" right="22.0" top="20.0" />
-                    </padding>
-                    <Label styleClass="field-name" text="ACCOUNTS" />
-                    <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #f4f7fb;" text="Quan ly tai khoan" />
-                    <Label styleClass="page-subtitle" text="Xem role, so du va tien dang khoa cua user." wrapText="true" />
-                    <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#quanlytk" styleClass="secondary-button" text="Mo tai khoan" />
-                </VBox>
-            </HBox>
-
             <HBox spacing="18.0" VBox.vgrow="ALWAYS">
                 <VBox spacing="10.0" HBox.hgrow="ALWAYS">
                     <Label styleClass="section-label" text="PHIEN DAU GIA GAN DAY" />
                     <Label fx:id="adminSessionSummaryLabel" styleClass="page-subtitle" text="Dang tai du lieu..." />
-                    <TableView fx:id="adminSessionTable" VBox.vgrow="ALWAYS">
-                        <columns>
-                            <TableColumn fx:id="adminSessionItemColumn" prefWidth="180.0" text="Item" />
-                            <TableColumn fx:id="adminSessionPriceColumn" prefWidth="150.0" text="Gia hien tai" />
-                            <TableColumn fx:id="adminSessionLeaderColumn" prefWidth="100.0" text="Leader" />
-                            <TableColumn fx:id="adminSessionStatusColumn" prefWidth="130.0" text="Trang thai" />
-                        </columns>
-                    </TableView>
+                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="flat-scroll" VBox.vgrow="ALWAYS">
+                        <content>
+                            <VBox fx:id="adminSessionList" spacing="10.0" styleClass="session-list">
+                                <padding>
+                                    <Insets bottom="6.0" right="8.0" />
+                                </padding>
+                            </VBox>
+                        </content>
+                    </ScrollPane>
                 </VBox>
 
                 <VBox prefWidth="450.0" spacing="10.0">
                     <Label styleClass="section-label" text="ITEM CAN DUYET" />
                     <Label fx:id="adminPendingSummaryLabel" styleClass="page-subtitle" text="Dang tai du lieu..." />
-                    <TableView fx:id="adminPendingItemTable" VBox.vgrow="ALWAYS">
-                        <columns>
-                            <TableColumn fx:id="adminPendingIdColumn" prefWidth="70.0" text="ID" />
-                            <TableColumn fx:id="adminPendingNameColumn" prefWidth="150.0" text="Ten" />
-                            <TableColumn fx:id="adminPendingSellerColumn" prefWidth="90.0" text="Seller" />
-                            <TableColumn fx:id="adminPendingPriceColumn" prefWidth="120.0" text="Gia" />
-                        </columns>
-                    </TableView>
+                    <ListView fx:id="adminPendingItemTable" styleClass="data-list" VBox.vgrow="ALWAYS" />
                 </VBox>
             </HBox>
         </VBox>

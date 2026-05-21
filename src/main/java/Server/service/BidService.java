@@ -41,16 +41,16 @@ public class BidService {
 
         long oldUser = auction.getCurrent_user_id();
 
-        // 🔥 release thằng cũ
+        // Release stake cũ nếu đang có người dẫn trước.
         if (oldUser != 0) {
             Stake oldStake = stakeService.getActiveStake(auction.getId(), oldUser);
             if (oldStake != null) {
-                stakeService.releaseStake(oldStake.getId());
+                stakeService.releaseStake(oldStake);
             }
         }
 
-        // 🔥 tạo stake mới (lock tiền)
-        stakeService.createStake(userId, itemId, price);
+        // Tạo stake mới bằng auctionId đã có để tránh query lại auction.
+        stakeService.createStakeForAuction(auction.getId(), userId, itemId, price);
 
         // 🔥 lưu bid
         Bid b = new Bid();
@@ -63,11 +63,13 @@ public class BidService {
 
         // 🔥 update auction
         auctionRepo.updateCurrentBid(auction.getId(), userId, price);
+        auction.setCurrent_user_id(userId);
+        auction.setCurrent_price(price);
 
         // 🔥 auto bid
         AutobidService.trigger(itemId, price);
         // tu dong gia han thoi gian
-        AutobidService.autoTime(auctionRepo.getById(auction.getId()));
+        AutobidService.autoTime(auction);
 
         return b;
     }

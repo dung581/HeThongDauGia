@@ -13,16 +13,20 @@ public class StakeService {
     private AccountService accountService = new AccountService();
 
     public Stake createStake(long userId, long itemId, long amount) {
-
         Auction auction = auctionRepo.getByItemId(itemId);
         if (auction == null) {
             throw new RuntimeException("Auction not found");
         }
 
+        return createStakeForAuction(auction.getId(), userId, itemId, amount);
+    }
+
+    // Tạo stake khi caller đã có auctionId, tránh query lại auction trong luồng đặt giá.
+    public Stake createStakeForAuction(long auctionId, long userId, long itemId, long amount) {
         accountService.lockFunds(userId, amount);
 
         Stake s = new Stake();
-        s.setAution_id(auction.getId());
+        s.setAution_id(auctionId);
         s.setLocked_item_id(itemId);
         s.setUser_id(userId);
         s.setAmount(amount);
@@ -39,14 +43,17 @@ public class StakeService {
     }
 
     public void releaseStake(long stakeId) {
+        releaseStake(repo.getById(stakeId));
+    }
 
-        Stake s = repo.getById(stakeId);
+    // Release trực tiếp object stake đã có sẵn để không cần query lại theo id.
+    public void releaseStake(Stake s) {
         if (s == null) return;
         if (s.getStatus() != StakeStatus.LOCKED) return;
 
         accountService.releaseFunds(s.getUser_id(), s.getAmount());
 
-        repo.updateStatus(stakeId, StakeStatus.RELEASED);
+        repo.updateStatus(s.getId(), StakeStatus.RELEASED);
     }
 
     public void markWon(long stakeId) {

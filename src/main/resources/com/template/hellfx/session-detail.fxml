@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.GridPane?>
@@ -22,16 +24,8 @@
                 <Label styleClass="muted" text="Auction Platform" />
             </VBox>
             <VBox spacing="12.0">
-                <Label styleClass="section-label" text="TRADING" />
-                <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goToSessions" styleClass="nav-item" text="Sessions" />
+                <Label styleClass="section-label" text="CURRENT SCREEN" />
                 <Button maxWidth="Infinity" mnemonicParsing="false" styleClass="nav-active" text="Session Detail" />
-                <Button fx:id="browseItemsNav" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToBrowseItems" styleClass="nav-item" text="Browse Items" />
-            </VBox>
-
-            <VBox spacing="12.0">
-                <Label fx:id="accountSectionLabel" styleClass="section-label" text="ACCOUNT" />
-                <Button fx:id="accountNavButton" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToAccount" styleClass="nav-item" text="My Account" />
-                <Button fx:id="depositNav" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToDeposit" styleClass="nav-item" text="Deposit" />
             </VBox>
         </VBox>
     </left>
@@ -83,14 +77,41 @@
                 </VBox>
             </HBox>
 
-            <TableView fx:id="bidTable" VBox.vgrow="ALWAYS">
-                <columns>
-                    <TableColumn fx:id="colBidId" prefWidth="110.0" text="ID" />
-                    <TableColumn fx:id="colBidUserId" prefWidth="170.0" text="Bidder" />
-                    <TableColumn fx:id="colBidPrice" prefWidth="190.0" text="Price" />
-                    <TableColumn fx:id="colBidTime" prefWidth="260.0" text="Time" />
-                </columns>
-            </TableView>
+            <VBox prefHeight="310.0" spacing="8.0" styleClass="card,price-chart-card">
+                <padding>
+                    <Insets bottom="14.0" left="18.0" right="18.0" top="14.0" />
+                </padding>
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <Label styleClass="field-name" text="BIỂU ĐỒ GIÁ" />
+                    <HBox HBox.hgrow="ALWAYS" />
+                    <Label styleClass="chart-stat-label" text="LAST" />
+                    <Label fx:id="priceChartLatestLabel" styleClass="chart-stat-up" text="-" />
+                    <Label styleClass="chart-stat-label" text="LOW" />
+                    <Label fx:id="priceChartMinLabel" styleClass="chart-stat-low" text="-" />
+                    <Label styleClass="chart-stat-label" text="HIGH" />
+                    <Label fx:id="priceChartMaxLabel" styleClass="chart-stat-up" text="-" />
+                </HBox>
+                <LineChart fx:id="priceChart" animated="false" createSymbols="false" legendVisible="false" prefHeight="255.0" VBox.vgrow="ALWAYS">
+                    <xAxis>
+                        <CategoryAxis fx:id="priceChartXAxis" label="Thời điểm" />
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis fx:id="priceChartYAxis" label="Giá" />
+                    </yAxis>
+                </LineChart>
+            </VBox>
+
+            <VBox prefHeight="260.0" spacing="10.0" styleClass="card,bid-history-card" VBox.vgrow="ALWAYS">
+                <padding>
+                    <Insets bottom="14.0" left="18.0" right="18.0" top="14.0" />
+                </padding>
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <Label styleClass="field-name" text="LỊCH SỬ BID" />
+                    <HBox HBox.hgrow="ALWAYS" />
+                    <Label fx:id="bidHistorySummaryLabel" styleClass="page-subtitle" text="0 lượt bid" />
+                </HBox>
+                <ListView fx:id="bidTable" styleClass="data-list,bid-history-list" VBox.vgrow="ALWAYS" />
+            </VBox>
         </VBox>
     </center>
 

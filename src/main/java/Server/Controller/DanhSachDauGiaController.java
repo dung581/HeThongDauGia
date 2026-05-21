@@ -11,6 +11,7 @@ import Server.service.AuctionService;
 import Server.service.ItemService;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -18,11 +19,18 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -30,32 +38,25 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class DanhSachDauGiaController {
-    @FXML private TableView<Auction> table;
-    @FXML private TableColumn<Auction, Long> colId;
-    @FXML private TableColumn<Auction, Long> colItemId;
-    @FXML private TableColumn<Auction, String> colItemName;
-    @FXML private TableColumn<Auction, AuctionState> colState;
-    @FXML private TableColumn<Auction, LocalDateTime> colStartTime;
-    @FXML private TableColumn<Auction, LocalDateTime> colEndTime;
-    @FXML private TableColumn<Auction, Long> colCurrentPrice;
-    @FXML private TableColumn<Auction, Long> colCurrentUserId;
+    @FXML private ListView<Auction> table;
 
     @FXML private Label idLabel;
     @FXML private Label tenLabel;
     @FXML private Label giaLabel;
     @FXML private Label trangthaiLabel;
     @FXML private Label thongtinLabel;
-    @FXML private Label lblPageInfo;
     @FXML private Label accountSectionLabel;
 
     @FXML private Node browseItemsNav;
     @FXML private Node uploadItemNav;
     @FXML private Node depositNav;
     @FXML private Button accountNavButton;
-    @FXML private TextField txtPageInput;
+    @FXML private TextField searchField;
+    @FXML private ChoiceBox<String> stateFilter;
 
     private final AuctionService auctionService = new AuctionService();
     private final ItemService itemService = new ItemService();
@@ -63,8 +64,7 @@ public class DanhSachDauGiaController {
     private final Map<Long, Item> itemById = new HashMap<>();
     private final Map<Long, String> itemNameById = new HashMap<>();
 
-    private static final int PAGE_SIZE = 8;
-    private int currentPage = 1;
+    private static final String ALL_FILTER = "Tat ca";
 
     // JavaFX tự gọi sau khi load FXML: cấu hình UI, bảng, selection và tải danh sách phiên.
     @FXML
@@ -72,6 +72,7 @@ public class DanhSachDauGiaController {
         configureRoleUi();
         configureTable();
         configureSelection();
+        configureFilters();
         loadAuctionDataAsync();
     }
 
@@ -96,17 +97,79 @@ public class DanhSachDauGiaController {
         node.setManaged(visible);
     }
 
-    // Gán các cột TableView với dữ liệu Auction và tên item tương ứng.
+    // Cấu hình ListView phiên đấu giá theo dạng từng thanh mềm thay cho bảng cứng.
     private void configureTable() {
-        colId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getId()));
-        colItemId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getItem_id()));
-        colItemName.setCellValueFactory(data ->
-                new SimpleStringProperty(itemNameById.getOrDefault(data.getValue().getItem_id(), "N/A")));
-        colState.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getState()));
-        colStartTime.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getStartTime()));
-        colEndTime.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getEndTime()));
-        colCurrentPrice.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getCurrent_price()));
-        colCurrentUserId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getCurrent_user_id()));
+        table.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(Auction auction, boolean empty) {
+                super.updateItem(auction, empty);
+                if (empty || auction == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                setText(null);
+                setGraphic(createAuctionCard(auction));
+            }
+        });
+    }
+
+    // Tạo card hiển thị thông tin chính của một phiên đấu giá.
+    private Node createAuctionCard(Auction auction) {
+        HBox row = new HBox(14.0);
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.setPadding(new Insets(14.0, 16.0, 14.0, 16.0));
+        row.getStyleClass().add("data-row");
+
+        VBox titleBox = new VBox(5.0);
+        HBox.setHgrow(titleBox, Priority.ALWAYS);
+        Label title = new Label(itemNameById.getOrDefault(auction.getItem_id(), "Item " + auction.getItem_id()));
+        title.getStyleClass().add("data-title");
+        title.setWrapText(true);
+        HBox meta = new HBox(10.0);
+        meta.setAlignment(Pos.CENTER_LEFT);
+        Label session = new Label("Phien #" + auction.getId());
+        session.getStyleClass().add("data-meta");
+        Label item = new Label("Item #" + auction.getItem_id());
+        item.getStyleClass().add("data-meta");
+        Label time = new Label(formatTimeRange(auction));
+        time.getStyleClass().add("data-meta");
+        meta.getChildren().addAll(session, item, time);
+        titleBox.getChildren().addAll(title, meta);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        VBox leaderBox = valueBox("Leader", auction.getCurrent_user_id() == 0 ? "-" : String.valueOf(auction.getCurrent_user_id()));
+        VBox priceBox = new VBox(6.0);
+        priceBox.setAlignment(Pos.CENTER_RIGHT);
+        Label price = new Label(String.format("%,d", auction.getCurrent_price()));
+        price.getStyleClass().add("data-money");
+        Label state = new Label(auction.getState() == null ? "" : auction.getState().name());
+        state.getStyleClass().add("data-pill");
+        priceBox.getChildren().addAll(price, state);
+
+        row.getChildren().addAll(titleBox, spacer, leaderBox, priceBox);
+        return row;
+    }
+
+    // Tạo cụm nhãn nhỏ dạng label/value cho card.
+    private VBox valueBox(String name, String value) {
+        VBox box = new VBox(4.0);
+        box.setAlignment(Pos.CENTER_RIGHT);
+        Label key = new Label(name);
+        key.getStyleClass().add("data-meta");
+        Label val = new Label(value == null || value.isBlank() ? "-" : value);
+        val.getStyleClass().add("data-value");
+        box.getChildren().addAll(key, val);
+        return box;
+    }
+
+    // Format khoảng thời gian của phiên để hiển thị gọn trong card.
+    private String formatTimeRange(Auction auction) {
+        String start = auction.getStartTime() == null ? "?" : auction.getStartTime().toLocalDate() + " " + auction.getStartTime().toLocalTime();
+        String end = auction.getEndTime() == null ? "?" : auction.getEndTime().toLocalDate() + " " + auction.getEndTime().toLocalTime();
+        return start + " -> " + end;
     }
 
     // Lắng nghe dòng phiên được chọn để hiển thị thông tin item ở panel bên phải.
@@ -129,6 +192,24 @@ public class DanhSachDauGiaController {
             giaLabel.setText(String.valueOf(item.getBeginPrice()));
             trangthaiLabel.setText(item.getStatus() == null ? "" : item.getStatus().toString());
         });
+    }
+
+    // Cấu hình ô tìm kiếm và bộ lọc trạng thái, dữ liệu được lọc trực tiếp trong bảng cuộn.
+    private void configureFilters() {
+        if (stateFilter != null) {
+            List<String> options = new ArrayList<>();
+            options.add(ALL_FILTER);
+            for (AuctionState state : AuctionState.values()) {
+                options.add(state.name());
+            }
+            stateFilter.setItems(FXCollections.observableArrayList(options));
+            stateFilter.setValue(ALL_FILTER);
+            stateFilter.setOnAction(event -> applyFilters());
+        }
+
+        if (searchField != null) {
+            searchField.textProperty().addListener((observable, oldValue, newValue) -> applyFilters());
+        }
     }
 
     // Xóa thông tin item đang chọn khỏi panel bên phải.
@@ -178,7 +259,7 @@ public class DanhSachDauGiaController {
             itemById.clear();
             itemById.putAll(result.itemsById);
 
-            renderPage(1);
+            applyFilters();
         });
 
         task.setOnFailed(event -> {
@@ -186,7 +267,7 @@ public class DanhSachDauGiaController {
             itemNameById.clear();
             itemById.clear();
             clearSelectedItem();
-            renderPage(1);
+            applyFilters();
         });
 
         Thread worker = new Thread(task, "auction-list-load");
@@ -194,68 +275,60 @@ public class DanhSachDauGiaController {
         worker.start();
     }
 
-    // Chuyển bảng về trang đầu tiên.
-    @FXML
-    public void goFirstPage() {
-        renderPage(1);
-    }
+    // Lọc toàn bộ phiên đang có theo trạng thái và nội dung tìm kiếm, không dùng phân trang.
+    private void applyFilters() {
+        String query = normalize(searchField == null ? "" : searchField.getText());
+        String state = stateFilter == null ? ALL_FILTER : stateFilter.getValue();
+        List<Auction> rows = new ArrayList<>();
 
-    // Chuyển bảng về trang trước.
-    @FXML
-    public void goPrevPage() {
-        renderPage(currentPage - 1);
-    }
-
-    // Chuyển bảng sang trang tiếp theo.
-    @FXML
-    public void goNextPage() {
-        renderPage(currentPage + 1);
-    }
-
-    // Chuyển bảng sang trang cuối cùng.
-    @FXML
-    public void goLastPage() {
-        renderPage(getTotalPages());
-    }
-
-    // Đọc số trang người dùng nhập và render trang tương ứng.
-    @FXML
-    public void goToPage() {
-        if (txtPageInput == null || txtPageInput.getText() == null) {
-            return;
+        for (Auction auction : allAuctions) {
+            if (!matchesState(auction, state)) {
+                continue;
+            }
+            if (!matchesSearch(auction, query)) {
+                continue;
+            }
+            rows.add(auction);
         }
-        try {
-            renderPage(Integer.parseInt(txtPageInput.getText().trim()));
-        } catch (NumberFormatException ignored) {
-            renderPage(currentPage);
-        }
-    }
-
-    // Cắt danh sách phiên theo trang và đổ dữ liệu lên TableView.
-    private void renderPage(int page) {
-        int totalPages = getTotalPages();
-        if (page < 1) page = 1;
-        if (page > totalPages) page = totalPages;
-        currentPage = page;
-
-        int fromIndex = (currentPage - 1) * PAGE_SIZE;
-        int toIndex = Math.min(fromIndex + PAGE_SIZE, allAuctions.size());
-        List<Auction> rows = fromIndex >= toIndex ? List.of() : allAuctions.subList(fromIndex, toIndex);
 
         table.getItems().setAll(rows);
         table.refresh();
 
-        if (lblPageInfo != null) {
-            lblPageInfo.setText("Trang " + currentPage + " / " + totalPages);
+        Auction selected = table.getSelectionModel().getSelectedItem();
+        if (selected == null || !rows.contains(selected)) {
+            table.getSelectionModel().clearSelection();
+            clearSelectedItem();
         }
     }
 
-    // Tính tổng số trang dựa trên số phiên đang có.
-    private int getTotalPages() {
-        if (allAuctions.isEmpty()) {
-            return 1;
+    // Kiểm tra trạng thái phiên có khớp lựa chọn lọc không.
+    private boolean matchesState(Auction auction, String selectedState) {
+        if (selectedState == null || selectedState.equals(ALL_FILTER)) {
+            return true;
         }
-        return (allAuctions.size() + PAGE_SIZE - 1) / PAGE_SIZE;
+        return auction.getState() != null && auction.getState().name().equals(selectedState);
+    }
+
+    // Kiểm tra từ khóa tìm kiếm theo ID phiên, ID item, tên item và leader.
+    private boolean matchesSearch(Auction auction, String query) {
+        if (query.isEmpty()) {
+            return true;
+        }
+
+        String itemName = itemNameById.getOrDefault(auction.getItem_id(), "");
+        String target = String.join(" ",
+                String.valueOf(auction.getId()),
+                String.valueOf(auction.getItem_id()),
+                itemName,
+                String.valueOf(auction.getCurrent_user_id()),
+                auction.getState() == null ? "" : auction.getState().name()
+        );
+        return normalize(target).contains(query);
+    }
+
+    // Chuẩn hóa chuỗi để tìm kiếm không phân biệt hoa thường.
+    private String normalize(String value) {
+        return value == null ? "" : value.toLowerCase(Locale.ROOT).trim();
     }
 
     // Quay lại dashboard đúng với role hiện tại.

@@ -6,8 +6,6 @@ import Common.Enum.UserRole;
 import Common.Model.user.UserAccount;
 import Server.service.AuctionService;
 import Server.service.ItemService;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -19,10 +17,15 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -31,13 +34,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class    ItemBrowseController {
-    @FXML private TableView<Item> table;
-    @FXML private TableColumn<Item, Long> colId;
-    @FXML private TableColumn<Item, String> colName;
-    @FXML private TableColumn<Item, Long> colPrice;
-    @FXML private TableColumn<Item, String> colDescription;
-    @FXML private TableColumn<Item, String> colNote;
-    @FXML private TableColumn<Item, String> colStatus;
+    @FXML private ListView<Item> table;
     @FXML private ChoiceBox<String> statusFilter;
     @FXML private TextField rejectReason;
     @FXML private TextField endTime;
@@ -54,12 +51,7 @@ public class    ItemBrowseController {
     // JavaFX tự gọi sau khi load FXML: cấu hình bảng, bộ lọc trạng thái và tải dữ liệu item.
     @FXML
     public void initialize(){
-        colId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getId()));
-        colName.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getFullname()));
-        colPrice.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getBeginPrice()));
-        colDescription.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDescription() == null ? "" : data.getValue().getDescription()));
-        colNote.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getMota() == null ? "" : data.getValue().getMota()));
-        colStatus.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus() == null ? "" : data.getValue().getStatus().name()));
+        configureList();
 
         // Bộ lọc trạng thái item.
         if (statusFilter != null){
@@ -79,6 +71,66 @@ public class    ItemBrowseController {
         }
         configureRoleUi();
         loadData();
+    }
+
+    // Cấu hình danh sách item theo dạng card mềm.
+    private void configureList() {
+        table.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(Item item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                setText(null);
+                setGraphic(createItemCard(item));
+            }
+        });
+    }
+
+    // Tạo card item cho màn duyệt/xem sản phẩm.
+    private Node createItemCard(Item item) {
+        HBox row = new HBox(14.0);
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.setPadding(new Insets(14.0, 16.0, 14.0, 16.0));
+        row.getStyleClass().add("data-row");
+
+        VBox main = new VBox(5.0);
+        HBox.setHgrow(main, Priority.ALWAYS);
+        Label title = new Label(nullToText(item.getFullname(), "Item " + item.getId()));
+        title.getStyleClass().add("data-title");
+        title.setWrapText(true);
+        Label description = new Label(nullToText(item.getDescription(), "Khong co thong tin"));
+        description.getStyleClass().add("product-description");
+        description.setWrapText(true);
+        HBox meta = new HBox(10.0);
+        Label id = new Label("ID #" + item.getId());
+        id.getStyleClass().add("data-meta");
+        Label note = new Label(nullToText(item.getMota(), ""));
+        note.getStyleClass().add("data-meta");
+        meta.getChildren().addAll(id, note);
+        main.getChildren().addAll(title, description, meta);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        VBox value = new VBox(6.0);
+        value.setAlignment(Pos.CENTER_RIGHT);
+        Label price = new Label(String.format("%,d", item.getBeginPrice()));
+        price.getStyleClass().add("data-money");
+        Label status = new Label(item.getStatus() == null ? "" : item.getStatus().name());
+        status.getStyleClass().add("data-pill");
+        value.getChildren().addAll(price, status);
+
+        row.getChildren().addAll(main, spacer, value);
+        return row;
+    }
+
+    // Trả chuỗi dự phòng khi dữ liệu null/rỗng.
+    private String nullToText(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value;
     }
 
     // Cấu hình các input/nút chỉ dành cho Admin.
