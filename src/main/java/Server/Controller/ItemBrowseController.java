@@ -51,6 +51,7 @@ public class    ItemBrowseController {
 
     private static final String ALL = "TAT_CA";
 
+    // JavaFX tự gọi sau khi load FXML: cấu hình bảng, bộ lọc trạng thái và tải dữ liệu item.
     @FXML
     public void initialize(){
         colId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getId()));
@@ -60,7 +61,7 @@ public class    ItemBrowseController {
         colNote.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getMota() == null ? "" : data.getValue().getMota()));
         colStatus.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus() == null ? "" : data.getValue().getStatus().name()));
 
-        // bo loc status
+        // Bộ lọc trạng thái item.
         if (statusFilter != null){
             ObservableList<String> options = FXCollections.observableArrayList(ALL, ItemStatus.PENDING.name(), ItemStatus.APPROVED.name(), ItemStatus.IN_AUCTION.name(), ItemStatus.SOLD.name(), ItemStatus.CANCELED.name());
             statusFilter.setItems(options);
@@ -80,18 +81,21 @@ public class    ItemBrowseController {
         loadData();
     }
 
+    // Cấu hình các input/nút chỉ dành cho Admin.
     private void configureRoleUi() {
         boolean isAdmin = UserAccount.getCurrentRole() == UserRole.ADMIN;
         setVisibleManaged(adminInputBox, isAdmin);
         setVisibleManaged(adminActionBox, isAdmin);
     }
 
+    // Set đồng thời visible và managed để node ẩn không chiếm chỗ layout.
     private void setVisibleManaged(Node node, boolean visible) {
         if (node == null) return;
         node.setVisible(visible);
         node.setManaged(visible);
     }
-    // tai du lieu bo loc
+
+    // Tải dữ liệu item theo bộ lọc trạng thái và giới hạn dữ liệu theo role hiện tại.
     public void loadData(){
         try {
             String filter = (statusFilter == null || statusFilter.getValue() == null) ? ItemStatus.PENDING.name() : statusFilter.getValue();
@@ -104,7 +108,7 @@ public class    ItemBrowseController {
                 data = listByStatusAuto(status);
             }
 
-            //Seller chi xem duoc item cua minh
+            // Seller chỉ xem được item của mình.
             UserRole role = UserAccount.getCurrentRole();
             if (role == UserRole.SELLER){
                 long myId = UserAccount.getUserId();
@@ -120,12 +124,15 @@ public class    ItemBrowseController {
             showWarning("Không tải được danh sách: "+e.getMessage());
         }
     }
+
+    // Gộp các danh sách item cơ bản để phục vụ bộ lọc TẤT CẢ hoặc lọc trạng thái phụ.
     private List<Item> mergeAll(){
         List<Item> all = itemService.listPending();
         all.addAll(itemService.listApproved());
         return all;
     }
 
+    // Lấy danh sách item theo trạng thái, ưu tiên service chuyên biệt khi có.
     private List<Item> listByStatusAuto(ItemStatus status){
         switch (status){
             case PENDING:
@@ -139,7 +146,7 @@ public class    ItemBrowseController {
         }
     }
 
-    // Admin click vao Approve -> tao luon phien dau gia
+    // Admin bấm Approve: duyệt item PENDING và tạo luôn phiên đấu giá theo số giờ nhập.
     public void onApprove() {
         if (!requireAdmin()) return;
 
@@ -154,7 +161,7 @@ public class    ItemBrowseController {
             return;
         }
 
-        // Yeu cau nhap so gio dau gia
+        // Yêu cầu nhập số giờ đấu giá.
         int hours;
         try{
             hours = Integer.parseInt(endTime == null ? "" :endTime.getText().trim());
@@ -180,7 +187,7 @@ public class    ItemBrowseController {
         }
     }
 
-    //Admin click vao Reject
+    // Admin bấm Reject: từ chối item PENDING và lưu lý do phản hồi.
     public void onReject() {
         if(!requireAdmin()) return;
 
@@ -207,7 +214,7 @@ public class    ItemBrowseController {
         }
     }
 
-    // voi cac san pham APPROVED, Admin mở phiên đấu giá
+    // Với item đã APPROVED, Admin mở phiên đấu giá mới theo số giờ nhập.
     public void onCreateSession(){
         if (!requireAdmin()) return;
 
@@ -243,7 +250,7 @@ public class    ItemBrowseController {
         }
     }
 
-    // Trở về trang trước với role hiện tại
+    // Trở về dashboard phù hợp với role hiện tại.
     public void onBack(ActionEvent actionEvent) throws IOException {
         UserRole role = UserAccount.getCurrentRole();
         String target;
@@ -256,6 +263,8 @@ public class    ItemBrowseController {
         }
         switchScene(actionEvent, target);
     }
+
+    // Kiểm tra quyền Admin trước khi cho phép thao tác duyệt/từ chối/mở phiên.
     private boolean requireAdmin() {
         UserRole role = UserAccount.getCurrentRole();
         if (role != UserRole.ADMIN) {
@@ -265,7 +274,7 @@ public class    ItemBrowseController {
         return true;
     }
 
-    // Các hàm helper
+    // Thay root scene hiện tại bằng màn FXML mới.
     private void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
@@ -278,6 +287,7 @@ public class    ItemBrowseController {
         stage.show();
     }
 
+    // Hiện popup cảnh báo khi input/quyền/thao tác service không hợp lệ.
     private void showWarning(String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Thong bao");
@@ -286,6 +296,7 @@ public class    ItemBrowseController {
         alert.showAndWait();
     }
 
+    // Hiện popup thông tin khi thao tác item thành công.
     private void showInfo(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Thong bao");

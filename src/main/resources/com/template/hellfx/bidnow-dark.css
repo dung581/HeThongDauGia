@@ -100,6 +100,12 @@
     -fx-background-radius: 8;
 }
 
+.bid-panel-card {
+    -fx-background-color: #1d2530;
+    -fx-border-color: #465365;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.28), 18, 0.18, 0, 4);
+}
+
 .field-name {
     -fx-text-fill: #7d8794;
     -fx-font-size: 12px;
@@ -143,6 +149,12 @@
     -fx-padding: 8 18 8 18;
 }
 
+.primary-button:disabled {
+    -fx-opacity: 0.78;
+    -fx-background-color: #245fba;
+    -fx-text-fill: #dbeafe;
+}
+
 .secondary-button {
     -fx-background-color: #222832;
     -fx-background-radius: 8;
@@ -152,12 +164,25 @@
     -fx-padding: 8 14 8 14;
 }
 
+.secondary-button:disabled {
+    -fx-opacity: 0.78;
+    -fx-background-color: #202733;
+    -fx-border-color: #465365;
+    -fx-text-fill: #c7d0dd;
+}
+
 .danger-button {
     -fx-background-color: #3a1512;
     -fx-background-radius: 8;
     -fx-text-fill: #ff6b63;
     -fx-font-weight: bold;
     -fx-padding: 8 14 8 14;
+}
+
+.danger-button:disabled {
+    -fx-opacity: 0.78;
+    -fx-background-color: #4a1d19;
+    -fx-text-fill: #ffb4ad;
 }
 
 .input {

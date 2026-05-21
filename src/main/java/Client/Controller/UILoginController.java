@@ -55,6 +55,7 @@ public class UILoginController {
     private boolean registerPasswordShown = false;
     private boolean registerPasswordAgainShown = false;
 
+    // JavaFX tự gọi sau khi load FXML: gán role cho radio button và ẩn các ô mật khẩu dạng text.
     @FXML
     public void initialize() {
         if (Bidder != null) Bidder.setUserData(UserRole.BIDDER);
@@ -62,6 +63,7 @@ public class UILoginController {
         initPasswordBindings();
     }
 
+    // Cấu hình các TextField hiện mật khẩu ban đầu ở trạng thái ẩn.
     private void initPasswordBindings() {
         if (loginPasswordHidden != null && loginPasswordVisible != null) {
             loginPasswordVisible.setManaged(false);
@@ -77,16 +79,19 @@ public class UILoginController {
         }
     }
 
+    // Lấy role người dùng đã chọn khi đăng ký tài khoản.
     public UserRole getRole() {
         if (group == null) return null;
         Toggle selected = group.getSelectedToggle();
         return selected == null ? null : (UserRole) selected.getUserData();
     }
 
+    // Tạo controller và khởi tạo AuthService dùng cho đăng nhập/đăng ký.
     public UILoginController() {
         authService = new AuthService();
     }
 
+    // Bật/tắt hiển thị mật khẩu ở màn đăng nhập.
     public void toggleLoginPassword() {
         if (loginPasswordHidden == null || loginPasswordVisible == null) return;
         if (!loginPasswordShown) {
@@ -105,6 +110,7 @@ public class UILoginController {
         loginPasswordShown = !loginPasswordShown;
     }
 
+    // Bật/tắt hiển thị mật khẩu chính ở màn đăng ký.
     public void toggleRegisterPassword() {
         if (regpassHidden == null || regpassVisible == null) return;
         if (!registerPasswordShown) {
@@ -123,6 +129,7 @@ public class UILoginController {
         registerPasswordShown = !registerPasswordShown;
     }
 
+    // Bật/tắt hiển thị mật khẩu nhập lại ở màn đăng ký.
     public void toggleRegisterPasswordAgain() {
         if (regpassagainHidden == null || regpassagainVisible == null) return;
         if (!registerPasswordAgainShown) {
@@ -141,24 +148,28 @@ public class UILoginController {
         registerPasswordAgainShown = !registerPasswordAgainShown;
     }
 
+    // Đọc giá trị mật khẩu đăng nhập từ field đang hiển thị.
     private String getLoginPasswordValue() {
         return (loginPasswordShown && loginPasswordVisible != null)
                 ? loginPasswordVisible.getText()
                 : (loginPasswordHidden == null ? "" : loginPasswordHidden.getText());
     }
 
+    // Đọc giá trị mật khẩu đăng ký từ field đang hiển thị.
     private String getRegisterPasswordValue() {
         return (registerPasswordShown && regpassVisible != null)
                 ? regpassVisible.getText()
                 : (regpassHidden == null ? "" : regpassHidden.getText());
     }
 
+    // Đọc giá trị mật khẩu nhập lại từ field đang hiển thị.
     private String getRegisterPasswordAgainValue() {
         return (registerPasswordAgainShown && regpassagainVisible != null)
                 ? regpassagainVisible.getText()
                 : (regpassagainHidden == null ? "" : regpassagainHidden.getText());
     }
 
+    // Xử lý đăng nhập: gọi AuthService, lưu session user và chuyển sang dashboard theo role.
     public void login() throws UsernameIsBlankException, UserNotFoundException, WrongPasswordException, PasswordIsBlankException {
         String ten = name.getText();
         String pass = getLoginPasswordValue();
@@ -166,7 +177,6 @@ public class UILoginController {
         try {
             User user = authService.login(ten, pass);
             UserAccount.setSession(user.getId(), user.getUsername(), user.getFullname(), user.getRole());
-            JOptionPane.showMessageDialog(null, "Đăng nhập thành công: " + user.getUsername(), "Thông báo", JOptionPane.INFORMATION_MESSAGE);
 
             UserRole role = user.getRole();
             if (role == UserRole.BIDDER) {
@@ -193,14 +203,17 @@ public class UILoginController {
         }
     }
 
+    // Chuyển từ màn đăng nhập sang màn đăng ký.
     public void Register(ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/UIRegister.fxml");
     }
 
+    // Chuyển từ màn đăng ký về màn đăng nhập.
     public void goToLogin(ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/UILogin.fxml");
     }
 
+    // Xử lý đăng ký: validate mật khẩu/role, gọi AuthService và tự động quay về đăng nhập khi thành công.
     public void Register2(ActionEvent actionEvent) throws IOException, UsernameIsBlankException, UsernameAlreadyExistsException, PasswordIsBlankException {
         String tenDK = regname.getText();
         String mkhau = getRegisterPasswordValue();
@@ -248,18 +261,21 @@ public class UILoginController {
         }
     }
 
+    // Đổi màn theo ActionEvent của nút được bấm.
     private void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {
         root = FXMLLoader.load(getClass().getResource(fxmlPath));
         stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
         replaceSceneRoot(stage, root);
     }
 
+    // Đổi màn khi không có ActionEvent, dùng scene hiện tại của ô username.
     private void switchScene(String fxmlPath) throws IOException {
         root = FXMLLoader.load(getClass().getResource(fxmlPath));
         stage = (Stage) name.getScene().getWindow();
         replaceSceneRoot(stage, root);
     }
 
+    // Thay root của scene hiện tại để giữ nguyên kích thước cửa sổ ứng dụng.
     private void replaceSceneRoot(Stage stage, Parent root) {
         Scene currentScene = stage.getScene();
         if (currentScene == null) {
@@ -270,6 +286,7 @@ public class UILoginController {
         stage.show();
     }
 
+    // Hiện message đăng ký trên UI thay vì bật popup.
     private void showRegisterMessage(String message) {
         if (registerMessage != null) {
             registerMessage.setText(message);
@@ -277,6 +294,7 @@ public class UILoginController {
         }
     }
 
+    // Xóa message đăng ký cũ trước khi validate/submit lần mới.
     private void clearRegisterMessage() {
         if (registerMessage != null) {
             registerMessage.setText("");

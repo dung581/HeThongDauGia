@@ -44,6 +44,7 @@ public class SellerProductController {
     private int totalItems = 0;
     private boolean loading = false;
 
+    // JavaFX tự gọi sau khi load FXML: cấu hình cột bảng và tải danh sách item của seller.
     @FXML
     public void initialize() {
         colId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getId()));
@@ -54,15 +55,21 @@ public class SellerProductController {
         loadMyItems();
     }
 
+    // Tải lại danh sách sản phẩm của seller từ trang đầu tiên.
     public void loadMyItems() {
         loadPageAsync(1);
     }
 
+    // Chuyển tới trang đầu tiên của bảng sản phẩm.
     @FXML public void goFirstPage() { loadPageAsync(1); }
+    // Chuyển tới trang trước của bảng sản phẩm.
     @FXML public void goPrevPage() { loadPageAsync(currentPage - 1); }
+    // Chuyển tới trang tiếp theo của bảng sản phẩm.
     @FXML public void goNextPage() { loadPageAsync(currentPage + 1); }
+    // Chuyển tới trang cuối cùng của bảng sản phẩm.
     @FXML public void goLastPage() { loadPageAsync(getTotalPages()); }
 
+    // Đọc số trang người dùng nhập và tải trang tương ứng.
     @FXML
     public void goToPage() {
         if (txtPageInput == null || txtPageInput.getText() == null) return;
@@ -74,6 +81,7 @@ public class SellerProductController {
         }
     }
 
+    // Đổ dữ liệu một trang lên TableView và cập nhật nhãn phân trang.
     private void renderPage(int page, List<Item> pageRows) {
         int totalPages = getTotalPages();
         if (page < 1) page = 1;
@@ -86,11 +94,13 @@ public class SellerProductController {
         }
     }
 
+    // Tính tổng số trang dựa trên tổng item và kích thước trang.
     private int getTotalPages() {
         if (totalItems <= 0) return 1;
         return (totalItems + PAGE_SIZE - 1) / PAGE_SIZE;
     }
 
+    // Tải dữ liệu sản phẩm theo trang trên background thread để không khóa UI.
     private void loadPageAsync(int requestedPage) {
         if (loading) return;
         loading = true;
@@ -98,6 +108,7 @@ public class SellerProductController {
 
         Task<PageData> task = new Task<>() {
             @Override
+            // Hàm chạy trong background task: đếm và lấy sản phẩm của seller theo trang.
             protected PageData call() {
                 long ownerId = UserAccount.getUserId();
                 int total = itemService.countByOwner(ownerId);
@@ -130,6 +141,7 @@ public class SellerProductController {
         private final int page;
         private final List<Item> rows;
 
+        // Gói dữ liệu trả về từ background task khi tải một trang sản phẩm.
         private PageData(int totalItems, int page, List<Item> rows) {
             this.totalItems = totalItems;
             this.page = page;
@@ -137,6 +149,7 @@ public class SellerProductController {
         }
     }
 
+    // Xử lý form đăng bán: đọc input, tạo Item và gửi yêu cầu upload qua ItemService.
     public void submitItem() {
         try {
             String name = itemName.getText() == null ? "" : itemName.getText().trim();
@@ -169,10 +182,12 @@ public class SellerProductController {
         }
     }
 
+    // Quay lại dashboard của Seller.
     public void backToSellerDashboard(ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/dashboard - Seller.fxml");
     }
 
+    // Thay root scene hiện tại bằng FXML mới và giữ kích thước chuẩn của ứng dụng.
     private void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
@@ -185,6 +200,7 @@ public class SellerProductController {
         stage.show();
     }
 
+    // Hiện popup cảnh báo khi input đăng bán không hợp lệ hoặc service báo lỗi.
     private void showWarning(String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Thông báo");
@@ -193,6 +209,7 @@ public class SellerProductController {
         alert.showAndWait();
     }
 
+    // Hiện popup thông tin khi seller gửi sản phẩm thành công.
     private void showInfo(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Thông báo");

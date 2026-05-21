@@ -100,25 +100,26 @@
                 <Insets bottom="22.0" left="0.0" right="24.0" top="24.0" />
             </padding>
 
-            <VBox spacing="14.0" styleClass="card">
+            <VBox spacing="14.0" styleClass="card,bid-panel-card">
                 <padding>
                     <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                 </padding>
                 <Label styleClass="page-subtitle" text="BID PANEL" />
-                <Label fx:id="winnerLabel" styleClass="field-value" text="Chua co nguoi dat gia" wrapText="true" />
+                <Label fx:id="bidPanelMessageLabel" styleClass="page-subtitle" text="" wrapText="true" />
+                <Label fx:id="winnerLabel" styleClass="field-value" text="Chưa có người đặt giá" wrapText="true" />
 
                 <GridPane hgap="10.0" vgap="8.0">
                     <Label styleClass="field-name" text="AUTO BID" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                     <Label fx:id="autoBidStatusLabel" styleClass="field-value" text="Chua cau hinh" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                 </GridPane>
 
-                <VBox spacing="8.0">
+                <VBox fx:id="placeBidBox" spacing="8.0">
                     <Label styleClass="field-name" text="PLACE BID" />
                     <TextField fx:id="bidAmountField" promptText="Nhap gia dat" styleClass="input" />
                     <Button fx:id="placeBidBtn" maxWidth="Infinity" mnemonicParsing="false" onAction="#onPlaceBidClick" styleClass="primary-button" text="Dat gia ->" />
                 </VBox>
 
-                <VBox spacing="8.0">
+                <VBox fx:id="autoBidBox" spacing="8.0">
                     <Label styleClass="field-name" text="AUTO BID MAX" />
                     <TextField fx:id="autoMaxField" promptText="Gia toi da" styleClass="input" />
                     <Button fx:id="activateAutobidBtn" maxWidth="Infinity" mnemonicParsing="false" onAction="#onActivateAutobidClick" styleClass="primary-button" text="Bat auto bid" />

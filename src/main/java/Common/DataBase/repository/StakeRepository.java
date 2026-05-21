@@ -24,7 +24,7 @@ public class StakeRepository {
             while (rs.next()) {
                 Stake s = new Stake();
                 s.setId(rs.getLong("id"));
-                s.setAution_id(rs.getLong("session_id"));
+                s.setAution_id(rs.getLong("auction_id"));
                 s.setLocked_item_id(rs.getLong("locked_item_id"));
                 s.setUser_id(rs.getLong("user_id"));
                 s.setAmount(rs.getLong("amount"));
@@ -72,7 +72,7 @@ public class StakeRepository {
 
     public void saveStake(Stake stake) {
         DbConnection db = new DbConnection(); // Biến db trong hàm
-        String sql = "INSERT INTO Stake (session_id, locked_item_id, user_id, amount, status) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Stake (auction_id, locked_item_id, user_id, amount, status) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, stake.getAution_id());
@@ -82,7 +82,7 @@ public class StakeRepository {
             ps.setString(5, stake.getStatus().toString());
             ps.executeUpdate();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -90,14 +90,14 @@ public class StakeRepository {
 
     }
 
-    public void updateStatus(long autionId, StakeStatus status) {
-        String sql = "UPDATE stake SET status = ? WHERE auction_id = ?";
+    public void updateStatus(long stakeId, StakeStatus status) {
+        String sql = "UPDATE stake SET status = ? WHERE id = ?";
 
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, status.name());
-            ps.setLong(2, autionId);
+            ps.setLong(2, stakeId);
 
             ps.executeUpdate();
 

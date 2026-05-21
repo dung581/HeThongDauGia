@@ -40,6 +40,7 @@ public class AdminItemManagementController {
     private int totalItems = 0;
     private boolean loading = false;
 
+    // JavaFX tự gọi sau khi load FXML: cấu hình bảng và tải danh sách toàn bộ item.
     @FXML
     public void initialize() {
         colId.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getId()));
@@ -57,15 +58,21 @@ public class AdminItemManagementController {
         loadAllItems();
     }
 
+    // Tải lại danh sách item từ trang đầu tiên.
     public void loadAllItems() {
         loadPageAsync(1);
     }
 
+    // Chuyển tới trang đầu tiên của bảng item.
     @FXML public void goFirstPage() { loadPageAsync(1); }
+    // Chuyển tới trang trước của bảng item.
     @FXML public void goPrevPage() { loadPageAsync(currentPage - 1); }
+    // Chuyển tới trang tiếp theo của bảng item.
     @FXML public void goNextPage() { loadPageAsync(currentPage + 1); }
+    // Chuyển tới trang cuối cùng của bảng item.
     @FXML public void goLastPage() { loadPageAsync(getTotalPages()); }
 
+    // Đọc số trang người dùng nhập và tải trang tương ứng.
     @FXML
     public void goToPage() {
         if (txtPageInput == null || txtPageInput.getText() == null) return;
@@ -77,10 +84,12 @@ public class AdminItemManagementController {
         }
     }
 
+    // Quay lại dashboard của Admin.
     public void backToAdminDashboard(ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/dashboard - Admin.fxml");
     }
 
+    // Đổ dữ liệu một trang lên TableView và cập nhật nhãn phân trang.
     private void renderPage(int page, List<Item> pageRows) {
         int totalPages = getTotalPages();
         if (page < 1) page = 1;
@@ -93,11 +102,13 @@ public class AdminItemManagementController {
         }
     }
 
+    // Tính tổng số trang dựa trên tổng item và kích thước trang.
     private int getTotalPages() {
         if (totalItems <= 0) return 1;
         return (totalItems + PAGE_SIZE - 1) / PAGE_SIZE;
     }
 
+    // Tải item theo trang trên background thread để không khóa UI.
     private void loadPageAsync(int requestedPage) {
         if (loading) return;
         loading = true;
@@ -105,6 +116,7 @@ public class AdminItemManagementController {
 
         Task<PageData> task = new Task<>() {
             @Override
+            // Hàm chạy trong background task: đếm và lấy toàn bộ item theo trang.
             protected PageData call() {
                 int total = itemService.countAll();
                 int totalPages = Math.max(1, (total + PAGE_SIZE - 1) / PAGE_SIZE);
@@ -136,6 +148,7 @@ public class AdminItemManagementController {
         private final int page;
         private final List<Item> rows;
 
+        // Gói dữ liệu trả về từ background task khi tải một trang item.
         private PageData(int totalItems, int page, List<Item> rows) {
             this.totalItems = totalItems;
             this.page = page;
@@ -143,6 +156,7 @@ public class AdminItemManagementController {
         }
     }
 
+    // Thay root scene hiện tại bằng FXML mới và giữ kích thước chuẩn của ứng dụng.
     private void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();

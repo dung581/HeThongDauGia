@@ -14,14 +14,7 @@ public class AutoBidService {
     private AutoBidRepository repo = new AutoBidRepository();
 
     public Autobid configure(long userId, long itemId, long maxPrice) {
-        Autobid ab = new Autobid();
-        ab.setUser_id(userId);
-        ab.setItem_id(itemId);
-        ab.setMax_price(maxPrice);
-        ab.set_active(false);
-
-        repo.saveAutobid(ab);
-        return ab;
+        return createAutobid(userId, itemId, maxPrice, false);
     }
 
     public void activate(long id) {
@@ -33,14 +26,17 @@ public class AutoBidService {
     }
 
     public Autobid configureAndActivate(long userId, long itemId, long maxPrice) {
-        Autobid autobid = configure(userId, itemId, maxPrice);
-        Autobid saved = getLatestByUserAndItem(userId, itemId)
-                .orElseThrow(() -> new RuntimeException("AutoBid not found"));
+        Optional<Autobid> latest = getLatestByUserAndItem(userId, itemId);
 
-        activate(saved.getId());
-        saved.setMax_price(maxPrice);
-        saved.set_active(true);
-        return saved;
+        if (latest.isPresent()) {
+            Autobid saved = latest.get();
+            repo.updateMaxAndActive(saved.getId(), maxPrice, true);
+            saved.setMax_price(maxPrice);
+            saved.set_active(true);
+            return saved;
+        }
+
+        return createAutobid(userId, itemId, maxPrice, true);
     }
 
     public void deactivateByUserAndItem(long userId, long itemId) {
@@ -54,6 +50,16 @@ public class AutoBidService {
                 .stream()
                 .filter(ab -> ab.getItem_id() == itemId)
                 .max(Comparator.comparingLong(Autobid::getId));
+    }
+
+    private Autobid createAutobid(long userId, long itemId, long maxPrice, boolean active) {
+        Autobid ab = new Autobid();
+        ab.setUser_id(userId);
+        ab.setItem_id(itemId);
+        ab.setMax_price(maxPrice);
+        ab.set_active(active);
+
+        return repo.saveAutobid(ab);
     }
 
     public void trigger(long itemId, long currentPrice) {
