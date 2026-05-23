@@ -14,6 +14,7 @@ import Server.Controller.model.SessionDetailData;
 import Server.service.AccountService;
 import Server.service.AuctionService;
 import Server.service.AutoBidService;
+import Server.service.AutoBidService.AutoBidActionResult;
 import Server.service.BidService;
 import Server.service.ItemService;
 import javafx.animation.KeyFrame;
@@ -55,6 +56,7 @@ public class SessionDetailController {
     // Các label hiển thị thông tin chính của phiên đấu giá trên màn session-detail.fxml.
     @FXML private Label itemNameLabel;
     @FXML private Label itemDescriptionLabel;
+    @FXML private Label minIncrementLabel;
     @FXML private Label sessionIdLabel;
     @FXML private Label itemIdLabel;
     @FXML private Label currentPriceLabel;
@@ -75,6 +77,7 @@ public class SessionDetailController {
     @FXML private Button placeBidBtn;
     @FXML private Button activateAutobidBtn;
     @FXML private Button deactivateAutobidBtn;
+    @FXML private Button refreshDataBtn;
 
     // Danh sách lịch sử đặt giá của item trong phiên hiện tại.
     @FXML private ListView<Bid> bidTable;
@@ -103,7 +106,10 @@ public class SessionDetailController {
     private Timeline countdownTimer;
     private Timeline autoRefreshTimer;
     private boolean autoRefreshRunning;
+    private boolean autoBidResumeRunning;
+    private boolean placeBidRunning;
     private long loadRequestToken;
+    private long autoBidStateVersion;
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
     private final DateTimeFormatter chartTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
@@ -168,9 +174,12 @@ public class SessionDetailController {
         }
 
         long requestToken = loadRequestToken;
+        long sessionId = session.getId();
         long itemId = session.getItem_id();
+        placeBidRunning = true;
         stopAutoRefresh();
         disableActions(true);
+        setText(bidPanelMessageLabel, "Đang đặt giá...");
         Task<Bid> task = new Task<>() {
             @Override
             // Hàm chạy trong background task: chỉ gửi lệnh đặt giá, không chờ refresh lại toàn màn.
@@ -180,24 +189,32 @@ public class SessionDetailController {
         };
 
         task.setOnSucceeded(event -> {
-            if (requestToken != loadRequestToken) {
+            placeBidRunning = false;
+            if (session == null || session.getId() != sessionId) {
                 return;
             }
             clearBidInput();
-            applyBidOptimistically(task.getValue());
+            setText(bidPanelMessageLabel, "Đặt giá thành công.");
+            if (requestToken == loadRequestToken) {
+                applyBidOptimistically(task.getValue());
+            }
             updateActionState();
             startAutoRefresh();
             refreshLiveDataSilently();
+            resumeAutoBidsSilently();
         });
 
         task.setOnFailed(event -> {
-            if (requestToken != loadRequestToken) {
+            placeBidRunning = false;
+            if (session == null || session.getId() != sessionId) {
                 return;
             }
             updateActionState();
             startAutoRefresh();
             Throwable error = task.getException();
-            AlertUtil.showError("Đặt giá thất bại: " + (error == null ? "" : error.getMessage()));
+            String message = "Đặt giá thất bại: " + (error == null ? "" : error.getMessage());
+            setText(bidPanelMessageLabel, message);
+            AlertUtil.showError(message);
         });
 
         Thread worker = new Thread(task, "place-bid");
@@ -214,8 +231,7 @@ public class SessionDetailController {
         }
         try {
             long maxPrice = parsePositiveLong(autoMaxField, "Giá tối đa auto bid không hợp lệ.");
-            autoBidService.configureAndActivate(UserAccount.getUserId(), session.getItem_id(), maxPrice);
-            refreshAutoBidStatus();
+            activateAutobidAsync(maxPrice);
         } catch (Exception e) {
             AlertUtil.showError("Bật auto bid thất bại: " + e.getMessage());
         }
@@ -229,11 +245,191 @@ public class SessionDetailController {
             return;
         }
         try {
-            autoBidService.deactivateByUserAndItem(UserAccount.getUserId(), session.getItem_id());
-            refreshAutoBidStatus();
+            deactivateAutobidAsync();
         } catch (Exception e) {
             AlertUtil.showError("Tắt auto bid thất bại: " + e.getMessage());
         }
+    }
+
+    // Bật auto bid trên background thread để thao tác DB không làm treo UI.
+    private void activateAutobidAsync(long maxPrice) {
+        if (session == null) {
+            AlertUtil.showError("Chưa tải được phiên đấu giá.");
+            return;
+        }
+
+        long requestToken = loadRequestToken;
+        long version = ++autoBidStateVersion;
+        long userId = UserAccount.getUserId();
+        long sessionId = session.getId();
+        long itemId = session.getItem_id();
+        long minIncrement = getEffectiveMinIncrement(item);
+        stopAutoRefresh();
+        disableActions(true);
+        setText(autoBidStatusLabel, "Dang xu ly...");
+
+        Task<Optional<Autobid>> task = new Task<>() {
+            @Override
+            protected Optional<Autobid> call() {
+                return autoBidService.configureAndGetLatest(userId, itemId, maxPrice);
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            if (requestToken != loadRequestToken || version != autoBidStateVersion) {
+                return;
+            }
+            setAutoBidStatus(task.getValue());
+            setText(bidPanelMessageLabel, "Auto bid đã bật.");
+            updateActionState();
+            startAutoRefresh();
+            refreshLiveDataSilently();
+            startImmediateAutobidCheckAsync(requestToken, version, userId, sessionId, itemId, minIncrement);
+        });
+
+        task.setOnFailed(event -> {
+            if (requestToken != loadRequestToken || version != autoBidStateVersion) {
+                return;
+            }
+            updateActionState();
+            startAutoRefresh();
+            Throwable error = task.getException();
+            AlertUtil.showError("Bật auto bid thất bại: " + (error == null ? "" : error.getMessage()));
+        });
+
+        Thread worker = new Thread(task, "activate-auto-bid");
+        worker.setDaemon(true);
+        worker.start();
+    }
+
+    // Tách phần đặt giá tự động ra task riêng để UI hiện trạng thái bật ngay, không chờ chuỗi autobid.
+    private void startImmediateAutobidCheckAsync(
+            long requestToken,
+            long version,
+            long userId,
+            long sessionId,
+            long itemId,
+            long minIncrement
+    ) {
+        Task<AutoBidActionResult> task = new Task<>() {
+            @Override
+            protected AutoBidActionResult call() {
+                return autoBidService.resumeForSessionAndGetLatest(userId, sessionId, itemId, minIncrement);
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            if (requestToken != loadRequestToken || version != autoBidStateVersion) {
+                return;
+            }
+            AutoBidActionResult result = task.getValue();
+            setAutoBidStatus(result.getAutobid());
+            if (result.getMessage() != null && !result.getMessage().isBlank()) {
+                setText(bidPanelMessageLabel, result.getMessage());
+            }
+            if (result.isImmediateBidPlaced()) {
+                refreshData();
+            } else {
+                refreshLiveDataSilently();
+            }
+        });
+
+        task.setOnFailed(event -> {
+            if (requestToken != loadRequestToken || version != autoBidStateVersion) {
+                return;
+            }
+            Throwable error = task.getException();
+            setText(bidPanelMessageLabel, "Auto bid đã bật nhưng chưa đặt được ngay"
+                    + (error == null || error.getMessage() == null ? "." : ": " + error.getMessage()));
+            refreshLiveDataSilently();
+        });
+
+        Thread worker = new Thread(task, "auto-bid-immediate-check");
+        worker.setDaemon(true);
+        worker.start();
+    }
+
+    // Khi mở/tải lại phiên, tiếp tục chuỗi autobid còn dang dở trong DB sau khi app bị tắt.
+    private void resumeAutoBidsSilently() {
+        if (autoBidResumeRunning || session == null || session.getState() != AuctionState.RUNNING) {
+            return;
+        }
+
+        long requestToken = loadRequestToken;
+        long sessionId = session.getId();
+        long itemId = session.getItem_id();
+        long minIncrement = getEffectiveMinIncrement(item);
+        autoBidResumeRunning = true;
+
+        Task<Boolean> task = new Task<>() {
+            @Override
+            protected Boolean call() {
+                return autoBidService.resumeForSession(sessionId, itemId, minIncrement);
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            autoBidResumeRunning = false;
+            if (requestToken != loadRequestToken || session == null || session.getId() != sessionId) {
+                return;
+            }
+            if (Boolean.TRUE.equals(task.getValue())) {
+                refreshLiveDataSilently();
+            }
+        });
+
+        task.setOnFailed(event -> autoBidResumeRunning = false);
+
+        Thread worker = new Thread(task, "auto-bid-resume");
+        worker.setDaemon(true);
+        worker.start();
+    }
+
+    // Tắt auto bid trên background thread để UI không bị khóa bởi query DB.
+    private void deactivateAutobidAsync() {
+        if (session == null) {
+            AlertUtil.showError("Chưa tải được phiên đấu giá.");
+            return;
+        }
+
+        long requestToken = loadRequestToken;
+        long version = ++autoBidStateVersion;
+        long userId = UserAccount.getUserId();
+        long itemId = session.getItem_id();
+        stopAutoRefresh();
+        disableActions(true);
+        setText(autoBidStatusLabel, "Dang xu ly...");
+
+        Task<Optional<Autobid>> task = new Task<>() {
+            @Override
+            protected Optional<Autobid> call() {
+                return autoBidService.deactivateAndGetLatest(userId, itemId);
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            if (requestToken != loadRequestToken || version != autoBidStateVersion) {
+                return;
+            }
+            setAutoBidStatus(task.getValue());
+            updateActionState();
+            startAutoRefresh();
+            refreshLiveDataSilently();
+        });
+
+        task.setOnFailed(event -> {
+            if (requestToken != loadRequestToken || version != autoBidStateVersion) {
+                return;
+            }
+            updateActionState();
+            startAutoRefresh();
+            Throwable error = task.getException();
+            AlertUtil.showError("Tắt auto bid thất bại: " + (error == null ? "" : error.getMessage()));
+        });
+
+        Thread worker = new Thread(task, "deactivate-auto-bid");
+        worker.setDaemon(true);
+        worker.start();
     }
 
     // Tải lại dữ liệu phiên, lịch sử bid, số dư và trạng thái auto bid.
@@ -273,6 +469,7 @@ public class SessionDetailController {
             applySessionDetailData(task.getValue());
             startCountdown();
             startAutoRefresh();
+            resumeAutoBidsSilently();
         });
 
         task.setOnFailed(event -> {
@@ -303,13 +500,12 @@ public class SessionDetailController {
         return fetchSessionDetailData(sessionId, null, true, Optional.empty());
     }
 
-    // Tải dữ liệu live sau khi đặt giá/auto-refresh, giữ lại item và auto bid đã biết để giảm query.
+    // Tải dữ liệu live sau khi đặt giá/auto-refresh, giữ lại item nhưng luôn lấy mới trạng thái auto bid.
     private SessionDetailData fetchLiveSessionDetailData(
             long sessionId,
-            Item knownItem,
-            Optional<Autobid> knownAutobid
+            Item knownItem
     ) {
-        return fetchSessionDetailData(sessionId, knownItem, false, knownAutobid);
+        return fetchSessionDetailData(sessionId, knownItem, true, Optional.empty());
     }
 
     // Gọi các service cần thiết, cho phép bỏ qua dữ liệu ít thay đổi trong các lần refresh nhanh.
@@ -400,9 +596,11 @@ public class SessionDetailController {
         if (item != null) {
             setText(itemNameLabel, item.getFullname());
             setText(itemDescriptionLabel, item.getDescription());
+            setText(minIncrementLabel, "Bước giá tối thiểu: " + formatMoney(getEffectiveMinIncrement(item)));
         } else {
             setText(itemNameLabel, "(Không tìm thấy vật phẩm)");
             setText(itemDescriptionLabel, "");
+            setText(minIncrementLabel, "");
         }
 
         if (session.getState() != AuctionState.RUNNING && session.getCurrent_user_id() > 0) {
@@ -591,6 +789,7 @@ public class SessionDetailController {
             String status = value.is_active() ? "Đang bật" : "Đang tắt";
             setText(autoBidStatusLabel, status + " - tối đa " + formatMoney(value.getMax_price()));
         }, () -> setText(autoBidStatusLabel, "Chưa cấu hình"));
+        updateActionState();
     }
 
     // Hiển thị trạng thái auto bid đã được tải sẵn trong SessionDetailData.
@@ -641,12 +840,11 @@ public class SessionDetailController {
         long sessionId = session.getId();
         long requestToken = loadRequestToken;
         Item currentItem = item;
-        Optional<Autobid> autobidSnapshot = currentAutobid;
         autoRefreshRunning = true;
         Task<SessionDetailData> task = new Task<>() {
             @Override
             protected SessionDetailData call() {
-                return fetchLiveSessionDetailData(sessionId, currentItem, autobidSnapshot);
+                return fetchLiveSessionDetailData(sessionId, currentItem);
             }
         };
 
@@ -696,7 +894,9 @@ public class SessionDetailController {
         disableActions(true);
 
         try {
-            auctionService.closeSession(session.getId());
+            if (!auctionService.closeIfExpired(session.getId())) {
+                return;
+            }
 
             WinnerController.setSessionId(session.getId());
             Node source = getAnyNode();
@@ -793,10 +993,15 @@ public class SessionDetailController {
 
     // Cập nhật trạng thái bật/tắt nút theo dữ liệu phiên và role.
     private void updateActionState() {
-        disableActions(session == null || !isBidder());
+        boolean disabled = session == null || !isBidder() || placeBidRunning;
+        disableActions(disabled);
+        if (!disabled && deactivateAutobidBtn != null) {
+            boolean autoBidActive = currentAutobid.isPresent() && currentAutobid.get().is_active();
+            deactivateAutobidBtn.setDisable(!autoBidActive);
+        }
     }
 
-    // Bật/tắt đồng loạt các nút có thể làm thay đổi phiên.
+    // Bật/tắt các nút có thể làm thay đổi phiên; nút tải lại vẫn mở để người dùng đồng bộ dữ liệu khi đang đặt giá.
     private void disableActions(boolean disabled) {
         if (placeBidBtn != null) {
             placeBidBtn.setDisable(disabled);
@@ -806,6 +1011,9 @@ public class SessionDetailController {
         }
         if (deactivateAutobidBtn != null) {
             deactivateAutobidBtn.setDisable(disabled);
+        }
+        if (refreshDataBtn != null) {
+            refreshDataBtn.setDisable(false);
         }
     }
 
@@ -831,6 +1039,11 @@ public class SessionDetailController {
     // Định dạng tiền có dấu phẩy ngăn cách hàng nghìn.
     private String formatMoney(long amount) {
         return String.format("%,d", amount);
+    }
+
+    // Item cũ có thể chưa có bước giá, fallback 1 để khớp BidService.
+    private long getEffectiveMinIncrement(Item item) {
+        return item == null || item.getMinIncrement() <= 0 ? 1L : item.getMinIncrement();
     }
 
     // Rút gọn số tiền trên trục biểu đồ để label không quá dài.

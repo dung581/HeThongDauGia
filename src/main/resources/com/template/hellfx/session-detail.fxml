@@ -52,6 +52,7 @@
             <VBox spacing="6.0">
                 <Label fx:id="itemNameLabel" styleClass="page-title" text="Session Detail" />
                 <Label fx:id="itemDescriptionLabel" styleClass="page-subtitle" text=" " wrapText="true" />
+                <Label fx:id="minIncrementLabel" styleClass="field-value" text=" " />
             </VBox>
 
             <HBox spacing="14.0">
@@ -147,7 +148,7 @@
                     <Button fx:id="deactivateAutobidBtn" maxWidth="Infinity" mnemonicParsing="false" onAction="#onDeactivateAutobidClick" styleClass="danger-button" text="Tat auto bid" />
                 </VBox>
 
-                <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#onRefreshClick" styleClass="secondary-button" text="Tai lai du lieu" />
+                <Button fx:id="refreshDataBtn" maxWidth="Infinity" mnemonicParsing="false" onAction="#onRefreshClick" styleClass="secondary-button" text="Tai lai du lieu" />
             </VBox>
         </VBox>
     </right>

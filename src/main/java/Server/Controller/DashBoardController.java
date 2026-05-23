@@ -318,7 +318,7 @@ public class DashBoardController {
 
         Task<AdminDashboardData> task = new Task<>() {
             @Override
-            // Hàm chạy trong background task: tổng hợp dữ liệu dashboard Admin.
+            // Controller gom dữ liệu dashboard bằng các service nhỏ đúng style project.
             protected AdminDashboardData call() {
                 List<Item> items = itemService.listAll();
                 List<Auction> sessions = auctionService.getAll();
@@ -446,7 +446,9 @@ public class DashBoardController {
         sessionId.getStyleClass().add("product-meta");
         Label itemId = new Label("Item #" + row.getItemId());
         itemId.getStyleClass().add("product-meta");
-        metaBox.getChildren().addAll(sessionId, itemId);
+        Label minStep = new Label("Buoc gia " + row.getMinIncrement());
+        minStep.getStyleClass().add("product-meta");
+        metaBox.getChildren().addAll(sessionId, itemId, minStep);
         textBox.getChildren().addAll(title, description, metaBox);
 
         Region spacer = new Region();
@@ -504,7 +506,9 @@ public class DashBoardController {
         Label description = new Label(nullToText(row.getDescription(), "Khong co mo ta"));
         description.getStyleClass().add("product-description");
         description.setWrapText(true);
-        Label meta = new Label("Phien #" + row.getSessionId() + " | Leader " + row.getLeader());
+        Label meta = new Label("Phien #" + row.getSessionId()
+                + " | Leader " + row.getLeader()
+                + " | Buoc gia " + row.getMinIncrement());
         meta.getStyleClass().add("data-meta");
         main.getChildren().addAll(title, description, meta);
 
@@ -537,7 +541,9 @@ public class DashBoardController {
         Label description = new Label(nullToText(row.getDescription(), "Khong co mo ta"));
         description.getStyleClass().add("product-description");
         description.setWrapText(true);
-        Label meta = new Label("Winner " + row.getWinner() + " | Phien #" + row.getSessionId());
+        Label meta = new Label("Winner " + row.getWinner()
+                + " | Phien #" + row.getSessionId()
+                + " | Buoc gia " + row.getMinIncrement());
         meta.getStyleClass().add("data-meta");
         main.getChildren().addAll(title, description, meta);
 
@@ -572,6 +578,7 @@ public class DashBoardController {
         if (showOwner && row.getOwner() != null && !row.getOwner().isBlank()) {
             metaText += " | Seller #" + row.getOwner();
         }
+        metaText += " | Buoc gia " + row.getMinIncrement();
         Label meta = new Label(metaText);
         meta.getStyleClass().add("data-meta");
         main.getChildren().addAll(title, description, meta);
@@ -600,7 +607,7 @@ public class DashBoardController {
 
         Task<SellerDashboardData> task = new Task<>() {
             @Override
-            // Hàm chạy trong background task: tổng hợp dữ liệu dashboard Seller.
+            // Controller quyết định màn Seller cần dữ liệu gì, service chỉ cung cấp danh sách gốc.
             protected SellerDashboardData call() {
                 long sellerId = UserAccount.getUserId();
                 List<Item> items = itemService.listByOwner(sellerId);
@@ -676,14 +683,21 @@ public class DashBoardController {
         }
     }
 
-    // Kiểm tra một phiên có đang chạy thực sự hay không dựa trên state và thời gian kết thúc.
+    // Helper cho dashboard: phiên live là RUNNING và chưa quá end_time.
     private boolean isLiveSession(Auction session) {
         return session.getState() == AuctionState.RUNNING
                 && session.getEndTime() != null
                 && session.getEndTime().isAfter(LocalDateTime.now());
     }
 
-    // Chuyển state của phiên sang chuỗi dễ đọc trên UI.
+    // Helper cho dashboard: phiên ended là không RUNNING hoặc đã quá end_time.
+    private boolean isEndedSession(Auction session) {
+        return session.getState() != AuctionState.RUNNING
+                || session.getEndTime() == null
+                || !session.getEndTime().isAfter(LocalDateTime.now());
+    }
+
+    // Đổi trạng thái session thành text ngắn để render ở dashboard.
     private String displaySessionStatus(Auction session) {
         if (session.getState() == AuctionState.RUNNING && !isLiveSession(session)) {
             return "ENDED";
@@ -691,33 +705,7 @@ public class DashBoardController {
         return session.getState() == null ? "" : session.getState().name();
     }
 
-    // Tìm tên item theo itemId trong danh sách item đã tải.
-    private String findItemName(List<Item> items, long itemId) {
-        if (items == null) {
-            return "Item " + itemId;
-        }
-        return items.stream()
-                .filter(item -> item.getId() == itemId)
-                .map(Item::getFullname)
-                .filter(name -> name != null && !name.isBlank())
-                .findFirst()
-                .orElse("Item " + itemId);
-    }
-
-    // Tìm mô tả item theo itemId trong danh sách item đã tải.
-    private String findItemDescription(List<Item> items, long itemId) {
-        if (items == null) {
-            return "Khong co mo ta";
-        }
-        return items.stream()
-                .filter(item -> item.getId() == itemId)
-                .map(Item::getDescription)
-                .filter(description -> description != null && !description.isBlank())
-                .findFirst()
-                .orElse("Khong co mo ta");
-    }
-
-    // Chuyển entity Auction thành dòng hiển thị tổng quan phiên.
+    // Tạo row tổng quan phiên từ dữ liệu service trả về.
     private SessionOverviewRow toSessionOverviewRow(Auction session, List<Item> items) {
         String leader = session.getCurrent_user_id() == 0 ? "-" : String.valueOf(session.getCurrent_user_id());
         return new SessionOverviewRow(
@@ -726,12 +714,13 @@ public class DashBoardController {
                 findItemName(items, session.getItem_id()),
                 findItemDescription(items, session.getItem_id()),
                 formatMoney(session.getCurrent_price()),
+                findItemMinIncrement(items, session.getItem_id()),
                 leader,
                 displaySessionStatus(session)
         );
     }
 
-    // Chuyển entity Item thành dòng hiển thị tổng quan item.
+    // Tạo row tổng quan item cho ListView dashboard.
     private ItemOverviewRow toItemOverviewRow(Item item, boolean includeOwner) {
         return new ItemOverviewRow(
                 item.getId(),
@@ -739,11 +728,45 @@ public class DashBoardController {
                 nullToText(item.getDescription(), "Khong co mo ta"),
                 includeOwner ? String.valueOf(item.getOwner_user_id()) : "",
                 formatMoney(item.getBeginPrice()),
+                formatMoney(getEffectiveMinIncrement(item)),
                 item.getStatus() == null ? "" : item.getStatus().name()
         );
     }
 
-    // Chuyển phiên đã thắng thành một thanh sản phẩm trên dashboard Bidder.
+    // Tạo row phiên live của Bidder; nếu user đang dẫn thì hiển thị "Ban".
+    private LiveSessionRow toLiveSessionRow(Auction session, long userId, List<Item> items) {
+        String leader = session.getCurrent_user_id() == 0
+                ? "-"
+                : session.getCurrent_user_id() == userId ? "Ban" : String.valueOf(session.getCurrent_user_id());
+        return new LiveSessionRow(
+                session.getId(),
+                findItemName(items, session.getItem_id()),
+                findItemDescription(items, session.getItem_id()),
+                formatMoney(session.getCurrent_price()),
+                findItemMinIncrement(items, session.getItem_id()),
+                leader,
+                session.getEndTime()
+        );
+    }
+
+    // Tạo row phiên ended của Bidder; nếu user thắng/dẫn cuối thì hiển thị "Ban".
+    private EndedSessionRow toEndedSessionRow(Auction session, long userId, List<Item> items) {
+        String winner = session.getCurrent_user_id() == 0
+                ? "-"
+                : session.getCurrent_user_id() == userId ? "Ban" : String.valueOf(session.getCurrent_user_id());
+        String status = session.getState() == AuctionState.RUNNING ? "ENDED" : session.getState().name();
+        return new EndedSessionRow(
+                session.getId(),
+                findItemName(items, session.getItem_id()),
+                findItemDescription(items, session.getItem_id()),
+                formatMoney(session.getCurrent_price()),
+                findItemMinIncrement(items, session.getItem_id()),
+                winner,
+                status
+        );
+    }
+
+    // Tạo row sản phẩm Bidder đã thắng để render ở khu owned products.
     private OwnedProductRow toOwnedProductRow(Auction session, List<Item> items) {
         Item item = findItem(items, session.getItem_id());
         String itemName = item == null || item.getFullname() == null || item.getFullname().isBlank()
@@ -763,7 +786,43 @@ public class DashBoardController {
         );
     }
 
-    // Tìm item theo id trong danh sách đã tải sẵn.
+    // Tìm tên item theo itemId trong danh sách đã load sẵn.
+    private String findItemName(List<Item> items, long itemId) {
+        if (items == null) {
+            return "Item " + itemId;
+        }
+        return items.stream()
+                .filter(item -> item.getId() == itemId)
+                .map(Item::getFullname)
+                .filter(name -> name != null && !name.isBlank())
+                .findFirst()
+                .orElse("Item " + itemId);
+    }
+
+    // Tìm mô tả item theo itemId trong danh sách đã load sẵn.
+    private String findItemDescription(List<Item> items, long itemId) {
+        if (items == null) {
+            return "Khong co mo ta";
+        }
+        return items.stream()
+                .filter(item -> item.getId() == itemId)
+                .map(Item::getDescription)
+                .filter(description -> description != null && !description.isBlank())
+                .findFirst()
+                .orElse("Khong co mo ta");
+    }
+
+    // Tìm bước giá tối thiểu, fallback 1 cho dữ liệu cũ chưa có minIncrement.
+    private String findItemMinIncrement(List<Item> items, long itemId) {
+        return formatMoney(getEffectiveMinIncrement(findItem(items, itemId)));
+    }
+
+    // Chuẩn hóa minIncrement cho dữ liệu cũ.
+    private long getEffectiveMinIncrement(Item item) {
+        return item == null || item.getMinIncrement() <= 0 ? 1L : item.getMinIncrement();
+    }
+
+    // Tìm item theo id trong list đã có để không query lặp.
     private Item findItem(List<Item> items, long itemId) {
         if (items == null) {
             return null;
@@ -787,7 +846,7 @@ public class DashBoardController {
 
         Task<BidderDashboardData> task = new Task<>() {
             @Override
-            // Hàm chạy trong background task: tổng hợp số dư, stake và phiên của Bidder.
+            // Controller gom dữ liệu cho màn Bidder từ các service chức năng.
             protected BidderDashboardData call() {
                 long userId = UserAccount.getUserId();
                 Account account = accountService.getBalance(userId);
@@ -795,10 +854,10 @@ public class DashBoardController {
                 List<Auction> allSessions = auctionService.getAll();
                 List<Item> allItems = itemService.listAll();
                 List<Auction> liveSessions = allSessions.stream()
-                        .filter(this::isLiveSession)
+                        .filter(DashBoardController.this::isLiveSession)
                         .toList();
                 List<Auction> endedSessions = allSessions.stream()
-                        .filter(this::isEndedSession)
+                        .filter(DashBoardController.this::isEndedSession)
                         .toList();
 
                 long lockedStakeCount = stakes.stream()
@@ -825,7 +884,7 @@ public class DashBoardController {
                         .filter(session -> session.getState() != AuctionState.CANCELED)
                         .sorted(Comparator.comparing(Auction::getEndTime, Comparator.nullsLast(Comparator.reverseOrder())))
                         .limit(8)
-                        .map(session -> DashBoardController.this.toOwnedProductRow(session, allItems))
+                        .map(session -> toOwnedProductRow(session, allItems))
                         .toList();
 
                 long total = account.getBalance();
@@ -841,51 +900,6 @@ public class DashBoardController {
                         liveRows,
                         endedRows,
                         ownedProducts
-                );
-            }
-
-            // Kiểm tra phiên live trong phạm vi dữ liệu tải của Bidder.
-            private boolean isLiveSession(Auction session) {
-                return session.getState() == AuctionState.RUNNING
-                        && session.getEndTime() != null
-                        && session.getEndTime().isAfter(LocalDateTime.now());
-            }
-
-            // Kiểm tra phiên đã kết thúc trong phạm vi dữ liệu tải của Bidder.
-            private boolean isEndedSession(Auction session) {
-                return session.getState() != AuctionState.RUNNING
-                        || session.getEndTime() == null
-                        || !session.getEndTime().isAfter(LocalDateTime.now());
-            }
-
-            // Chuyển Auction đang chạy thành dòng hiển thị trong bảng live sessions.
-            private LiveSessionRow toLiveSessionRow(Auction session, long userId, List<Item> items) {
-                String leader = session.getCurrent_user_id() == 0
-                        ? "-"
-                        : session.getCurrent_user_id() == userId ? "Ban" : String.valueOf(session.getCurrent_user_id());
-                return new LiveSessionRow(
-                        session.getId(),
-                        findItemName(items, session.getItem_id()),
-                        findItemDescription(items, session.getItem_id()),
-                        formatMoney(session.getCurrent_price()),
-                        leader,
-                        session.getEndTime()
-                );
-            }
-
-            // Chuyển Auction đã kết thúc thành dòng hiển thị trong bảng ended sessions.
-            private EndedSessionRow toEndedSessionRow(Auction session, long userId, List<Item> items) {
-                String winner = session.getCurrent_user_id() == 0
-                        ? "-"
-                        : session.getCurrent_user_id() == userId ? "Ban" : String.valueOf(session.getCurrent_user_id());
-                String status = session.getState() == AuctionState.RUNNING ? "ENDED" : session.getState().name();
-                return new EndedSessionRow(
-                        session.getId(),
-                        findItemName(items, session.getItem_id()),
-                        findItemDescription(items, session.getItem_id()),
-                        formatMoney(session.getCurrent_price()),
-                        winner,
-                        status
                 );
             }
 

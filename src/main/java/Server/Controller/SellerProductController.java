@@ -36,6 +36,7 @@ public class SellerProductController {
 
     @FXML private TextField itemName;
     @FXML private TextField itemPrice;
+    @FXML private TextField itemMinIncrement;
     @FXML private TextField itemDescription;
 
     @FXML private ListView<Item> table;
@@ -90,9 +91,11 @@ public class SellerProductController {
         HBox meta = new HBox(10.0);
         Label id = new Label("ID #" + item.getId());
         id.getStyleClass().add("data-meta");
+        Label minStep = new Label("Buoc gia " + formatMoney(getEffectiveMinIncrement(item)));
+        minStep.getStyleClass().add("data-meta");
         Label description = new Label(nullToText(item.getDescription(), ""));
         description.getStyleClass().add("data-meta");
-        meta.getChildren().addAll(id, description);
+        meta.getChildren().addAll(id, minStep, description);
         main.getChildren().addAll(title, note, meta);
 
         Region spacer = new Region();
@@ -100,7 +103,7 @@ public class SellerProductController {
 
         VBox value = new VBox(6.0);
         value.setAlignment(Pos.CENTER_RIGHT);
-        Label price = new Label(String.format("%,d", item.getBeginPrice()));
+        Label price = new Label(formatMoney(item.getBeginPrice()));
         price.getStyleClass().add("data-money");
         Label status = new Label(item.getStatus() == null ? "" : item.getStatus().name());
         status.getStyleClass().add("data-pill");
@@ -209,6 +212,7 @@ public class SellerProductController {
                 String.valueOf(item.getId()),
                 item.getFullname() == null ? "" : item.getFullname(),
                 String.valueOf(item.getBeginPrice()),
+                String.valueOf(getEffectiveMinIncrement(item)),
                 item.getStatus() == null ? "" : item.getStatus().name(),
                 item.getDescription() == null ? "" : item.getDescription(),
                 item.getMota() == null ? "" : item.getMota()
@@ -227,7 +231,8 @@ public class SellerProductController {
         try {
             String name = itemName.getText() == null ? "" : itemName.getText().trim();
             String desc = itemDescription.getText() == null ? "" : itemDescription.getText().trim();
-            long price = Long.parseLong(itemPrice.getText().trim());
+            long price = parsePositiveLong(itemPrice, "Giá khởi điểm không hợp lệ.");
+            long minIncrement = parsePositiveLong(itemMinIncrement, "Bước giá tối thiểu không hợp lệ.");
 
             if (name.isEmpty()) {
                 showWarning("Vui lòng nhập tên sản phẩm.");
@@ -239,17 +244,19 @@ public class SellerProductController {
             item.setOwner_user_id(UserAccount.getUserId());
             item.setDescription(desc);
             item.setBeginPrice(price);
-            item.setMota("Chờ duyệt");
+            item.setMinIncrement(minIncrement);
 
+            // ItemService tự set trạng thái PENDING và mô tả duyệt mặc định.
             itemService.upload(item);
             showInfo("Đã gửi yêu cầu đăng bán. Chờ admin duyệt.");
 
             itemName.clear();
             itemPrice.clear();
+            itemMinIncrement.clear();
             itemDescription.clear();
             loadMyItems();
-        } catch (NumberFormatException e) {
-            showWarning("Giá không hợp lệ.");
+        } catch (IllegalArgumentException e) {
+            showWarning(e.getMessage());
         } catch (Exception e) {
             showWarning("Đăng bán thất bại: " + e.getMessage());
         }
@@ -290,5 +297,31 @@ public class SellerProductController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    // Đọc số tiền/số bước giá bắt buộc là số nguyên dương.
+    private long parsePositiveLong(TextField field, String message) {
+        String raw = field == null || field.getText() == null ? "" : field.getText().trim();
+        if (raw.isEmpty()) {
+            throw new IllegalArgumentException(message);
+        }
+        try {
+            long value = Long.parseLong(raw);
+            if (value <= 0) {
+                throw new IllegalArgumentException(message);
+            }
+            return value;
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
+    // Item cũ có thể chưa có minIncrement trong DB, fallback 1 giống BidService.
+    private long getEffectiveMinIncrement(Item item) {
+        return item == null || item.getMinIncrement() <= 0 ? 1L : item.getMinIncrement();
+    }
+
+    private String formatMoney(long amount) {
+        return String.format("%,d", amount);
     }
 }

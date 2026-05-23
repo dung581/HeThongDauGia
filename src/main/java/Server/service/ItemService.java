@@ -11,6 +11,13 @@ public class ItemService {
     private final ItemRepository repo = new ItemRepository();
 
     public Item upload(Item item) {
+        if (item.getBeginPrice() <= 0) {
+            throw new RuntimeException("Begin price must be greater than 0");
+        }
+        if (item.getMinIncrement() <= 0) {
+            throw new RuntimeException("Min increment must be greater than 0");
+        }
+        // Mọi item seller upload đều đi qua trạng thái chờ duyệt, controller không tự set rule này.
         item.setStatus(ItemStatus.PENDING);
         if (item.getDescription() == null) {
             item.setDescription("");
