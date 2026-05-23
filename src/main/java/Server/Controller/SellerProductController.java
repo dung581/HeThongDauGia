@@ -116,6 +116,7 @@ public class SellerProductController {
     }
 
     // Tải lại toàn bộ danh sách sản phẩm của seller, bảng tự cuộn nên không cần phân trang.
+    @FXML
     public void loadMyItems() {
         loadItemsAsync();
     }
@@ -221,6 +222,7 @@ public class SellerProductController {
     }
 
     // Xử lý form đăng bán: đọc input, tạo Item và gửi yêu cầu upload qua ItemService.
+    @FXML
     public void submitItem() {
         try {
             String name = itemName.getText() == null ? "" : itemName.getText().trim();
@@ -254,6 +256,7 @@ public class SellerProductController {
     }
 
     // Quay lại dashboard của Seller.
+    @FXML
     public void backToSellerDashboard(ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/dashboard - Seller.fxml");
     }

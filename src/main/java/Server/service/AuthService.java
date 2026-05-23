@@ -5,9 +5,8 @@ import Common.DataBase.entities.User;
 import Common.DataBase.repository.AccountRepository;
 import Common.DataBase.repository.UserRepository;
 import Common.Enum.UserRole;
+import Common.util.PasswordUtil;
 import Server.service.Exceptions.*;
-
-import java.util.Objects;
 
 public class AuthService {
 
@@ -34,13 +33,25 @@ public class AuthService {
             throw new PasswordIsBlankException(ReturnMessage.PASSWORD_IS_BLANK);
         }
 
-        User user = userRepository.findByUsername(username.trim());
+        User user;
+        try {
+            user = userRepository.findByUsername(username.trim());
+        } catch (RuntimeException e) {
+            throw new DataAccessException(ReturnMessage.DATA_ACCESS, e);
+        }
         if (user == null) {
             throw new UserNotFoundException(ReturnMessage.USER_NOT_FOUND);
         }
 
-        if (!Objects.equals(user.getPassword(), password)) {
+        if (!PasswordUtil.verify(password, user.getPassword())) {
             throw new WrongPasswordException(ReturnMessage.WRONG_PASSWORD);
+        }
+        if (!PasswordUtil.isBCryptHash(user.getPassword())) {
+            try {
+                userRepository.updatePassword(user.getId(), PasswordUtil.hash(password));
+            } catch (RuntimeException e) {
+                throw new DataAccessException(ReturnMessage.DATA_ACCESS, e);
+            }
         }
 
         return user;
@@ -61,23 +72,38 @@ public class AuthService {
         }
 
         String normalizedUsername = username.trim();
-        if (userRepository.existsByUsername(normalizedUsername)) {
-            throw new UsernameAlreadyExistsException(ReturnMessage.USERNAME_ALREADY_EXISTS);
+        try {
+            if (userRepository.existsByUsername(normalizedUsername)) {
+                throw new UsernameAlreadyExistsException(ReturnMessage.USERNAME_ALREADY_EXISTS);
+            }
+        } catch (UsernameAlreadyExistsException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw new DataAccessException(ReturnMessage.DATA_ACCESS, e);
         }
 
         User user = new User();
         user.setUsername(normalizedUsername);
-        user.setPassword(password);
+        user.setPassword(PasswordUtil.hash(password));
         user.setRole(role == null ? UserRole.BIDDER : role);
         user.setFullname(isBlank(fullname) ? normalizedUsername : fullname.trim());
 
-        User created = userRepository.createUser(user);
+        User created;
+        try {
+            created = userRepository.createUser(user);
+        } catch (RuntimeException e) {
+            throw new DataAccessException(ReturnMessage.DATA_ACCESS, e);
+        }
 
         Account account = new Account();
         account.setUser_id(created.getId());
         account.setBalance(1000_000_000_000L);
         account.setLocked_balance(0L);
-        accountRepository.CreateAccount(account);
+        try {
+            accountRepository.CreateAccount(account);
+        } catch (RuntimeException e) {
+            throw new DataAccessException(ReturnMessage.DATA_ACCESS, e);
+        }
 
         return created;
     }

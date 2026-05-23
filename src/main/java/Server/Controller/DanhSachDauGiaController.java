@@ -126,6 +126,10 @@ public class DanhSachDauGiaController {
         Label title = new Label(itemNameById.getOrDefault(auction.getItem_id(), "Item " + auction.getItem_id()));
         title.getStyleClass().add("data-title");
         title.setWrapText(true);
+        Item itemData = itemById.get(auction.getItem_id());
+        Label description = new Label(itemData == null ? "Khong co mo ta" : nullToText(itemData.getDescription(), "Khong co mo ta"));
+        description.getStyleClass().add("product-description");
+        description.setWrapText(true);
         HBox meta = new HBox(10.0);
         meta.setAlignment(Pos.CENTER_LEFT);
         Label session = new Label("Phien #" + auction.getId());
@@ -135,7 +139,7 @@ public class DanhSachDauGiaController {
         Label time = new Label(formatTimeRange(auction));
         time.getStyleClass().add("data-meta");
         meta.getChildren().addAll(session, item, time);
-        titleBox.getChildren().addAll(title, meta);
+        titleBox.getChildren().addAll(title, description, meta);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -309,17 +313,20 @@ public class DanhSachDauGiaController {
         return auction.getState() != null && auction.getState().name().equals(selectedState);
     }
 
-    // Kiểm tra từ khóa tìm kiếm theo ID phiên, ID item, tên item và leader.
+    // Kiểm tra từ khóa tìm kiếm theo ID phiên, ID item, tên/mô tả item và leader.
     private boolean matchesSearch(Auction auction, String query) {
         if (query.isEmpty()) {
             return true;
         }
 
         String itemName = itemNameById.getOrDefault(auction.getItem_id(), "");
+        Item item = itemById.get(auction.getItem_id());
+        String description = item == null ? "" : item.getDescription();
         String target = String.join(" ",
                 String.valueOf(auction.getId()),
                 String.valueOf(auction.getItem_id()),
                 itemName,
+                description == null ? "" : description,
                 String.valueOf(auction.getCurrent_user_id()),
                 auction.getState() == null ? "" : auction.getState().name()
         );
@@ -331,7 +338,13 @@ public class DanhSachDauGiaController {
         return value == null ? "" : value.toLowerCase(Locale.ROOT).trim();
     }
 
+    // Trả chuỗi dự phòng khi dữ liệu null/rỗng.
+    private String nullToText(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value;
+    }
+
     // Quay lại dashboard đúng với role hiện tại.
+    @FXML
     public void trolai(ActionEvent actionEvent) throws IOException {
         UserRole role = UserAccount.getCurrentRole();
         if (role == UserRole.ADMIN) {

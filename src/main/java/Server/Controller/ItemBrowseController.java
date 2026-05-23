@@ -148,6 +148,7 @@ public class    ItemBrowseController {
     }
 
     // Tải dữ liệu item theo bộ lọc trạng thái và giới hạn dữ liệu theo role hiện tại.
+    @FXML
     public void loadData(){
         try {
             String filter = (statusFilter == null || statusFilter.getValue() == null) ? ItemStatus.PENDING.name() : statusFilter.getValue();
@@ -199,6 +200,7 @@ public class    ItemBrowseController {
     }
 
     // Admin bấm Approve: duyệt item PENDING và tạo luôn phiên đấu giá theo số giờ nhập.
+    @FXML
     public void onApprove() {
         if (!requireAdmin()) return;
 
@@ -240,6 +242,7 @@ public class    ItemBrowseController {
     }
 
     // Admin bấm Reject: từ chối item PENDING và lưu lý do phản hồi.
+    @FXML
     public void onReject() {
         if(!requireAdmin()) return;
 
@@ -267,6 +270,7 @@ public class    ItemBrowseController {
     }
 
     // Với item đã APPROVED, Admin mở phiên đấu giá mới theo số giờ nhập.
+    @FXML
     public void onCreateSession(){
         if (!requireAdmin()) return;
 
@@ -303,6 +307,7 @@ public class    ItemBrowseController {
     }
 
     // Trở về dashboard phù hợp với role hiện tại.
+    @FXML
     public void onBack(ActionEvent actionEvent) throws IOException {
         UserRole role = UserAccount.getCurrentRole();
         String target;

@@ -100,22 +100,6 @@ public class ItemRepository {
         }
     }
 
-    public void updateStatus(long id, ItemStatus status) {
-        String sql = "UPDATE item SET status = ? WHERE id = ?";
-        try (Connection conn = db.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, status.name());
-            ps.setLong(2, id);
-
-            int rows = ps.executeUpdate();
-            if (rows == 0) {
-                throw new RuntimeException("Item not found, id =" + id);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public void rejectWithReason(long id, String reason) {
         String sql = "UPDATE item SET status = ?, mota = ? WHERE id = ?";
         try (Connection conn = db.getConnection();
@@ -171,81 +155,4 @@ public class ItemRepository {
         return list;
     }
 
-    public List<Item> getAllPaged(int limit, int offset) {
-        List<Item> items = new ArrayList<>();
-        String sql = "SELECT * FROM item ORDER BY id DESC LIMIT ? OFFSET ?";
-        try (Connection conn = db.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, limit);
-            ps.setInt(2, offset);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                items.add(map(rs));
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return items;
-    }
-
-    public List<Item> getByOwnerUserIdPaged(long ownerUserId, int limit, int offset) {
-        List<Item> items = new ArrayList<>();
-        String sql = "SELECT * FROM item WHERE owner_user_id = ? ORDER BY id DESC LIMIT ? OFFSET ?";
-        try (Connection conn = db.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setLong(1, ownerUserId);
-            ps.setInt(2, limit);
-            ps.setInt(3, offset);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                items.add(map(rs));
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return items;
-    }
-
-    public int countAll() {
-        String sql = "SELECT COUNT(*) FROM item";
-        try (Connection conn = db.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-            return 0;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public int countByOwnerUserId(long ownerUserId) {
-        String sql = "SELECT COUNT(*) FROM item WHERE owner_user_id = ?";
-        try (Connection conn = db.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setLong(1, ownerUserId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-            return 0;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void deleteById(long id) {
-        String sql = "DELETE FROM item WHERE id = ?";
-        try (Connection conn = db.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setLong(1, id);
-            int rows = ps.executeUpdate();
-            if (rows == 0) {
-                throw new RuntimeException("Item not found, id =" + id);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

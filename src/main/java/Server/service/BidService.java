@@ -74,12 +74,6 @@ public class BidService {
         return b;
     }
 
-    public List<Bid> getHistory(long itemId) {
-        List<Bid> bids = bidRepo.getByItemId(itemId);
-        bids.sort(Comparator.comparingLong(Bid::getPrice).reversed());
-        return bids;
-    }
-
     public List<Bid> getHistoryBySession(long sessionId) {
         List<Bid> bids = bidRepo.getBySessionId(sessionId);
         bids.sort(Comparator.comparingLong(Bid::getPrice).reversed());

@@ -63,39 +63,6 @@ public class ItemService {
         return repo.getAllItem();
     }
 
-    public List<Item> listAllPaged(int page, int pageSize) {
-        int safePage = Math.max(page, 1);
-        int safeSize = Math.max(pageSize, 1);
-        int offset = (safePage - 1) * safeSize;
-        return repo.getAllPaged(safeSize, offset);
-    }
-
-    public List<Item> listByOwnerPaged(long ownerUserId, int page, int pageSize) {
-        int safePage = Math.max(page, 1);
-        int safeSize = Math.max(pageSize, 1);
-        int offset = (safePage - 1) * safeSize;
-        return repo.getByOwnerUserIdPaged(ownerUserId, safeSize, offset);
-    }
-
-    public int countAll() {
-        return repo.countAll();
-    }
-
-    public int countByOwner(long ownerUserId) {
-        return repo.countByOwnerUserId(ownerUserId);
-    }
-
-    public void markSold(long itemId) {
-        Item item = repo.getItemById(itemId);
-
-        if (item == null) {
-            throw new RuntimeException("Item not found");
-        }
-
-        item.setStatus(ItemStatus.SOLD);
-        repo.update(item);
-    }
-
     public Item getById(long itemId) {
         Item item = repo.getItemById(itemId);
 
@@ -104,16 +71,5 @@ public class ItemService {
         }
 
         return item;
-    }
-
-    public void deleteById(long itemId) {
-        Item item = repo.getItemById(itemId);
-        if (item == null) {
-            throw new RuntimeException("Item not found");
-        }
-        if (item.getStatus() == ItemStatus.IN_AUCTION || item.getStatus() == ItemStatus.SOLD) {
-            throw new RuntimeException("Khong the xoa san pham dang dau gia hoac da ban");
-        }
-        repo.deleteById(itemId);
     }
 }

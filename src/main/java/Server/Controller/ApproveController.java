@@ -117,6 +117,7 @@ public class ApproveController {
     }
 
     // Xử lý nút chấp nhận: lần đầu mở form thời gian, lần tiếp theo thực hiện duyệt.
+    @FXML
     public void onChapNhan() {
         if (actionMode != ActionMode.APPROVE) {
             actionMode = ActionMode.APPROVE;
@@ -158,6 +159,7 @@ public class ApproveController {
     }
 
     // Xử lý nút từ chối: lần đầu mở form nhập lý do, lần tiếp theo thực hiện từ chối.
+    @FXML
     public void onTuChoi() {
         if (actionMode != ActionMode.REJECT) {
             actionMode = ActionMode.REJECT;
@@ -188,6 +190,7 @@ public class ApproveController {
     }
 
     // Quay lại dashboard của Admin.
+    @FXML
     public void trolai(ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/dashboard - Admin.fxml");
     }

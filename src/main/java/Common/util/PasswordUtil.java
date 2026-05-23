@@ -2,23 +2,27 @@ package Common.util;
 
 import org.mindrot.jbcrypt.BCrypt;
 
-public class PasswordUtil {
+public final class PasswordUtil {
 
-    /**
-     * Băm mật khẩu (Dùng khi Đăng ký)
-     */
+    private PasswordUtil() {
+    }
+
     public static String hash(String plainPassword) {
-        // Tạo chuỗi salt ngẫu nhiên và băm mật khẩu
         return BCrypt.hashpw(plainPassword, BCrypt.gensalt());
     }
 
-    /**
-     * Kiểm tra mật khẩu (Dùng khi Đăng nhập)
-     */
-    public static boolean verify(String plainPassword, String hashedPassword) {
-        if (hashedPassword == null || !hashedPassword.startsWith("$2a$")) {
-            return false; // Tránh lỗi nếu DB đang chứa mật khẩu chưa mã hóa
+    public static boolean verify(String plainPassword, String storedPassword) {
+        if (plainPassword == null || storedPassword == null) {
+            return false;
         }
-        return BCrypt.checkpw(plainPassword, hashedPassword);
+        if (isBCryptHash(storedPassword)) {
+            return BCrypt.checkpw(plainPassword, storedPassword);
+        }
+        return plainPassword.equals(storedPassword);
+    }
+
+    public static boolean isBCryptHash(String value) {
+        return value != null
+                && (value.startsWith("$2a$") || value.startsWith("$2b$") || value.startsWith("$2y$"));
     }
 }

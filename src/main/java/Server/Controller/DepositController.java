@@ -85,6 +85,7 @@ public class DepositController {
     }
 
     // Xử lý nút xác nhận nạp tiền: đọc input, validate số tiền rồi gọi AccountService.deposit.
+    @FXML
     public void onConfirmDeposit() {
         String raw = depositAmountField == null ? "" : depositAmountField.getText();
         if (raw == null) raw = "";
@@ -120,6 +121,7 @@ public class DepositController {
     }
 
     // Quay về dashboard đúng với role hiện tại của user.
+    @FXML
     public void onBack(ActionEvent actionEvent) throws IOException {
         UserRole role = UserAccount.getCurrentRole();
         String target;

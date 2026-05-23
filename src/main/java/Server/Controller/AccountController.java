@@ -303,9 +303,7 @@ public class AccountController {
         HBox meta = new HBox(10.0);
         Label id = new Label("User #" + account.getUserId());
         id.getStyleClass().add("data-meta");
-        Label password = new Label("Pass: " + (account.getPassword() == null ? "" : account.getPassword()));
-        password.getStyleClass().add("data-meta");
-        meta.getChildren().addAll(id, password);
+        meta.getChildren().add(id);
         main.getChildren().addAll(title, fullname, meta);
 
         Region spacer = new Region();
@@ -513,6 +511,7 @@ public class AccountController {
     }
 
     // Quay lại dashboard đúng với role hiện tại.
+    @FXML
     public void backToDashboard(ActionEvent actionEvent) throws IOException {
         UserRole role = UserAccount.getCurrentRole();
         String target;

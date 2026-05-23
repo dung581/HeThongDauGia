@@ -26,28 +26,6 @@ public class AutoBidRepository {
         return a;
     }
 
-    public List<Autobid> getAllAutobid() {
-
-        List<Autobid> Autobids = new ArrayList<>();
-
-        String sql = "SELECT * FROM autobid";
-
-        try (Connection conn = db.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-
-                Autobids.add(map(rs));
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return Autobids;
-    }
-
     public Autobid saveAutobid(Autobid a) {
 
         String sql = """

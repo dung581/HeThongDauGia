@@ -103,6 +103,7 @@ public class WinnerController{
     }
 
     // Xử lý nút quay lại: đưa user về dashboard đúng với role hiện tại.
+    @FXML
     public void onBack(ActionEvent actionEvent) throws IOException {
         UserRole role = UserAccount.getCurrentRole();
         String target;

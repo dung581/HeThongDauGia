@@ -47,28 +47,6 @@ public class BidRepository {
         }
     }
 
-    public List<Bid> getAllBid() {
-
-        List<Bid> bids = new ArrayList<>();
-
-        String sql = "SELECT * FROM bid";
-
-        try (Connection conn = db.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-
-                bids.add(mapResultSet(rs));
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return bids;
-    }
-
     public void saveBid(Bid b) {
         try {
             saveBidWithCreatedAt(b);
@@ -137,35 +115,6 @@ public class BidRepository {
     private boolean isMissingCreatedAtColumn(Exception e) {
         String message = e.getMessage();
         return message != null && message.toLowerCase().contains("created_at");
-    }
-
-    public List<Bid> getByItemId(long itemId) {
-
-        List<Bid> list = new ArrayList<>();
-
-        String sql = """
-            SELECT * FROM bid
-            WHERE items_id = ?
-            ORDER BY id ASC
-        """;
-
-        try (Connection conn = db.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setLong(1, itemId);
-
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-
-                list.add(mapResultSet(rs));
-            }
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        return list;
     }
 
     public List<Bid> getBySessionId(long sessionId) {

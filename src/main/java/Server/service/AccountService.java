@@ -114,7 +114,6 @@ public class AccountService {
                     user.getUsername(),
                     user.getFullname(),
                     user.getRole() == null ? "" : user.getRole().name(),
-                    user.getPassword(),
                     balance,
                     locked
             ));
@@ -127,16 +126,14 @@ public class AccountService {
         private final String username;
         private final String fullname;
         private final String role;
-        private final String password;
         private final Long balance;
         private final Long lockedBalance;
 
-        public ManagedAccount(Long userId, String username, String fullname, String role, String password, Long balance, Long lockedBalance) {
+        public ManagedAccount(Long userId, String username, String fullname, String role, Long balance, Long lockedBalance) {
             this.userId = userId;
             this.username = username;
             this.fullname = fullname;
             this.role = role;
-            this.password = password;
             this.balance = balance;
             this.lockedBalance = lockedBalance;
         }
@@ -155,10 +152,6 @@ public class AccountService {
 
         public String getRole() {
             return role;
-        }
-
-        public String getPassword() {
-            return password;
         }
 
         public Long getBalance() {

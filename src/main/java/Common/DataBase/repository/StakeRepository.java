@@ -14,29 +14,6 @@ import java.util.List;
 public class StakeRepository {
     private static DbConnection db = new DbConnection();
 
-    public static List<Stake> getAllStake() {
-        List<Stake> stakes = new ArrayList<>();
-        String sql = "SELECT * FROM Stake";
-        try (Connection conn = db.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                Stake s = new Stake();
-                s.setId(rs.getLong("id"));
-                s.setAution_id(rs.getLong("auction_id"));
-                s.setLocked_item_id(rs.getLong("locked_item_id"));
-                s.setUser_id(rs.getLong("user_id"));
-                s.setAmount(rs.getLong("amount"));
-                s.setStatus(StakeStatus.valueOf(rs.getString("status")));
-                stakes.add(s);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return stakes;
-    }
-
     public Stake getById(long id) {
         String sql = "SELECT * FROM stake WHERE id = ?";
 
@@ -84,10 +61,6 @@ public class StakeRepository {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public void updateUserAmountStatus(long auctionID, long userId, long amount, StakeStatus status) {
-
     }
 
     public void updateStatus(long stakeId, StakeStatus status) {

@@ -10,6 +10,7 @@ import Common.DataBase.entities.Item;
 import Common.Enum.AuctionState;
 import Common.Enum.UserRole;
 import Common.Model.user.UserAccount;
+import Server.Controller.model.SessionDetailData;
 import Server.service.AccountService;
 import Server.service.AuctionService;
 import Server.service.AutoBidService;
@@ -38,7 +39,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
@@ -62,14 +62,10 @@ public class SessionDetailController {
     @FXML private Label balanceLabel;
     @FXML private Label winnerLabel;
     @FXML private Label autoBidStatusLabel;
-    @FXML private Label accountSectionLabel;
     @FXML private Label bidPanelMessageLabel;
     @FXML private Label bidHistorySummaryLabel;
-    @FXML private Node browseItemsNav;
-    @FXML private Node depositNav;
     @FXML private Node placeBidBox;
     @FXML private Node autoBidBox;
-    @FXML private Button accountNavButton;
 
     // Ô nhập giá đặt thủ công và giá tối đa cho auto bid.
     @FXML private TextField bidAmountField;
@@ -135,16 +131,8 @@ public class SessionDetailController {
     // Ẩn/hiện panel đặt giá theo role và đổi nhãn điều hướng tài khoản.
     private void configureRoleUi() {
         UserRole role = UserAccount.getCurrentRole();
-        setVisibleManaged(browseItemsNav, role == UserRole.ADMIN);
-        setVisibleManaged(depositNav, role == UserRole.BIDDER);
         setVisibleManaged(placeBidBox, role == UserRole.BIDDER);
         setVisibleManaged(autoBidBox, role == UserRole.BIDDER);
-        if (accountNavButton != null) {
-            accountNavButton.setText(role == UserRole.ADMIN ? "Account Management" : "My Account");
-        }
-        if (accountSectionLabel != null) {
-            accountSectionLabel.setText(role == UserRole.ADMIN ? "MANAGEMENT" : "ACCOUNT");
-        }
         setText(bidPanelMessageLabel, role == UserRole.BIDDER
                 ? ""
                 : "Tai khoan nay chi duoc xem phien. Dang nhap BIDDER de dat gia.");
@@ -155,21 +143,6 @@ public class SessionDetailController {
         if (node == null) return;
         node.setVisible(visible);
         node.setManaged(visible);
-    }
-
-    // Nhận entity Auction từ controller khác rồi tải lại chi tiết phiên theo id.
-    public void setSession(Auction session) {
-        if (session == null) {
-            return;
-        }
-        pendingSessionId = session.getId();
-        loadSessionAsync(session.getId());
-    }
-
-    // Nhận sessionId theo instance controller và tải chi tiết phiên.
-    public void setSessionIdInstance(long sessionId) {
-        pendingSessionId = sessionId;
-        loadSessionAsync(sessionId);
     }
 
     // Xử lý nút đặt giá: đọc input và gọi BidService trên background thread.
@@ -274,42 +247,6 @@ public class SessionDetailController {
     public void onBackClick(ActionEvent event) throws IOException {
         cancelPendingLoadAndStopTimer();
         switchScene(event, "/com/template/hellfx/danhSachDauGia.fxml");
-    }
-
-    // Điều hướng sang màn danh sách đấu giá.
-    @FXML
-    public void goToSessions(ActionEvent event) throws IOException {
-        cancelPendingLoadAndStopTimer();
-        switchScene(event, "/com/template/hellfx/danhSachDauGia.fxml");
-    }
-
-    // Điều hướng sang màn duyệt/quản lý item, chỉ cho Admin.
-    @FXML
-    public void goToBrowseItems(ActionEvent event) throws IOException {
-        if (UserAccount.getCurrentRole() != UserRole.ADMIN) {
-            AlertUtil.showError("Chuc nang nay chi danh cho Admin.");
-            return;
-        }
-        cancelPendingLoadAndStopTimer();
-        switchScene(event, "/com/template/hellfx/ItemBrowse.fxml");
-    }
-
-    // Điều hướng sang màn tài khoản.
-    @FXML
-    public void goToAccount(ActionEvent event) throws IOException {
-        cancelPendingLoadAndStopTimer();
-        switchScene(event, "/com/template/hellfx/account.fxml");
-    }
-
-    // Điều hướng sang màn nạp tiền, chỉ cho Bidder.
-    @FXML
-    public void goToDeposit(ActionEvent event) throws IOException {
-        if (UserAccount.getCurrentRole() != UserRole.BIDDER) {
-            AlertUtil.showError("Chuc nang nay chi danh cho nguoi dau gia.");
-            return;
-        }
-        cancelPendingLoadAndStopTimer();
-        switchScene(event, "/com/template/hellfx/Deposit.fxml");
     }
 
     // Tải dữ liệu session-detail trên background thread để FXMLLoader không khóa UI.
@@ -479,17 +416,6 @@ public class SessionDetailController {
         }
     }
 
-    // Tải lại lịch sử bid theo phiên hiện tại.
-    private void loadBidHistory() {
-        if (bidTable == null) {
-            return;
-        }
-
-        List<Bid> bids = bidService.getHistoryBySession(session.getId());
-        populateBidHistory(bids);
-        populatePriceChart(bids);
-    }
-
     // Đổ danh sách bid lên bảng lịch sử.
     private void populateBidHistory(List<Bid> bids) {
         if (bidTable != null) {
@@ -651,20 +577,6 @@ public class SessionDetailController {
         setText(priceChartLatestLabel, formatCompactMoney(latestPrice));
         setText(priceChartMinLabel, formatCompactMoney(minPrice));
         setText(priceChartMaxLabel, formatCompactMoney(maxPrice));
-    }
-
-    // Cập nhật số dư khả dụng của Bidder hiện tại.
-    private void refreshBalance() {
-        if (!isBidder()) {
-            setText(balanceLabel, "N/A");
-            return;
-        }
-        try {
-            long available = accountService.getAvailable(UserAccount.getUserId());
-            setText(balanceLabel, formatMoney(available));
-        } catch (Exception e) {
-            setText(balanceLabel, "N/A");
-        }
     }
 
     // Tải và hiển thị trạng thái auto bid mới nhất của user trên item hiện tại.
@@ -971,26 +883,4 @@ public class SessionDetailController {
         stage.show();
     }
 
-    private static class SessionDetailData {
-        private final Auction session;
-        private final Item item;
-        private final List<Bid> bids;
-        private final long availableBalance;
-        private final Optional<Autobid> autobid;
-
-        // Gói dữ liệu cần thiết để render màn session detail sau khi background task tải xong.
-        private SessionDetailData(
-                Auction session,
-                Item item,
-                List<Bid> bids,
-                long availableBalance,
-                Optional<Autobid> autobid
-        ) {
-            this.session = session;
-            this.item = item;
-            this.bids = bids;
-            this.availableBalance = availableBalance;
-            this.autobid = autobid == null ? Optional.empty() : autobid;
-        }
-    }
 }

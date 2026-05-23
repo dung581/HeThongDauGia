@@ -92,6 +92,7 @@ public class UILoginController {
     }
 
     // Bật/tắt hiển thị mật khẩu ở màn đăng nhập.
+    @FXML
     public void toggleLoginPassword() {
         if (loginPasswordHidden == null || loginPasswordVisible == null) return;
         if (!loginPasswordShown) {
@@ -111,6 +112,7 @@ public class UILoginController {
     }
 
     // Bật/tắt hiển thị mật khẩu chính ở màn đăng ký.
+    @FXML
     public void toggleRegisterPassword() {
         if (regpassHidden == null || regpassVisible == null) return;
         if (!registerPasswordShown) {
@@ -130,6 +132,7 @@ public class UILoginController {
     }
 
     // Bật/tắt hiển thị mật khẩu nhập lại ở màn đăng ký.
+    @FXML
     public void toggleRegisterPasswordAgain() {
         if (regpassagainHidden == null || regpassagainVisible == null) return;
         if (!registerPasswordAgainShown) {
@@ -170,6 +173,7 @@ public class UILoginController {
     }
 
     // Xử lý đăng nhập: gọi AuthService, lưu session user và chuyển sang dashboard theo role.
+    @FXML
     public void login() throws UsernameIsBlankException, UserNotFoundException, WrongPasswordException, PasswordIsBlankException {
         String ten = name.getText();
         String pass = getLoginPasswordValue();
@@ -196,7 +200,7 @@ public class UILoginController {
         } catch (WrongPasswordException e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Thông báo", JOptionPane.ERROR_MESSAGE);
         } catch (DataAccessException e) {
-            JOptionPane.showMessageDialog(null, "Không thể kết nối database. Kiểm tra cấu hình kết nối.", "Thông báo", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Không thể kết nối database hoặc cấu hình DB chưa đúng.", "Thông báo", JOptionPane.ERROR_MESSAGE);
         } catch (IOException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Không mở được màn hình sau đăng nhập.\nChi tiết: " + e.getMessage(), "Thông báo", JOptionPane.ERROR_MESSAGE);
@@ -204,16 +208,19 @@ public class UILoginController {
     }
 
     // Chuyển từ màn đăng nhập sang màn đăng ký.
+    @FXML
     public void Register(ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/UIRegister.fxml");
     }
 
     // Chuyển từ màn đăng ký về màn đăng nhập.
+    @FXML
     public void goToLogin(ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/UILogin.fxml");
     }
 
     // Xử lý đăng ký: validate mật khẩu/role, gọi AuthService và tự động quay về đăng nhập khi thành công.
+    @FXML
     public void Register2(ActionEvent actionEvent) throws IOException, UsernameIsBlankException, UsernameAlreadyExistsException, PasswordIsBlankException {
         String tenDK = regname.getText();
         String mkhau = getRegisterPasswordValue();
@@ -257,7 +264,7 @@ public class UILoginController {
         } catch (PasswordIsBlankException e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Thông báo", JOptionPane.WARNING_MESSAGE);
         } catch (DataAccessException e) {
-            JOptionPane.showMessageDialog(null, "Đăng ký thất bại do lỗi kết nối máy chủ.", "Thông báo", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Đăng ký thất bại do không kết nối được database hoặc cấu hình DB chưa đúng.", "Thông báo", JOptionPane.ERROR_MESSAGE);
         }
     }
 
