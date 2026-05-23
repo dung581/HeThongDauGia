@@ -21,10 +21,6 @@ public class UserAccount {
     private static String currentFullname;
     private static UserRole currentRole;
 
-    public long getAvailableBalance() {
-        return balance - lockedBalance;
-    }
-
     public static void setSession(long userId, String username, String fullname, UserRole role) {
         currentUserId = userId;
         currentUsername = username;

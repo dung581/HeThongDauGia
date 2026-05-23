@@ -1,7 +1,6 @@
 package Common.DataBase.entities;
 
 import Common.Enum.ItemStatus;
-import Common.Enum.ItemType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +18,6 @@ public class Item {
     private long owner_user_id;
     private String description;
     private long beginPrice;
-    private ItemType itemType;
     private long minIncrement;
     private ItemStatus status;
     private String mota;

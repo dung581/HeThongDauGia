@@ -1,25 +1,15 @@
 package Server.service;
-import Common.DataBase.entities.Auction;
+
 import Common.DataBase.entities.Stake;
-import Common.DataBase.repository.AuctionRepository;
 import Common.DataBase.repository.StakeRepository;
 import Common.Enum.StakeStatus;
+
 import java.util.List;
 
 public class StakeService {
 
     private StakeRepository repo = new StakeRepository();
-    private AuctionRepository auctionRepo = new AuctionRepository();
     private AccountService accountService = new AccountService();
-
-    public Stake createStake(long userId, long itemId, long amount) {
-        Auction auction = auctionRepo.getByItemId(itemId);
-        if (auction == null) {
-            throw new RuntimeException("Auction not found");
-        }
-
-        return createStakeForAuction(auction.getId(), userId, itemId, amount);
-    }
 
     // Tạo stake khi caller đã có auctionId, tránh query lại auction trong luồng đặt giá.
     public Stake createStakeForAuction(long auctionId, long userId, long itemId, long amount) {

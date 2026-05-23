@@ -58,13 +58,6 @@
             <version>2.10.1</version>
         </dependency>
 
-        <!-- SQL Server -->
-        <dependency>
-            <groupId>com.microsoft.sqlserver</groupId>
-            <artifactId>mssql-jdbc</artifactId>
-            <version>12.6.1.jre11</version>
-        </dependency>
-
         <!-- BCrypt -->
         <dependency>
             <groupId>org.mindrot</groupId>

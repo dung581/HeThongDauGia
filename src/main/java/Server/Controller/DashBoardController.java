@@ -10,14 +10,20 @@ import Common.Enum.ItemStatus;
 import Common.Enum.StakeStatus;
 import Common.Enum.UserRole;
 import Common.Model.user.UserAccount;
+import Server.Controller.model.DashboardModels.AdminDashboardData;
+import Server.Controller.model.DashboardModels.BidderDashboardData;
+import Server.Controller.model.DashboardModels.EndedSessionRow;
+import Server.Controller.model.DashboardModels.ItemOverviewRow;
+import Server.Controller.model.DashboardModels.LiveSessionRow;
+import Server.Controller.model.DashboardModels.OwnedProductRow;
+import Server.Controller.model.DashboardModels.SellerDashboardData;
+import Server.Controller.model.DashboardModels.SessionOverviewRow;
 import Server.service.AccountService;
 import Server.service.AuctionService;
 import Server.service.ItemService;
 import Server.service.StakeService;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -117,6 +123,7 @@ public class DashBoardController {
     }
 
     // Điều hướng về dashboard đúng với role hiện tại.
+    @FXML
     public void goHome(ActionEvent actionEvent) throws IOException {
         UserRole role = UserAccount.getCurrentRole();
         if (role == UserRole.ADMIN) {
@@ -129,17 +136,20 @@ public class DashBoardController {
     }
 
     // Đăng xuất: xóa session user và quay về màn đăng nhập.
+    @FXML
     public void goToLogin(ActionEvent actionEvent) throws IOException {
         UserAccount.clearSession();
         switchScene(actionEvent, "/com/template/hellfx/UILogin.fxml");
     }
 
     // Mở màn danh sách phiên đấu giá.
+    @FXML
     public void Sandaugia(ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/danhSachDauGia.fxml");
     }
 
     // Mở màn sản phẩm của Seller; chặn Bidder vì Bidder không được đăng bán.
+    @FXML
     public void dangban(ActionEvent actionEvent) throws IOException {
         UserRole role = UserAccount.getCurrentRole();
         if (role == UserRole.BIDDER) {
@@ -150,21 +160,25 @@ public class DashBoardController {
     }
 
     // Mở màn tài khoản: Admin xem quản lý account, role khác xem tài khoản cá nhân.
+    @FXML
     public void quanlytk(ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/account.fxml");
     }
 
     // Mở màn nạp tiền.
+    @FXML
     public void goToDeposit(ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/Deposit.fxml");
     }
 
     // Mở màn duyệt sản phẩm đang chờ cho Admin.
+    @FXML
     public void duyetsp(ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/ApproveItem.fxml");
     }
 
     // Mở màn quản lý toàn bộ vật phẩm cho Admin.
+    @FXML
     public void quanlyvatpham(ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/AdminItemManagement.fxml");
     }
@@ -422,6 +436,9 @@ public class DashBoardController {
         Label title = new Label(row.getItemName());
         title.getStyleClass().add("product-title");
         title.setWrapText(true);
+        Label description = new Label(nullToText(row.getDescription(), "Khong co mo ta"));
+        description.getStyleClass().add("product-description");
+        description.setWrapText(true);
 
         HBox metaBox = new HBox(10.0);
         metaBox.setAlignment(Pos.CENTER_LEFT);
@@ -430,7 +447,7 @@ public class DashBoardController {
         Label itemId = new Label("Item #" + row.getItemId());
         itemId.getStyleClass().add("product-meta");
         metaBox.getChildren().addAll(sessionId, itemId);
-        textBox.getChildren().addAll(title, metaBox);
+        textBox.getChildren().addAll(title, description, metaBox);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -484,9 +501,12 @@ public class DashBoardController {
         Label title = new Label(row.getItemName());
         title.getStyleClass().add("data-title");
         title.setWrapText(true);
+        Label description = new Label(nullToText(row.getDescription(), "Khong co mo ta"));
+        description.getStyleClass().add("product-description");
+        description.setWrapText(true);
         Label meta = new Label("Phien #" + row.getSessionId() + " | Leader " + row.getLeader());
         meta.getStyleClass().add("data-meta");
-        main.getChildren().addAll(title, meta);
+        main.getChildren().addAll(title, description, meta);
 
         VBox value = new VBox(5.0);
         value.setAlignment(Pos.CENTER_RIGHT);
@@ -514,9 +534,12 @@ public class DashBoardController {
         Label title = new Label(row.getItemName());
         title.getStyleClass().add("data-title");
         title.setWrapText(true);
+        Label description = new Label(nullToText(row.getDescription(), "Khong co mo ta"));
+        description.getStyleClass().add("product-description");
+        description.setWrapText(true);
         Label meta = new Label("Winner " + row.getWinner() + " | Phien #" + row.getSessionId());
         meta.getStyleClass().add("data-meta");
-        main.getChildren().addAll(title, meta);
+        main.getChildren().addAll(title, description, meta);
 
         VBox value = new VBox(5.0);
         value.setAlignment(Pos.CENTER_RIGHT);
@@ -542,13 +565,16 @@ public class DashBoardController {
         Label title = new Label(row.getItemName());
         title.getStyleClass().add("data-title");
         title.setWrapText(true);
+        Label description = new Label(nullToText(row.getDescription(), "Khong co mo ta"));
+        description.getStyleClass().add("product-description");
+        description.setWrapText(true);
         String metaText = "Item #" + row.getId();
         if (showOwner && row.getOwner() != null && !row.getOwner().isBlank()) {
             metaText += " | Seller #" + row.getOwner();
         }
         Label meta = new Label(metaText);
         meta.getStyleClass().add("data-meta");
-        main.getChildren().addAll(title, meta);
+        main.getChildren().addAll(title, description, meta);
 
         VBox value = new VBox(5.0);
         value.setAlignment(Pos.CENTER_RIGHT);
@@ -597,7 +623,6 @@ public class DashBoardController {
 
                 List<ItemOverviewRow> itemRows = items.stream()
                         .sorted(Comparator.comparingLong(Item::getId).reversed())
-                        .limit(10)
                         .map(item -> toItemOverviewRow(item, false))
                         .toList();
 
@@ -640,7 +665,7 @@ public class DashBoardController {
         setText(sellerInAuctionItemsLabel, String.valueOf(data.inAuctionItems));
         setText(sellerSoldItemsLabel, String.valueOf(data.soldItems));
         setText(sellerSidebarItemsLabel, String.valueOf(data.totalItems));
-        setText(sellerItemSummaryLabel, data.itemRows.size() + " item gan day");
+        setText(sellerItemSummaryLabel, "Tat ca " + data.itemRows.size() + " item da dang ban");
         setText(sellerSessionSummaryLabel, data.sessionRows.size() + " phien lien quan");
 
         if (sellerItemTable != null) {
@@ -679,6 +704,19 @@ public class DashBoardController {
                 .orElse("Item " + itemId);
     }
 
+    // Tìm mô tả item theo itemId trong danh sách item đã tải.
+    private String findItemDescription(List<Item> items, long itemId) {
+        if (items == null) {
+            return "Khong co mo ta";
+        }
+        return items.stream()
+                .filter(item -> item.getId() == itemId)
+                .map(Item::getDescription)
+                .filter(description -> description != null && !description.isBlank())
+                .findFirst()
+                .orElse("Khong co mo ta");
+    }
+
     // Chuyển entity Auction thành dòng hiển thị tổng quan phiên.
     private SessionOverviewRow toSessionOverviewRow(Auction session, List<Item> items) {
         String leader = session.getCurrent_user_id() == 0 ? "-" : String.valueOf(session.getCurrent_user_id());
@@ -686,6 +724,7 @@ public class DashBoardController {
                 session.getId(),
                 session.getItem_id(),
                 findItemName(items, session.getItem_id()),
+                findItemDescription(items, session.getItem_id()),
                 formatMoney(session.getCurrent_price()),
                 leader,
                 displaySessionStatus(session)
@@ -697,6 +736,7 @@ public class DashBoardController {
         return new ItemOverviewRow(
                 item.getId(),
                 item.getFullname(),
+                nullToText(item.getDescription(), "Khong co mo ta"),
                 includeOwner ? String.valueOf(item.getOwner_user_id()) : "",
                 formatMoney(item.getBeginPrice()),
                 item.getStatus() == null ? "" : item.getStatus().name()
@@ -771,13 +811,13 @@ public class DashBoardController {
                 List<LiveSessionRow> liveRows = liveSessions.stream()
                         .sorted(Comparator.comparing(Auction::getEndTime, Comparator.nullsLast(Comparator.naturalOrder())))
                         .limit(8)
-                        .map(session -> toLiveSessionRow(session, userId))
+                        .map(session -> toLiveSessionRow(session, userId, allItems))
                         .toList();
 
                 List<EndedSessionRow> endedRows = endedSessions.stream()
                         .sorted(Comparator.comparing(Auction::getEndTime, Comparator.nullsLast(Comparator.reverseOrder())))
                         .limit(8)
-                        .map(session -> toEndedSessionRow(session, userId))
+                        .map(session -> toEndedSessionRow(session, userId, allItems))
                         .toList();
 
                 List<OwnedProductRow> ownedProducts = endedSessions.stream()
@@ -819,22 +859,14 @@ public class DashBoardController {
             }
 
             // Chuyển Auction đang chạy thành dòng hiển thị trong bảng live sessions.
-            private LiveSessionRow toLiveSessionRow(Auction session, long userId) {
-                String itemName = "Item " + session.getItem_id();
-                try {
-                    Item item = itemService.getById(session.getItem_id());
-                    if (item.getFullname() != null && !item.getFullname().isBlank()) {
-                        itemName = item.getFullname();
-                    }
-                } catch (Exception ignored) {
-                }
-
+            private LiveSessionRow toLiveSessionRow(Auction session, long userId, List<Item> items) {
                 String leader = session.getCurrent_user_id() == 0
                         ? "-"
                         : session.getCurrent_user_id() == userId ? "Ban" : String.valueOf(session.getCurrent_user_id());
                 return new LiveSessionRow(
                         session.getId(),
-                        itemName,
+                        findItemName(items, session.getItem_id()),
+                        findItemDescription(items, session.getItem_id()),
                         formatMoney(session.getCurrent_price()),
                         leader,
                         session.getEndTime()
@@ -842,23 +874,15 @@ public class DashBoardController {
             }
 
             // Chuyển Auction đã kết thúc thành dòng hiển thị trong bảng ended sessions.
-            private EndedSessionRow toEndedSessionRow(Auction session, long userId) {
-                String itemName = "Item " + session.getItem_id();
-                try {
-                    Item item = itemService.getById(session.getItem_id());
-                    if (item.getFullname() != null && !item.getFullname().isBlank()) {
-                        itemName = item.getFullname();
-                    }
-                } catch (Exception ignored) {
-                }
-
+            private EndedSessionRow toEndedSessionRow(Auction session, long userId, List<Item> items) {
                 String winner = session.getCurrent_user_id() == 0
                         ? "-"
                         : session.getCurrent_user_id() == userId ? "Ban" : String.valueOf(session.getCurrent_user_id());
                 String status = session.getState() == AuctionState.RUNNING ? "ENDED" : session.getState().name();
                 return new EndedSessionRow(
                         session.getId(),
-                        itemName,
+                        findItemName(items, session.getItem_id()),
+                        findItemDescription(items, session.getItem_id()),
                         formatMoney(session.getCurrent_price()),
                         winner,
                         status
@@ -1108,6 +1132,11 @@ public class DashBoardController {
         }
     }
 
+    // Trả chuỗi dự phòng khi dữ liệu null/rỗng.
+    private String nullToText(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value;
+    }
+
     // Định dạng số tiền có dấu phẩy ngăn cách hàng nghìn.
     private String formatMoney(long amount) {
         return NumberFormat.getNumberInstance(Locale.US).format(amount);
@@ -1133,335 +1162,4 @@ public class DashBoardController {
         return String.format("%02d:%02d", minutes, secs);
     }
 
-    public static class LiveSessionRow {
-        private final long sessionId;
-        private final String itemName;
-        private final String currentPrice;
-        private final String leader;
-        private final LocalDateTime endTime;
-        private final StringProperty timeLeft = new SimpleStringProperty("-");
-
-        // Tạo dòng hiển thị cho bảng phiên đang chạy của Bidder.
-        public LiveSessionRow(long sessionId, String itemName, String currentPrice, String leader, LocalDateTime endTime) {
-            this.sessionId = sessionId;
-            this.itemName = itemName;
-            this.currentPrice = currentPrice;
-            this.leader = leader;
-            this.endTime = endTime;
-        }
-
-        // Trả về id phiên để ListView hoặc helper khác có thể đọc.
-        public long getSessionId() {
-            return sessionId;
-        }
-
-        // Trả về tên item hiển thị trong bảng.
-        public String getItemName() {
-            return itemName;
-        }
-
-        // Trả về giá hiện tại đã được format.
-        public String getCurrentPrice() {
-            return currentPrice;
-        }
-
-        // Trả về người đang dẫn phiên.
-        public String getLeader() {
-            return leader;
-        }
-
-        // Trả về thời gian còn lại hiện tại.
-        public String getTimeLeft() {
-            return timeLeft.get();
-        }
-
-        // Trả về property countdown để danh sách tự cập nhật khi timer chạy.
-        public StringProperty timeLeftProperty() {
-            return timeLeft;
-        }
-
-        // Cập nhật thời gian còn lại cho dòng live session.
-        public void setTimeLeft(String timeLeft) {
-            this.timeLeft.set(timeLeft == null ? "" : timeLeft);
-        }
-
-        // Trả về thời điểm kết thúc phiên để timer kiểm tra hết giờ.
-        public LocalDateTime getEndTime() {
-            return endTime;
-        }
-
-        // Chuyển dòng live thành dòng ended khi countdown hết.
-        public EndedSessionRow toEndedSessionRow() {
-            return new EndedSessionRow(sessionId, itemName, currentPrice, leader, "ENDED");
-        }
-    }
-
-    public static class EndedSessionRow {
-        private final long sessionId;
-        private final String itemName;
-        private final String finalPrice;
-        private final String winner;
-        private final String status;
-
-        // Tạo dòng hiển thị cho bảng phiên đã kết thúc.
-        public EndedSessionRow(long sessionId, String itemName, String finalPrice, String winner, String status) {
-            this.sessionId = sessionId;
-            this.itemName = itemName;
-            this.finalPrice = finalPrice;
-            this.winner = winner;
-            this.status = status;
-        }
-
-        // Trả về id phiên để tránh thêm trùng dòng ended.
-        public long getSessionId() {
-            return sessionId;
-        }
-
-        // Trả về tên item của phiên đã kết thúc.
-        public String getItemName() {
-            return itemName;
-        }
-
-        // Trả về giá cuối cùng của phiên.
-        public String getFinalPrice() {
-            return finalPrice;
-        }
-
-        // Trả về người thắng hoặc người đang dẫn cuối cùng.
-        public String getWinner() {
-            return winner;
-        }
-
-        // Trả về trạng thái cuối của phiên.
-        public String getStatus() {
-            return status;
-        }
-    }
-
-    public static class SessionOverviewRow {
-        private final long sessionId;
-        private final long itemId;
-        private final String itemName;
-        private final String price;
-        private final String leader;
-        private final String status;
-
-        // Tạo dòng tổng quan phiên dùng cho dashboard Admin/Seller.
-        public SessionOverviewRow(long sessionId, long itemId, String itemName, String price, String leader, String status) {
-            this.sessionId = sessionId;
-            this.itemId = itemId;
-            this.itemName = itemName;
-            this.price = price;
-            this.leader = leader;
-            this.status = status;
-        }
-
-        // Trả về id phiên để mở màn hoạt động/chi tiết phiên.
-        public long getSessionId() {
-            return sessionId;
-        }
-
-        // Trả về id item thuộc phiên.
-        public long getItemId() {
-            return itemId;
-        }
-
-        // Trả về tên item của phiên.
-        public String getItemName() {
-            return itemName;
-        }
-
-        // Trả về giá hiện tại/cuối cùng của phiên.
-        public String getPrice() {
-            return price;
-        }
-
-        // Trả về user đang dẫn phiên.
-        public String getLeader() {
-            return leader;
-        }
-
-        // Trả về trạng thái phiên.
-        public String getStatus() {
-            return status;
-        }
-    }
-
-    public static class ItemOverviewRow {
-        private final Long id;
-        private final String itemName;
-        private final String owner;
-        private final String price;
-        private final String status;
-
-        // Tạo dòng tổng quan item dùng cho dashboard Admin/Seller.
-        public ItemOverviewRow(Long id, String itemName, String owner, String price, String status) {
-            this.id = id;
-            this.itemName = itemName;
-            this.owner = owner;
-            this.price = price;
-            this.status = status;
-        }
-
-        // Trả về id item.
-        public Long getId() {
-            return id;
-        }
-
-        // Trả về tên item.
-        public String getItemName() {
-            return itemName;
-        }
-
-        // Trả về chủ sở hữu item nếu màn cần hiển thị.
-        public String getOwner() {
-            return owner;
-        }
-
-        // Trả về giá khởi điểm đã format.
-        public String getPrice() {
-            return price;
-        }
-
-        // Trả về trạng thái item.
-        public String getStatus() {
-            return status;
-        }
-    }
-
-    public static class OwnedProductRow {
-        private final Long itemId;
-        private final Long sessionId;
-        private final String itemName;
-        private final String description;
-        private final String finalPrice;
-        private final String status;
-
-        // Tạo dữ liệu hiển thị cho một thanh sản phẩm đã thắng của Bidder.
-        public OwnedProductRow(Long itemId, Long sessionId, String itemName, String description, String finalPrice, String status) {
-            this.itemId = itemId;
-            this.sessionId = sessionId;
-            this.itemName = itemName;
-            this.description = description;
-            this.finalPrice = finalPrice;
-            this.status = status;
-        }
-
-        // Trả về id item đã thắng.
-        public Long getItemId() {
-            return itemId;
-        }
-
-        // Trả về id phiên tạo ra sản phẩm thắng.
-        public Long getSessionId() {
-            return sessionId;
-        }
-
-        // Trả về tên item.
-        public String getItemName() {
-            return itemName;
-        }
-
-        // Trả về mô tả ngắn của item.
-        public String getDescription() {
-            return description;
-        }
-
-        // Trả về giá thắng đã format.
-        public String getFinalPrice() {
-            return finalPrice;
-        }
-
-        // Trả về trạng thái phiên/item.
-        public String getStatus() {
-            return status;
-        }
-    }
-
-    private static class AdminDashboardData {
-        private final long activeSessions;
-        private final long pendingItems;
-        private final long totalItems;
-        private final long totalUsers;
-        private final List<SessionOverviewRow> sessionRows;
-        private final List<ItemOverviewRow> pendingRows;
-
-        // Gói dữ liệu dashboard Admin lấy từ background task.
-        private AdminDashboardData(
-                long activeSessions,
-                long pendingItems,
-                long totalItems,
-                long totalUsers,
-                List<SessionOverviewRow> sessionRows,
-                List<ItemOverviewRow> pendingRows
-        ) {
-            this.activeSessions = activeSessions;
-            this.pendingItems = pendingItems;
-            this.totalItems = totalItems;
-            this.totalUsers = totalUsers;
-            this.sessionRows = sessionRows == null ? new ArrayList<>() : sessionRows;
-            this.pendingRows = pendingRows == null ? new ArrayList<>() : pendingRows;
-        }
-    }
-
-    private static class SellerDashboardData {
-        private final long totalItems;
-        private final long pendingItems;
-        private final long inAuctionItems;
-        private final long soldItems;
-        private final List<ItemOverviewRow> itemRows;
-        private final List<SessionOverviewRow> sessionRows;
-
-        // Gói dữ liệu dashboard Seller lấy từ background task.
-        private SellerDashboardData(
-                long totalItems,
-                long pendingItems,
-                long inAuctionItems,
-                long soldItems,
-                List<ItemOverviewRow> itemRows,
-                List<SessionOverviewRow> sessionRows
-        ) {
-            this.totalItems = totalItems;
-            this.pendingItems = pendingItems;
-            this.inAuctionItems = inAuctionItems;
-            this.soldItems = soldItems;
-            this.itemRows = itemRows == null ? new ArrayList<>() : itemRows;
-            this.sessionRows = sessionRows == null ? new ArrayList<>() : sessionRows;
-        }
-    }
-
-    private static class BidderDashboardData {
-        private final long availableBalance;
-        private final long lockedBalance;
-        private final long lockedStakeCount;
-        private final long leadingSessionCount;
-        private final int liveSessionCount;
-        private final int endedSessionCount;
-        private final List<LiveSessionRow> liveSessions;
-        private final List<EndedSessionRow> endedSessions;
-        private final List<OwnedProductRow> ownedProducts;
-
-        // Gói dữ liệu dashboard Bidder lấy từ background task.
-        private BidderDashboardData(
-                long availableBalance,
-                long lockedBalance,
-                long lockedStakeCount,
-                long leadingSessionCount,
-                int liveSessionCount,
-                int endedSessionCount,
-                List<LiveSessionRow> liveSessions,
-                List<EndedSessionRow> endedSessions,
-                List<OwnedProductRow> ownedProducts
-        ) {
-            this.availableBalance = availableBalance;
-            this.lockedBalance = lockedBalance;
-            this.lockedStakeCount = lockedStakeCount;
-            this.leadingSessionCount = leadingSessionCount;
-            this.liveSessionCount = liveSessionCount;
-            this.endedSessionCount = endedSessionCount;
-            this.liveSessions = liveSessions == null ? new ArrayList<>() : liveSessions;
-            this.endedSessions = endedSessions == null ? new ArrayList<>() : endedSessions;
-            this.ownedProducts = ownedProducts == null ? new ArrayList<>() : ownedProducts;
-        }
-    }
 }

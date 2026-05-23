@@ -114,6 +114,7 @@ public class AdminItemManagementController {
     }
 
     // Tải lại toàn bộ danh sách item; bảng tự cuộn nên không cần phân trang.
+    @FXML
     public void loadAllItems() {
         loadItemsAsync();
     }
@@ -140,6 +141,7 @@ public class AdminItemManagementController {
     }
 
     // Quay lại dashboard của Admin.
+    @FXML
     public void backToAdminDashboard(ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/dashboard - Admin.fxml");
     }

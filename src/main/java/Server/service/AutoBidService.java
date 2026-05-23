@@ -12,15 +12,7 @@ public class AutoBidService {
 
     private AutoBidRepository repo = new AutoBidRepository();
 
-    public Autobid configure(long userId, long itemId, long maxPrice) {
-        return createAutobid(userId, itemId, maxPrice, false);
-    }
-
-    public void activate(long id) {
-        repo.updateActive(id, true);
-    }
-
-    public void deactivate(long id) {
+    private void deactivate(long id) {
         repo.updateActive(id, false);
     }
 
