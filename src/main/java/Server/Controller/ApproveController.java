@@ -86,9 +86,11 @@ public class ApproveController {
         HBox meta = new HBox(10.0);
         Label id = new Label("ID #" + item.getId());
         id.getStyleClass().add("data-meta");
+        Label minStep = new Label("Buoc gia " + formatMoney(getEffectiveMinIncrement(item)));
+        minStep.getStyleClass().add("data-meta");
         Label detail = new Label(nullToText(item.getMota(), ""));
         detail.getStyleClass().add("data-meta");
-        meta.getChildren().addAll(id, detail);
+        meta.getChildren().addAll(id, minStep, detail);
         main.getChildren().addAll(title, description, meta);
 
         Region spacer = new Region();
@@ -96,7 +98,7 @@ public class ApproveController {
 
         VBox value = new VBox(6.0);
         value.setAlignment(Pos.CENTER_RIGHT);
-        Label price = new Label(String.format("%,d", item.getBeginPrice()));
+        Label price = new Label(formatMoney(item.getBeginPrice()));
         price.getStyleClass().add("data-money");
         Label status = new Label(item.getStatus() == null ? "" : item.getStatus().name());
         status.getStyleClass().add("data-pill");
@@ -109,6 +111,15 @@ public class ApproveController {
     // Trả chuỗi dự phòng khi dữ liệu null/rỗng.
     private String nullToText(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
+    }
+
+    // Item cũ có thể chưa có bước giá, fallback 1 để khớp BidService.
+    private long getEffectiveMinIncrement(Item item) {
+        return item == null || item.getMinIncrement() <= 0 ? 1L : item.getMinIncrement();
+    }
+
+    private String formatMoney(long amount) {
+        return String.format("%,d", amount);
     }
 
     // Tải danh sách item đang ở trạng thái chờ duyệt lên bảng.
@@ -146,11 +157,9 @@ public class ApproveController {
                 showWarning("Thời gian kết thúc phải sau thời gian bắt đầu.");
                 return;
             }
-            // Duyệt sản phẩm.
-            itemService.approve(selected.getId());
+            // Service xử lý trọn workflow duyệt sản phẩm và mở phiên đấu giá.
+            auctionService.approveAndCreateSession(selected.getId(), end);
             showInfo("Đã chấp nhận sản phẩm ID: " + selected.getId());
-            // Tạo phiên đấu giá sau khi sản phẩm được duyệt.
-            auctionService.createSession(selected.getId(),end);
             if (endTime != null) endTime.clear();
             loadData();
         } catch (Exception e) {

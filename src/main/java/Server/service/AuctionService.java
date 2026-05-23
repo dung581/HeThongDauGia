@@ -1,7 +1,6 @@
 package Server.service;
 
 import Common.DataBase.entities.*;
-import Common.DataBase.repository.AccountRepository;
 import Common.DataBase.repository.AuctionRepository;
 import Common.DataBase.repository.ItemRepository;
 import Common.DataBase.repository.RepoUseInService.UserAccountRepository;
@@ -16,7 +15,6 @@ public class AuctionService{
 
     private AuctionRepository repo = new AuctionRepository();
     private StakeService stakeService = new StakeService();
-    private AccountRepository accountRepo = new AccountRepository();
     private ItemRepository itemRepo= new ItemRepository();
     private AccountService accountService = new AccountService();
 
@@ -43,6 +41,21 @@ public class AuctionService{
         itemRepo.update(item);
 
         return a;
+    }
+
+    // Workflow Admin duyệt item PENDING và mở phiên đấu giá trong cùng một nghiệp vụ.
+    public Auction approveAndCreateSession(long itemId, LocalDateTime endTime) {
+        Item item = itemRepo.getItemById(itemId);
+        if (item == null) throw new RuntimeException("Item not found");
+        if (item.getStatus() != ItemStatus.PENDING) {
+            throw new RuntimeException("Item must be PENDING to approve and start auction");
+        }
+
+        item.setStatus(ItemStatus.APPROVED);
+        item.setMota("Da duyet");
+        itemRepo.update(item);
+
+        return createSession(itemId, endTime);
     }
 
     public List<Auction> getActive() {
@@ -102,6 +115,19 @@ public class AuctionService{
 
         // 🔥 update item
         itemRepo.update(item);
+    }
+
+    // Chỉ đóng phiên nếu thời gian kết thúc đã qua; controller dùng để không tự giữ rule hết hạn.
+    public boolean closeIfExpired(long sessionId) {
+        Auction auction = repo.getById(sessionId);
+        if (auction == null) {
+            throw new RuntimeException("Auction not found");
+        }
+        if (auction.getEndTime() == null || auction.getEndTime().isAfter(LocalDateTime.now())) {
+            return false;
+        }
+        closeSession(sessionId);
+        return true;
     }
 
     public UserAccount declareWinner(long sessionId) {

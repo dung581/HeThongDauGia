@@ -47,6 +47,7 @@ public class DanhSachDauGiaController {
     @FXML private Label idLabel;
     @FXML private Label tenLabel;
     @FXML private Label giaLabel;
+    @FXML private Label minIncrementLabel;
     @FXML private Label trangthaiLabel;
     @FXML private Label thongtinLabel;
     @FXML private Label accountSectionLabel;
@@ -136,9 +137,11 @@ public class DanhSachDauGiaController {
         session.getStyleClass().add("data-meta");
         Label item = new Label("Item #" + auction.getItem_id());
         item.getStyleClass().add("data-meta");
+        Label minStep = new Label("Buoc gia " + formatMoney(getEffectiveMinIncrement(itemData)));
+        minStep.getStyleClass().add("data-meta");
         Label time = new Label(formatTimeRange(auction));
         time.getStyleClass().add("data-meta");
-        meta.getChildren().addAll(session, item, time);
+        meta.getChildren().addAll(session, item, minStep, time);
         titleBox.getChildren().addAll(title, description, meta);
 
         Region spacer = new Region();
@@ -147,7 +150,7 @@ public class DanhSachDauGiaController {
         VBox leaderBox = valueBox("Leader", auction.getCurrent_user_id() == 0 ? "-" : String.valueOf(auction.getCurrent_user_id()));
         VBox priceBox = new VBox(6.0);
         priceBox.setAlignment(Pos.CENTER_RIGHT);
-        Label price = new Label(String.format("%,d", auction.getCurrent_price()));
+        Label price = new Label(formatMoney(auction.getCurrent_price()));
         price.getStyleClass().add("data-money");
         Label state = new Label(auction.getState() == null ? "" : auction.getState().name());
         state.getStyleClass().add("data-pill");
@@ -193,7 +196,8 @@ public class DanhSachDauGiaController {
             idLabel.setText(String.valueOf(item.getId()));
             tenLabel.setText(item.getFullname());
             thongtinLabel.setText(item.getDescription());
-            giaLabel.setText(String.valueOf(item.getBeginPrice()));
+            giaLabel.setText(formatMoney(item.getBeginPrice()));
+            minIncrementLabel.setText(formatMoney(getEffectiveMinIncrement(item)));
             trangthaiLabel.setText(item.getStatus() == null ? "" : item.getStatus().toString());
         });
     }
@@ -221,6 +225,7 @@ public class DanhSachDauGiaController {
         idLabel.setText(" ");
         tenLabel.setText(" ");
         giaLabel.setText(" ");
+        minIncrementLabel.setText(" ");
         trangthaiLabel.setText(" ");
         thongtinLabel.setText(" ");
     }
@@ -322,11 +327,13 @@ public class DanhSachDauGiaController {
         String itemName = itemNameById.getOrDefault(auction.getItem_id(), "");
         Item item = itemById.get(auction.getItem_id());
         String description = item == null ? "" : item.getDescription();
+        String minIncrement = item == null ? "" : String.valueOf(getEffectiveMinIncrement(item));
         String target = String.join(" ",
                 String.valueOf(auction.getId()),
                 String.valueOf(auction.getItem_id()),
                 itemName,
                 description == null ? "" : description,
+                minIncrement,
                 String.valueOf(auction.getCurrent_user_id()),
                 auction.getState() == null ? "" : auction.getState().name()
         );
@@ -341,6 +348,15 @@ public class DanhSachDauGiaController {
     // Trả chuỗi dự phòng khi dữ liệu null/rỗng.
     private String nullToText(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
+    }
+
+    // Item cũ có thể chưa có bước giá, fallback 1 để khớp BidService.
+    private long getEffectiveMinIncrement(Item item) {
+        return item == null || item.getMinIncrement() <= 0 ? 1L : item.getMinIncrement();
+    }
+
+    private String formatMoney(long amount) {
+        return String.format("%,d", amount);
     }
 
     // Quay lại dashboard đúng với role hiện tại.

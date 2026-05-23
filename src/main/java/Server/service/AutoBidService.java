@@ -2,7 +2,9 @@ package Server.service;
 
 import Common.DataBase.entities.Auction;
 import Common.DataBase.entities.Autobid;
+import Common.DataBase.repository.AuctionRepository;
 import Common.DataBase.repository.AutoBidRepository;
+import Common.Enum.AuctionState;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.Optional;
 public class AutoBidService {
 
     private AutoBidRepository repo = new AutoBidRepository();
+    private AuctionRepository auctionRepo = new AuctionRepository();
 
     private void deactivate(long id) {
         repo.updateActive(id, false);
@@ -30,10 +33,22 @@ public class AutoBidService {
         return createAutobid(userId, itemId, maxPrice, true);
     }
 
+    // Bật autobid rồi đọc lại bản ghi mới nhất để controller cập nhật UI ngay.
+    public Optional<Autobid> configureAndGetLatest(long userId, long itemId, long maxPrice) {
+        configureAndActivate(userId, itemId, maxPrice);
+        return getLatestByUserAndItem(userId, itemId);
+    }
+
     public void deactivateByUserAndItem(long userId, long itemId) {
         Autobid autobid = getLatestByUserAndItem(userId, itemId)
                 .orElseThrow(() -> new RuntimeException("AutoBid not found"));
         deactivate(autobid.getId());
+    }
+
+    // Tắt autobid rồi trả lại trạng thái mới nhất để controller chỉ việc render UI.
+    public Optional<Autobid> deactivateAndGetLatest(long userId, long itemId) {
+        deactivateByUserAndItem(userId, itemId);
+        return getLatestByUserAndItem(userId, itemId);
     }
 
     public Optional<Autobid> getLatestByUserAndItem(long userId, long itemId) {
@@ -50,22 +65,79 @@ public class AutoBidService {
         return repo.saveAutobid(ab);
     }
 
-    public void trigger(long itemId, long currentPrice) {
+    // Resume chuỗi autobid của toàn phiên rồi trả lại trạng thái autobid của user hiện tại để UI render.
+    public AutoBidActionResult resumeForSessionAndGetLatest(
+            long userId,
+            long sessionId,
+            long itemId,
+            long minIncrement
+    ) {
+        boolean placedBid = resumeForSession(sessionId, itemId, minIncrement);
+        Optional<Autobid> latestAutobid = getLatestByUserAndItem(userId, itemId);
+        String message = placedBid ? "Auto bid đã xử lý giá mới." : null;
+        return new AutoBidActionResult(latestAutobid, placedBid, message);
+    }
+
+    // Resume autobid dựa trên leader và giá hiện tại trong DB; không phụ thuộc account nào đang đăng nhập.
+    public boolean resumeForSession(
+            long sessionId,
+            long itemId,
+            long minIncrement
+    ) {
+        boolean placedAnyBid = false;
+
+        // Resolve lần lượt các auto bid còn hợp lệ, nhưng chạy trong background task của controller.
+        for (int guard = 0; guard < 1000; guard++) {
+            Auction latestSession = auctionRepo.getById(sessionId);
+            if (latestSession == null || latestSession.getState() != AuctionState.RUNNING) {
+                return placedAnyBid;
+            }
+            if (latestSession.getCurrent_user_id() <= 0) {
+                return placedAnyBid;
+            }
+
+            boolean placedBid = trigger(
+                    itemId,
+                    latestSession.getCurrent_price(),
+                    latestSession.getCurrent_user_id(),
+                    minIncrement
+            );
+            if (!placedBid) {
+                return placedAnyBid;
+            }
+            placedAnyBid = true;
+        }
+
+        return placedAnyBid;
+    }
+
+    public boolean trigger(long itemId, long currentPrice, long currentUserId, long minIncrement) {
+        long step = minIncrement > 0 ? minIncrement : 1L;
+        long nextPrice;
+        try {
+            nextPrice = Math.addExact(currentPrice, step);
+        } catch (ArithmeticException e) {
+            return false;
+        }
         BidService bidService = new BidService();
         List<Autobid> list = repo.getActiveByItemId(itemId);
 
         for (Autobid ab : list) {
 
             if (!ab.is_active()) continue;
-            if (ab.getMax_price() <= currentPrice) continue;
+            // Auto bid chỉ phản ứng với bid của người khác, không tự đẩy giá của chính người vừa đặt.
+            if (ab.getUser_id() == currentUserId) continue;
+            if (ab.getMax_price() < nextPrice) continue;
 
-            long nextPrice = currentPrice + 1;
-
-            if (nextPrice <= ab.getMax_price()) {
+            try {
                 bidService.placeBid(ab.getUser_id(), itemId, nextPrice);
-                break;
+                return true;
+            } catch (RuntimeException e) {
+                // Auto bid lỗi không được làm fail lệnh đặt giá thủ công vừa thành công.
+                continue;
             }
         }
+        return false;
     }
 
     public List<Autobid> getByUserId(long userId) {
@@ -82,4 +154,30 @@ public class AutoBidService {
             repo.updateEndTime(auction.getId(), auction.getEndTime());
         }
     }
+
+    // Kết quả service trả về cho màn chi tiết phiên sau khi bật autobid.
+    public static class AutoBidActionResult {
+        private final Optional<Autobid> autobid;
+        private final boolean immediateBidPlaced;
+        private final String message;
+
+        public AutoBidActionResult(Optional<Autobid> autobid, boolean immediateBidPlaced, String message) {
+            this.autobid = autobid == null ? Optional.empty() : autobid;
+            this.immediateBidPlaced = immediateBidPlaced;
+            this.message = message;
+        }
+
+        public Optional<Autobid> getAutobid() {
+            return autobid;
+        }
+
+        public boolean isImmediateBidPlaced() {
+            return immediateBidPlaced;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+    }
+
 }

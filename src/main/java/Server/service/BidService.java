@@ -7,7 +7,6 @@ import Common.DataBase.entities.Stake;
 import Common.DataBase.repository.AuctionRepository;
 import Common.DataBase.repository.BidRepository;
 import Common.DataBase.repository.ItemRepository;
-import Common.Enum.AuctionState;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -17,14 +16,21 @@ import static Common.Enum.AuctionState.RUNNING;
 
 public class BidService {
 
+    private static final Object BID_LOCK = new Object();
+
     private AuctionRepository auctionRepo = new AuctionRepository();
     private BidRepository bidRepo = new BidRepository();
     private ItemRepository itemRepo = new ItemRepository();
     private StakeService stakeService = new StakeService();
-    private AutoBidService AutobidService = new AutoBidService();
+    private AutoBidService autoBidService = new AutoBidService();
 
-    public synchronized Bid placeBid(long userId, long itemId, long price) {
+    public Bid placeBid(long userId, long itemId, long price) {
+        synchronized (BID_LOCK) {
+            return placeBidLocked(userId, itemId, price);
+        }
+    }
 
+    private Bid placeBidLocked(long userId, long itemId, long price) {
         Auction auction = auctionRepo.getByItemId(itemId);
         if (auction == null) throw new RuntimeException("Auction not found");
         if (auction.getState() != RUNNING)
@@ -66,10 +72,8 @@ public class BidService {
         auction.setCurrent_user_id(userId);
         auction.setCurrent_price(price);
 
-        // 🔥 auto bid
-        AutobidService.trigger(itemId, price);
-        // tu dong gia han thoi gian
-        AutobidService.autoTime(auction);
+        // Auto bid được controller gọi ở task nền để bid thủ công không bị kẹt trong chuỗi auto bid dài.
+        autoBidService.autoTime(auction);
 
         return b;
     }

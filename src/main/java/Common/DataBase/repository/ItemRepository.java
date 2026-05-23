@@ -20,9 +20,20 @@ public class ItemRepository {
         i.setOwner_user_id(rs.getLong("owner_user_id"));
         i.setDescription(rs.getString("description"));
         i.setBeginPrice(rs.getLong("beginPrice"));
+        i.setMinIncrement(readLongOrDefault(rs, "minIncrement", 1L));
         i.setMota(rs.getString("mota"));
         i.setStatus(ItemStatus.valueOf(rs.getString("status")));
         return i;
+    }
+
+    // DB cũ có thể chưa có cột minIncrement; fallback để màn item không bị trắng toàn bộ.
+    private long readLongOrDefault(ResultSet rs, String column, long fallback) {
+        try {
+            long value = rs.getLong(column);
+            return rs.wasNull() || value <= 0 ? fallback : value;
+        } catch (Exception e) {
+            return fallback;
+        }
     }
 
     public List<Item> getAllItem() {
@@ -42,7 +53,7 @@ public class ItemRepository {
     }
 
     public void saveItem(Item item) {
-        String sql = "INSERT INTO item (fullname, owner_user_id, description, beginPrice, mota, status) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO item (fullname, owner_user_id, description, beginPrice, minIncrement, mota, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -50,11 +61,12 @@ public class ItemRepository {
             ps.setLong(2, item.getOwner_user_id());
             ps.setString(3, item.getDescription());
             ps.setLong(4, item.getBeginPrice());
-            ps.setString(5, item.getMota());
-            ps.setString(6, item.getStatus().toString());
+            ps.setLong(5, item.getMinIncrement());
+            ps.setString(6, item.getMota());
+            ps.setString(7, item.getStatus().toString());
             ps.executeUpdate();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -77,7 +89,7 @@ public class ItemRepository {
     }
 
     public void update(Item item) {
-        String sql = "UPDATE item SET fullname = ?, owner_user_id = ?, description = ?, beginPrice = ?, mota = ?, status = ? WHERE id = ?";
+        String sql = "UPDATE item SET fullname = ?, owner_user_id = ?, description = ?, beginPrice = ?, minIncrement = ?, mota = ?, status = ? WHERE id = ?";
 
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -86,9 +98,10 @@ public class ItemRepository {
             ps.setLong(2, item.getOwner_user_id());
             ps.setString(3, item.getDescription());
             ps.setLong(4, item.getBeginPrice());
-            ps.setString(5, item.getMota());
-            ps.setString(6, item.getStatus().name());
-            ps.setLong(7, item.getId());
+            ps.setLong(5, item.getMinIncrement());
+            ps.setString(6, item.getMota());
+            ps.setString(7, item.getStatus().name());
+            ps.setLong(8, item.getId());
 
             int rows = ps.executeUpdate();
             if (rows == 0) {

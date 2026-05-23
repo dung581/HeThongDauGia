@@ -108,9 +108,11 @@ public class    ItemBrowseController {
         HBox meta = new HBox(10.0);
         Label id = new Label("ID #" + item.getId());
         id.getStyleClass().add("data-meta");
+        Label minStep = new Label("Buoc gia " + formatMoney(getEffectiveMinIncrement(item)));
+        minStep.getStyleClass().add("data-meta");
         Label note = new Label(nullToText(item.getMota(), ""));
         note.getStyleClass().add("data-meta");
-        meta.getChildren().addAll(id, note);
+        meta.getChildren().addAll(id, minStep, note);
         main.getChildren().addAll(title, description, meta);
 
         Region spacer = new Region();
@@ -118,7 +120,7 @@ public class    ItemBrowseController {
 
         VBox value = new VBox(6.0);
         value.setAlignment(Pos.CENTER_RIGHT);
-        Label price = new Label(String.format("%,d", item.getBeginPrice()));
+        Label price = new Label(formatMoney(item.getBeginPrice()));
         price.getStyleClass().add("data-money");
         Label status = new Label(item.getStatus() == null ? "" : item.getStatus().name());
         status.getStyleClass().add("data-pill");
@@ -131,6 +133,15 @@ public class    ItemBrowseController {
     // Trả chuỗi dự phòng khi dữ liệu null/rỗng.
     private String nullToText(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
+    }
+
+    // Item cũ có thể chưa có bước giá, fallback 1 để khớp BidService.
+    private long getEffectiveMinIncrement(Item item) {
+        return item == null || item.getMinIncrement() <= 0 ? 1L : item.getMinIncrement();
+    }
+
+    private String formatMoney(long amount) {
+        return String.format("%,d", amount);
     }
 
     // Cấu hình các input/nút chỉ dành cho Admin.
@@ -210,11 +221,6 @@ public class    ItemBrowseController {
             return;
         }
 
-        if (selected.getStatus() != ItemStatus.PENDING) {
-            showWarning("Chi duyet duoc item dang o trang thai PENDING.");
-            return;
-        }
-
         // Yêu cầu nhập số giờ đấu giá.
         int hours;
         try{
@@ -229,10 +235,9 @@ public class    ItemBrowseController {
         }
 
         try{
-            itemService.approve(selected.getId());
-
             LocalDateTime endAt = LocalDateTime.now().plus(Duration.ofHours(hours));
-            auctionService.createSession(selected.getId(), endAt);
+            // Service xử lý trọn workflow duyệt item PENDING rồi mở phiên.
+            auctionService.approveAndCreateSession(selected.getId(), endAt);
 
             showInfo("Đã duyệt sản phẩm ID" +selected.getId() + " và mở phiên đấu giá.");
             loadData();
@@ -279,11 +284,6 @@ public class    ItemBrowseController {
             showWarning("Chưa chọn sản phẩm");
             return;
         }
-        if (selected.getStatus() != ItemStatus.APPROVED){
-            showWarning("Chỉ mở phiên đấu giá với các item dang APPROVED");
-            return;
-        }
-
         int hours;
         try {
             hours = Integer.parseInt(endTime == null ? "" : endTime.getText().trim());
@@ -298,6 +298,7 @@ public class    ItemBrowseController {
 
         try {
             LocalDateTime endAt = LocalDateTime.now().plus(Duration.ofHours(hours));
+            // Service tự kiểm tra item phải ở trạng thái APPROVED trước khi mở phiên.
             auctionService.createSession(selected.getId(), endAt);
             showInfo("Đã mở phiên đấu giá cho sản phẩm ID " + selected.getId() + ".");
             loadData();

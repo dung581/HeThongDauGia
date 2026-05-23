@@ -107,8 +107,11 @@
                     <Label styleClass="field-name" text="GIA" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                     <Label fx:id="giaLabel" styleClass="accent-value" text=" " GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                    <Label styleClass="field-name" text="TRANG THAI" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                    <Label fx:id="trangthaiLabel" styleClass="field-value" text=" " GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    <Label styleClass="field-name" text="BUOC GIA" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <Label fx:id="minIncrementLabel" styleClass="field-value" text=" " GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                    <Label styleClass="field-name" text="TRANG THAI" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <Label fx:id="trangthaiLabel" styleClass="field-value" text=" " GridPane.columnIndex="1" GridPane.rowIndex="4" />
                 </GridPane>
 
                 <VBox spacing="6.0">

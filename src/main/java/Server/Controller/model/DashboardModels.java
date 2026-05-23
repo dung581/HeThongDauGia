@@ -32,6 +32,8 @@ public static class LiveSessionRow {
     private final String description;
     // Giá hiện tại đã được format để hiển thị.
     private final String currentPrice;
+    // Bước giá tối thiểu đã được format.
+    private final String minIncrement;
     // Người đang dẫn phiên, dạng text hiển thị.
     private final String leader;
     // Thời điểm kết thúc phiên, dùng để tính countdown.
@@ -39,11 +41,12 @@ public static class LiveSessionRow {
     // Text countdown thay đổi theo timer, ví dụ "05:30".
     private final SimpleStringProperty timeLeft = new SimpleStringProperty("-");
 
-    public LiveSessionRow(long sessionId, String itemName, String description, String currentPrice, String leader, LocalDateTime endTime) {
+    public LiveSessionRow(long sessionId, String itemName, String description, String currentPrice, String minIncrement, String leader, LocalDateTime endTime) {
         this.sessionId = sessionId;
         this.itemName = itemName;
         this.description = description;
         this.currentPrice = currentPrice;
+        this.minIncrement = minIncrement;
         this.leader = leader;
         this.endTime = endTime;
     }
@@ -64,6 +67,10 @@ public static class LiveSessionRow {
         return currentPrice;
     }
 
+    public String getMinIncrement() {
+        return minIncrement;
+    }
+
     public String getLeader() {
         return leader;
     }
@@ -81,7 +88,7 @@ public static class LiveSessionRow {
     }
 
     public EndedSessionRow toEndedSessionRow() {
-        return new EndedSessionRow(sessionId, itemName, description, currentPrice, leader, "ENDED");
+        return new EndedSessionRow(sessionId, itemName, description, currentPrice, minIncrement, leader, "ENDED");
     }
 }
 
@@ -95,16 +102,19 @@ public static class EndedSessionRow {
     private final String description;
     // Giá cuối cùng của phiên, đã format để hiển thị.
     private final String finalPrice;
+    // Bước giá tối thiểu đã được format.
+    private final String minIncrement;
     // Người thắng hoặc người dẫn cuối cùng.
     private final String winner;
     // Trạng thái cuối của phiên, ví dụ ENDED/PAID/CANCELED.
     private final String status;
 
-    public EndedSessionRow(long sessionId, String itemName, String description, String finalPrice, String winner, String status) {
+    public EndedSessionRow(long sessionId, String itemName, String description, String finalPrice, String minIncrement, String winner, String status) {
         this.sessionId = sessionId;
         this.itemName = itemName;
         this.description = description;
         this.finalPrice = finalPrice;
+        this.minIncrement = minIncrement;
         this.winner = winner;
         this.status = status;
     }
@@ -123,6 +133,10 @@ public static class EndedSessionRow {
 
     public String getFinalPrice() {
         return finalPrice;
+    }
+
+    public String getMinIncrement() {
+        return minIncrement;
     }
 
     public String getWinner() {
@@ -146,17 +160,20 @@ public static class SessionOverviewRow {
     private final String description;
     // Giá hiện tại/cuối cùng đã format.
     private final String price;
+    // Bước giá tối thiểu đã được format.
+    private final String minIncrement;
     // Người đang dẫn hoặc người thắng.
     private final String leader;
     // Trạng thái phiên.
     private final String status;
 
-    public SessionOverviewRow(long sessionId, long itemId, String itemName, String description, String price, String leader, String status) {
+    public SessionOverviewRow(long sessionId, long itemId, String itemName, String description, String price, String minIncrement, String leader, String status) {
         this.sessionId = sessionId;
         this.itemId = itemId;
         this.itemName = itemName;
         this.description = description;
         this.price = price;
+        this.minIncrement = minIncrement;
         this.leader = leader;
         this.status = status;
     }
@@ -181,6 +198,10 @@ public static class SessionOverviewRow {
         return price;
     }
 
+    public String getMinIncrement() {
+        return minIncrement;
+    }
+
     public String getLeader() {
         return leader;
     }
@@ -202,15 +223,18 @@ public static class ItemOverviewRow {
     private final String owner;
     // Giá khởi điểm đã format.
     private final String price;
+    // Bước giá tối thiểu đã format.
+    private final String minIncrement;
     // Trạng thái sản phẩm: PENDING, APPROVED, IN_AUCTION, SOLD...
     private final String status;
 
-    public ItemOverviewRow(Long id, String itemName, String description, String owner, String price, String status) {
+    public ItemOverviewRow(Long id, String itemName, String description, String owner, String price, String minIncrement, String status) {
         this.id = id;
         this.itemName = itemName;
         this.description = description;
         this.owner = owner;
         this.price = price;
+        this.minIncrement = minIncrement;
         this.status = status;
     }
 
@@ -232,6 +256,10 @@ public static class ItemOverviewRow {
 
     public String getPrice() {
         return price;
+    }
+
+    public String getMinIncrement() {
+        return minIncrement;
     }
 
     public String getStatus() {

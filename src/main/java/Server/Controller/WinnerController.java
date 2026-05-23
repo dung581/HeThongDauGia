@@ -3,7 +3,6 @@ package Server.Controller;
 
 import Common.DataBase.entities.Auction;
 import Common.DataBase.entities.Item;
-import Common.Enum.AuctionState;
 import Common.Enum.UserRole;
 import Common.Model.user.UserAccount;
 import Server.service.AuctionService;
@@ -59,8 +58,8 @@ public class WinnerController{
                 return;
             }
 
-            if (auction.getState() == AuctionState.RUNNING){
-                auctionService.closeSession(sessionId);
+            // Service tự kiểm tra phiên đã hết hạn chưa trước khi đóng.
+            if (auctionService.closeIfExpired(sessionId)) {
                 auction = auctionService.getById(sessionId);
             }
             populate(auction);

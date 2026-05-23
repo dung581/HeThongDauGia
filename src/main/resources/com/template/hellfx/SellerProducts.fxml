@@ -49,6 +49,10 @@
                         <TextField fx:id="itemPrice" promptText="Nhap gia" styleClass="input" />
                     </VBox>
                     <VBox spacing="8.0">
+                        <Label styleClass="field-name" text="BUOC GIA TOI THIEU" />
+                        <TextField fx:id="itemMinIncrement" promptText="VD: 10" styleClass="input" />
+                    </VBox>
+                    <VBox spacing="8.0">
                         <Label styleClass="field-name" text="MO TA" />
                         <TextField fx:id="itemDescription" promptText="Nhap mo ta" styleClass="input" />
                     </VBox>
