@@ -23,9 +23,8 @@ public class DbConnection {
  */
 package Common.DataBase;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
+import java.sql.DriverManager;
 
 public class DbConnection {
 
@@ -38,24 +37,8 @@ public class DbConnection {
     private static final String PASSWORD =
             "baitaplon@@";
 
-    private static final HikariDataSource dataSource;
-
-    static {
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(URL);
-        config.setUsername(USER);
-        config.setPassword(PASSWORD);
-        config.setMaximumPoolSize(10);
-        config.setMinimumIdle(2);
-        config.setIdleTimeout(30000);
-        config.setMaxLifetime(1800000);
-        config.setConnectionTimeout(10000);
-        
-        dataSource = new HikariDataSource(config);
-    }
-
     public static Connection getConnection() throws Exception {
-        return dataSource.getConnection();
+        return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
 }
