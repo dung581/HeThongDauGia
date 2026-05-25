@@ -22,12 +22,12 @@
             </VBox>
 
             <VBox spacing="12.0">
-                <Label styleClass="section-label" text="BIDDER DASHBOARD" />
+                <Label styleClass="section-label" text="BẢNG ĐIỀU KHIỂN NGƯỜI ĐẤU GIÁ" />
                 <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goHome" styleClass="nav-active" text="Home" />
             </VBox>
 
             <VBox spacing="8.0">
-                <Label styleClass="section-label" text="ACCOUNT" />
+                <Label styleClass="section-label" text="TÀI KHOẢN" />
                 <Label fx:id="sidebarUserLabel" styleClass="field-value" text="-" />
                 <Label fx:id="sidebarRoleLabel" styleClass="muted" text="BIDDER" />
             </VBox>
@@ -35,7 +35,7 @@
             <VBox spacing="8.0">
                 <Label styleClass="section-label" text="LIVE MARKET" />
                 <Label fx:id="sidebarLiveLabel" styleClass="accent-value" text="-" />
-                <Label styleClass="muted" text="phien dang mo" />
+                <Label styleClass="muted" text="phiên đang mở" />
             </VBox>
         </VBox>
     </left>
@@ -45,9 +45,9 @@
             <padding>
                 <Insets bottom="16.0" left="32.0" right="32.0" top="16.0" />
             </padding>
-            <Label styleClass="muted" text="BidNow / Bidder Dashboard" />
+            <Label styleClass="muted" text="BidNow / Bảng điều khiển Người đấu giá" />
             <HBox HBox.hgrow="ALWAYS" />
-            <Button mnemonicParsing="false" onAction="#goToLogin" styleClass="secondary-button" text="Dang xuat" />
+            <Button mnemonicParsing="false" onAction="#goToLogin" styleClass="secondary-button" text="Đăng xuất" />
         </HBox>
     </top>
 
@@ -58,8 +58,8 @@
             </padding>
 
             <VBox spacing="8.0">
-                <Label styleClass="page-title" text="Bidder Dashboard" />
-                <Label styleClass="page-subtitle" text="Theo doi phien dau gia, dat gia va quan ly tai khoan cua ban." />
+                <Label styleClass="page-title" text="Bảng điều khiển người đấu giá" />
+                <Label styleClass="page-subtitle" text="Theo dõi phiên đấu giá, đặt giá và quản lý tài khoản của bạn." />
             </VBox>
 
             <HBox spacing="14.0">
@@ -67,7 +67,7 @@
                     <padding>
                         <Insets bottom="16.0" left="18.0" right="18.0" top="16.0" />
                     </padding>
-                    <Label styleClass="field-name" text="SO DU KHA DUNG" />
+                    <Label styleClass="field-name" text="SỐ DƯ KHẢ DỤNG" />
                     <Label fx:id="availableBalanceLabel" styleClass="money-value" text="-" />
                 </VBox>
 
@@ -75,7 +75,7 @@
                     <padding>
                         <Insets bottom="16.0" left="18.0" right="18.0" top="16.0" />
                     </padding>
-                    <Label styleClass="field-name" text="TIEN DANG KHOA" />
+                    <Label styleClass="field-name" text="TIỀN ĐANG KHÓA" />
                     <Label fx:id="lockedBalanceLabel" styleClass="money-value" text="-" />
                 </VBox>
 
@@ -83,7 +83,7 @@
                     <padding>
                         <Insets bottom="16.0" left="18.0" right="18.0" top="16.0" />
                     </padding>
-                    <Label styleClass="field-name" text="STAKE DANG KHOA" />
+                    <Label styleClass="field-name" text="TIỀN ĐẶT CỌC ĐANG KHÓA" />
                     <Label fx:id="activeStakeCountLabel" styleClass="accent-value" text="-" />
                 </VBox>
 
@@ -91,7 +91,7 @@
                     <padding>
                         <Insets bottom="16.0" left="18.0" right="18.0" top="16.0" />
                     </padding>
-                    <Label styleClass="field-name" text="DANG DAN DAU" />
+                    <Label styleClass="field-name" text="ĐANG DẪN ĐẦU" />
                     <Label fx:id="leadingSessionCountLabel" styleClass="success-value" text="-" />
                 </VBox>
             </HBox>
@@ -103,38 +103,38 @@
                             <padding>
                                 <Insets bottom="20.0" left="22.0" right="22.0" top="20.0" />
                             </padding>
-                            <Label styleClass="field-name" text="AUCTION FLOOR" />
-                            <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #f4f7fb;" text="San dau gia" />
-                            <Label styleClass="page-subtitle" text="Xem cac phien dang chay va tham gia dau gia." wrapText="true" />
-                            <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#Sandaugia" styleClass="primary-button" text="Vao san ->" />
+                            <Label styleClass="field-name" text="SÀN ĐẤU GIÁ" />
+                            <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #f4f7fb;" text="Sàn đấu giá" />
+                            <Label styleClass="page-subtitle" text="Xem các phiên đang chạy và tham gia đấu giá." wrapText="true" />
+                            <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#Sandaugia" styleClass="primary-button" text="Vào sàn ->" />
                         </VBox>
 
                         <VBox prefHeight="150.0" prefWidth="280.0" spacing="12.0" styleClass="card">
                             <padding>
                                 <Insets bottom="20.0" left="22.0" right="22.0" top="20.0" />
                             </padding>
-                            <Label styleClass="field-name" text="ACCOUNT" />
+                            <Label styleClass="field-name" text="TÀI KHOẢN" />
                             <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #f4f7fb;" text="Thong tin tai khoan" />
-                            <Label styleClass="page-subtitle" text="Kiem tra so du, tien khoa va lich su stake." wrapText="true" />
-                            <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#quanlytk" styleClass="secondary-button" text="Mo tai khoan" />
+                            <Label styleClass="page-subtitle" text="Kiểm tra số dư, tiền khóa và lịch sử đặt cọc." wrapText="true" />
+                            <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#quanlytk" styleClass="secondary-button" text="Mở tài khoản" />
                         </VBox>
 
                         <VBox prefHeight="150.0" prefWidth="280.0" spacing="12.0" styleClass="card">
                             <padding>
                                 <Insets bottom="20.0" left="22.0" right="22.0" top="20.0" />
                             </padding>
-                            <Label styleClass="field-name" text="BALANCE" />
-                            <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #f4f7fb;" text="Nap tien" />
-                            <Label styleClass="page-subtitle" text="Bo sung so du de tiep tuc dat gia." wrapText="true" />
-                            <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goToDeposit" styleClass="secondary-button" text="Nap tien" />
+                            <Label styleClass="field-name" text="SỐ DƯ" />
+                            <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #f4f7fb;" text="Nạp tiền" />
+                            <Label styleClass="page-subtitle" text="Bổ sung số dư để tiếp tục đặt giá." wrapText="true" />
+                            <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goToDeposit" styleClass="secondary-button" text="Nạp tiền" />
                         </VBox>
                     </HBox>
 
                     <VBox spacing="10.0" VBox.vgrow="ALWAYS">
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <Label styleClass="section-label" text="SAN PHAM CUA TOI" />
+                            <Label styleClass="section-label" text="SẢN PHẨM CỦA TÔI" />
                             <HBox HBox.hgrow="ALWAYS" />
-                            <Label fx:id="ownedProductSummaryLabel" styleClass="page-subtitle" text="Dang tai du lieu..." />
+                            <Label fx:id="ownedProductSummaryLabel" styleClass="page-subtitle" text="Đang tải dữ liệu..." />
                         </HBox>
                         <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="260.0" styleClass="flat-scroll" VBox.vgrow="ALWAYS">
                             <content>
@@ -150,17 +150,17 @@
                     </padding>
                     <HBox alignment="CENTER_LEFT" spacing="8.0">
                         <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                            <Label styleClass="field-name" text="PHIEN DANG CHAY" />
-                            <Label fx:id="liveSessionSummaryLabel" styleClass="page-subtitle" text="Dang tai du lieu..." />
+                            <Label styleClass="field-name" text="PHIÊN ĐANG CHẠY" />
+                            <Label fx:id="liveSessionSummaryLabel" styleClass="page-subtitle" text="Đang tải dữ liệu..." />
                         </VBox>
-                        <Button mnemonicParsing="false" onAction="#Sandaugia" styleClass="secondary-button" text="Xem tat ca" />
+                        <Button mnemonicParsing="false" onAction="#Sandaugia" styleClass="secondary-button" text="Xem tất cả" />
                     </HBox>
                     <ListView fx:id="liveSessionTable" styleClass="data-list" VBox.vgrow="ALWAYS" />
 
                     <VBox spacing="8.0">
                         <VBox spacing="4.0">
-                            <Label styleClass="field-name" text="PHIEN DA KET THUC" />
-                            <Label fx:id="endedSessionSummaryLabel" styleClass="page-subtitle" text="Dang tai du lieu..." />
+                            <Label styleClass="field-name" text="PHIÊN ĐÃ KẾT THÚC" />
+                            <Label fx:id="endedSessionSummaryLabel" styleClass="page-subtitle" text="Đang tải dữ liệu..." />
                         </VBox>
                         <ListView fx:id="endedSessionTable" prefHeight="205.0" styleClass="data-list" />
                     </VBox>
@@ -174,7 +174,7 @@
             <padding>
                 <Insets bottom="10.0" left="42.0" right="42.0" top="10.0" />
             </padding>
-            <Label styleClass="muted" text="BidNow Desktop | JavaFX 21 | Bidder workspace" />
+            <Label styleClass="muted" text="BidNow Desktop | JavaFX 21 | Không gian Người đấu giá" />
         </HBox>
     </bottom>
 </BorderPane>

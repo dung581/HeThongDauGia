@@ -16,9 +16,9 @@
             <padding>
                 <Insets bottom="16.0" left="32.0" right="32.0" top="16.0" />
             </padding>
-            <Label styleClass="muted" text="BidNow / Admin / Item Management" />
+            <Label styleClass="muted" text="BidNow / Admin / Quản lý vật phẩm" />
             <HBox HBox.hgrow="ALWAYS" />
-            <Button mnemonicParsing="false" onAction="#backToAdminDashboard" styleClass="secondary-button" text="Tro lai" />
+            <Button mnemonicParsing="false" onAction="#backToAdminDashboard" styleClass="secondary-button" text="Trở lại" />
         </HBox>
     </top>
 
@@ -29,17 +29,17 @@
             </padding>
 
             <VBox spacing="6.0">
-                <Label styleClass="page-title" text="Quan ly vat pham" />
-                <Label styleClass="page-subtitle" text="Theo doi tat ca san pham trong he thong theo nguoi ban, gia va trang thai." />
+                <Label styleClass="page-title" text="Quản lý vật phẩm" />
+                <Label styleClass="page-subtitle" text="Theo dõi tất cả sản phẩm trong hệ thống theo người bán, giá và trạng thái." />
             </VBox>
 
             <VBox spacing="10.0" VBox.vgrow="ALWAYS">
-                <Label styleClass="section-label" text="ALL ITEMS" />
+                <Label styleClass="section-label" text="TẤT CẢ VẬT PHẨM" />
                 <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="filter-bar">
                     <TextField fx:id="searchField" prefWidth="300.0" promptText="Tim ten, ID, mo ta" styleClass="input" />
                     <ChoiceBox fx:id="statusFilter" prefWidth="170.0" />
                     <TextField fx:id="ownerSearchField" prefWidth="160.0" promptText="ID nguoi ban" styleClass="input" />
-                    <Button mnemonicParsing="false" onAction="#loadAllItems" styleClass="secondary-button" text="Tai lai" />
+                    <Button mnemonicParsing="false" onAction="#loadAllItems" styleClass="secondary-button" text="Tải lại" />
                 </HBox>
                 <ListView fx:id="table" styleClass="data-list" VBox.vgrow="ALWAYS" />
             </VBox>
@@ -51,7 +51,7 @@
             <padding>
                 <Insets bottom="10.0" left="42.0" right="42.0" top="10.0" />
             </padding>
-            <Label styleClass="muted" text="BidNow Desktop | JavaFX 21 | Admin item workspace" />
+            <Label styleClass="muted" text="BidNow Desktop | JavaFX 21 | Quản lý vật phẩm Admin" />
         </HBox>
     </bottom>
 </BorderPane>

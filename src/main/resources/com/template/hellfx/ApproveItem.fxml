@@ -15,9 +15,9 @@
             <padding>
                 <Insets bottom="16.0" left="32.0" right="32.0" top="16.0" />
             </padding>
-            <Label styleClass="muted" text="BidNow / Admin / Pending Items" />
+            <Label styleClass="muted" text="BidNow / Admin / Vật phẩm chờ duyệt" />
             <HBox HBox.hgrow="ALWAYS" />
-            <Button mnemonicParsing="false" onAction="#trolai" styleClass="secondary-button" text="Tro lai" />
+            <Button mnemonicParsing="false" onAction="#trolai" styleClass="secondary-button" text="Trở lại" />
         </HBox>
     </top>
 
@@ -28,27 +28,27 @@
             </padding>
 
             <VBox spacing="6.0">
-                <Label styleClass="page-title" text="Duyet san pham" />
-                <Label styleClass="page-subtitle" text="Chon item dang cho duyet, nhap thoi gian dau gia hoac ly do tu choi." />
+                <Label styleClass="page-title" text="Duyệt sản phẩm" />
+                <Label styleClass="page-subtitle" text="Chọn sản phẩm đang chờ duyệt, nhập thời gian đấu giá hoặc lý do từ chối." />
             </VBox>
 
             <ListView fx:id="table" styleClass="data-list" VBox.vgrow="ALWAYS" />
 
             <VBox spacing="12.0">
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
-                    <Button onAction="#onChapNhan" styleClass="primary-button" text="Chap nhan" />
-                    <Button onAction="#onTuChoi" styleClass="danger-button" text="Tu choi" />
+                    <Button onAction="#onChapNhan" styleClass="primary-button" text="Chấp nhận" />
+                    <Button onAction="#onTuChoi" styleClass="danger-button" text="Từ chối" />
                 </HBox>
 
                 <VBox fx:id="approvePane" managed="false" spacing="12.0" styleClass="card" visible="false">
                     <padding>
                         <Insets bottom="16.0" left="18.0" right="18.0" top="16.0" />
                     </padding>
-                    <Label styleClass="section-label" text="THOI GIAN DAU GIA" />
+                    <Label styleClass="section-label" text="THỜI GIAN ĐẤU GIÁ" />
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
-                        <Label styleClass="field-name" text="BAT DAU" />
+                        <Label styleClass="field-name" text="BẮT ĐẦU" />
                         <TextField fx:id="startTime" prefWidth="190.0" promptText="yyyy-MM-dd HH:mm" styleClass="input" />
-                        <Label styleClass="field-name" text="KET THUC" />
+                        <Label styleClass="field-name" text="KẾT THÚC" />
                         <TextField fx:id="endTime" prefWidth="190.0" promptText="yyyy-MM-dd HH:mm" styleClass="input" />
                     </HBox>
                 </VBox>
@@ -57,7 +57,7 @@
                     <padding>
                         <Insets bottom="16.0" left="18.0" right="18.0" top="16.0" />
                     </padding>
-                    <Label styleClass="section-label" text="LY DO TU CHOI" />
+                    <Label styleClass="section-label" text="LÝ DO TỪ CHỐI" />
                     <TextField fx:id="rejectReason" promptText="Nhap ly do tra ve cho seller" styleClass="input" />
                 </VBox>
             </VBox>
@@ -69,7 +69,7 @@
             <padding>
                 <Insets bottom="10.0" left="42.0" right="42.0" top="10.0" />
             </padding>
-            <Label styleClass="muted" text="BidNow Desktop | JavaFX 21 | Approval workspace" />
+            <Label styleClass="muted" text="BidNow Desktop | JavaFX 21 | Phê duyệt sản phẩm Admin" />
         </HBox>
     </bottom>
 </BorderPane>
