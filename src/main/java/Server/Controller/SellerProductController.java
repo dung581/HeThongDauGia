@@ -91,7 +91,7 @@ public class SellerProductController {
         HBox meta = new HBox(10.0);
         Label id = new Label("ID #" + item.getId());
         id.getStyleClass().add("data-meta");
-        Label minStep = new Label("Buoc gia " + formatMoney(getEffectiveMinIncrement(item)));
+        Label minStep = new Label("Bước giá " + formatMoney(getEffectiveMinIncrement(item)));
         minStep.getStyleClass().add("data-meta");
         Label description = new Label(nullToText(item.getDescription(), ""));
         description.getStyleClass().add("data-meta");

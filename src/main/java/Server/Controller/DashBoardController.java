@@ -403,9 +403,9 @@ public class DashBoardController {
             VBox empty = new VBox(6.0);
             empty.setPadding(new Insets(18.0));
             empty.getStyleClass().add("product-empty");
-            Label title = new Label("Chua co phien gan day");
+            Label title = new Label("Chưa có phiên gần đây");
             title.getStyleClass().add("product-title");
-            Label subtitle = new Label("Cac phien dau gia moi tao hoac vua ket thuc se hien thi o day.");
+            Label subtitle = new Label("Các phiên đấu giá mới tạo hoặc vừa kết thúc sẽ hiển thị ở đây.");
             subtitle.getStyleClass().add("page-subtitle");
             subtitle.setWrapText(true);
             empty.getChildren().addAll(title, subtitle);
@@ -436,17 +436,17 @@ public class DashBoardController {
         Label title = new Label(row.getItemName());
         title.getStyleClass().add("product-title");
         title.setWrapText(true);
-        Label description = new Label(nullToText(row.getDescription(), "Khong co mo ta"));
+        Label description = new Label(nullToText(row.getDescription(), "Không có mô tả"));
         description.getStyleClass().add("product-description");
         description.setWrapText(true);
 
         HBox metaBox = new HBox(10.0);
         metaBox.setAlignment(Pos.CENTER_LEFT);
-        Label sessionId = new Label("Phien #" + row.getSessionId());
+        Label sessionId = new Label("Phiên #" + row.getSessionId());
         sessionId.getStyleClass().add("product-meta");
-        Label itemId = new Label("Item #" + row.getItemId());
+        Label itemId = new Label("Sản phẩm #" + row.getItemId());
         itemId.getStyleClass().add("product-meta");
-        Label minStep = new Label("Buoc gia " + row.getMinIncrement());
+        Label minStep = new Label("Bước giá " + row.getMinIncrement());
         minStep.getStyleClass().add("product-meta");
         metaBox.getChildren().addAll(sessionId, itemId, minStep);
         textBox.getChildren().addAll(title, description, metaBox);
@@ -503,12 +503,12 @@ public class DashBoardController {
         Label title = new Label(row.getItemName());
         title.getStyleClass().add("data-title");
         title.setWrapText(true);
-        Label description = new Label(nullToText(row.getDescription(), "Khong co mo ta"));
+        Label description = new Label(nullToText(row.getDescription(), "Không có mô tả"));
         description.getStyleClass().add("product-description");
         description.setWrapText(true);
-        Label meta = new Label("Phien #" + row.getSessionId()
+        Label meta = new Label("Phiên #" + row.getSessionId()
                 + " | Leader " + row.getLeader()
-                + " | Buoc gia " + row.getMinIncrement());
+                + " | Bước giá " + row.getMinIncrement());
         meta.getStyleClass().add("data-meta");
         main.getChildren().addAll(title, description, meta);
 
@@ -538,12 +538,12 @@ public class DashBoardController {
         Label title = new Label(row.getItemName());
         title.getStyleClass().add("data-title");
         title.setWrapText(true);
-        Label description = new Label(nullToText(row.getDescription(), "Khong co mo ta"));
+        Label description = new Label(nullToText(row.getDescription(), "Không có mô tả"));
         description.getStyleClass().add("product-description");
         description.setWrapText(true);
         Label meta = new Label("Winner " + row.getWinner()
                 + " | Phien #" + row.getSessionId()
-                + " | Buoc gia " + row.getMinIncrement());
+                + " | Bước giá " + row.getMinIncrement());
         meta.getStyleClass().add("data-meta");
         main.getChildren().addAll(title, description, meta);
 
@@ -571,14 +571,14 @@ public class DashBoardController {
         Label title = new Label(row.getItemName());
         title.getStyleClass().add("data-title");
         title.setWrapText(true);
-        Label description = new Label(nullToText(row.getDescription(), "Khong co mo ta"));
+        Label description = new Label(nullToText(row.getDescription(), "Không có mô tả"));
         description.getStyleClass().add("product-description");
         description.setWrapText(true);
-        String metaText = "Item #" + row.getId();
+        String metaText = "Sản phẩm #" + row.getId();
         if (showOwner && row.getOwner() != null && !row.getOwner().isBlank()) {
             metaText += " | Seller #" + row.getOwner();
         }
-        metaText += " | Buoc gia " + row.getMinIncrement();
+        metaText += " | Bước giá " + row.getMinIncrement();
         Label meta = new Label(metaText);
         meta.getStyleClass().add("data-meta");
         main.getChildren().addAll(title, description, meta);
@@ -725,7 +725,7 @@ public class DashBoardController {
         return new ItemOverviewRow(
                 item.getId(),
                 item.getFullname(),
-                nullToText(item.getDescription(), "Khong co mo ta"),
+                nullToText(item.getDescription(), "Không có mô tả"),
                 includeOwner ? String.valueOf(item.getOwner_user_id()) : "",
                 formatMoney(item.getBeginPrice()),
                 formatMoney(getEffectiveMinIncrement(item)),
@@ -802,14 +802,14 @@ public class DashBoardController {
     // Tìm mô tả item theo itemId trong danh sách đã load sẵn.
     private String findItemDescription(List<Item> items, long itemId) {
         if (items == null) {
-            return "Khong co mo ta";
+            return "Không có mô tả";
         }
         return items.stream()
                 .filter(item -> item.getId() == itemId)
                 .map(Item::getDescription)
                 .filter(description -> description != null && !description.isBlank())
                 .findFirst()
-                .orElse("Khong co mo ta");
+                .orElse("Không có mô tả");
     }
 
     // Tìm bước giá tối thiểu, fallback 1 cho dữ liệu cũ chưa có minIncrement.
@@ -1010,10 +1010,10 @@ public class DashBoardController {
         HBox metaBox = new HBox(8.0);
         metaBox.setAlignment(Pos.CENTER_LEFT);
         metaBox.setCursor(Cursor.HAND);
-        Label session = new Label("Phien #" + row.getSessionId());
+        Label session = new Label("Phiên #" + row.getSessionId());
         session.getStyleClass().add("product-meta");
         session.setCursor(Cursor.HAND);
-        Label item = new Label("Item #" + row.getItemId());
+        Label item = new Label("Sản phẩm #" + row.getItemId());
         item.getStyleClass().add("product-meta");
         item.setCursor(Cursor.HAND);
         metaBox.getChildren().addAll(session, item);

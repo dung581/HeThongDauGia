@@ -260,14 +260,14 @@ public class AccountController {
 
         VBox main = new VBox(5.0);
         HBox.setHgrow(main, Priority.ALWAYS);
-        Label title = new Label("Stake #" + stake.getId());
+        Label title = new Label("Đặt cọc #" + stake.getId());
         title.getStyleClass().add("data-title");
         HBox meta = new HBox(10.0);
-        Label auction = new Label("Auction #" + stake.getAution_id());
+        Label auction = new Label("Đấu giá #" + stake.getAution_id());
         auction.getStyleClass().add("data-meta");
-        Label item = new Label("Item #" + stake.getLocked_item_id());
+        Label item = new Label("Sản phẩm #" + stake.getLocked_item_id());
         item.getStyleClass().add("data-meta");
-        Label user = new Label("User #" + stake.getUser_id());
+        Label user = new Label("Người dùng #" + stake.getUser_id());
         user.getStyleClass().add("data-meta");
         meta.getChildren().addAll(auction, item, user);
         main.getChildren().addAll(title, meta);
@@ -296,12 +296,12 @@ public class AccountController {
 
         VBox main = new VBox(5.0);
         HBox.setHgrow(main, Priority.ALWAYS);
-        Label title = new Label(account.getUsername() == null ? "User #" + account.getUserId() : account.getUsername());
+        Label title = new Label(account.getUsername() == null ? "Người dùng #" + account.getUserId() : account.getUsername());
         title.getStyleClass().add("data-title");
         Label fullname = new Label(account.getFullname() == null ? "" : account.getFullname());
         fullname.getStyleClass().add("product-description");
         HBox meta = new HBox(10.0);
-        Label id = new Label("User #" + account.getUserId());
+        Label id = new Label("Người dùng #" + account.getUserId());
         id.getStyleClass().add("data-meta");
         meta.getChildren().add(id);
         main.getChildren().addAll(title, fullname, meta);
@@ -313,7 +313,7 @@ public class AccountController {
         value.setAlignment(Pos.CENTER_RIGHT);
         Label balance = new Label(String.format("%,d", account.getBalance()));
         balance.getStyleClass().add("data-money");
-        Label locked = new Label("Locked " + String.format("%,d", account.getLockedBalance()));
+        Label locked = new Label("Đang khóa " + String.format("%,d", account.getLockedBalance()));
         locked.getStyleClass().add("data-meta");
         Label role = new Label(account.getRole() == null ? "" : account.getRole());
         role.getStyleClass().add("data-pill");

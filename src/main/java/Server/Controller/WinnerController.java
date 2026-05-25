@@ -147,7 +147,7 @@ public class WinnerController{
         }
 
         String winnerName = winner == null || winner.getFullname() == null || winner.getFullname().isBlank()
-                ? "User #" + auction.getCurrent_user_id()
+                ? "Người dùng #" + auction.getCurrent_user_id()
                 : winner.getFullname();
         return winnerName + " (ID " + auction.getCurrent_user_id() + ")";
     }
