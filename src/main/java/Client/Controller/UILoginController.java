@@ -41,6 +41,7 @@ public class UILoginController {
     @FXML private TextField loginPasswordVisible;
 
     @FXML private TextField regname;
+    @FXML private TextField regfullname;
     @FXML private PasswordField regpassHidden;
     @FXML private TextField regpassVisible;
     @FXML private PasswordField regpassagainHidden;
@@ -223,6 +224,7 @@ public class UILoginController {
     @FXML
     public void Register2(ActionEvent actionEvent) throws IOException, UsernameIsBlankException, UsernameAlreadyExistsException, PasswordIsBlankException {
         String tenDK = regname.getText();
+        String hten = (regfullname != null) ? regfullname.getText() : "";
         String mkhau = getRegisterPasswordValue();
         String mkhauLai = getRegisterPasswordAgainValue();
         UserRole role = getRole();
@@ -245,7 +247,7 @@ public class UILoginController {
         }
 
         try {
-            authService.register(tenDK, mkhau, tenDK , role);
+            authService.register(tenDK, mkhau, hten, role);
             showRegisterMessage("Đăng ký thành công");
 
             PauseTransition pause = new PauseTransition(Duration.seconds(1.5));

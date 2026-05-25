@@ -36,28 +36,28 @@
                </padding>
 
                <VBox spacing="6.0">
-                  <Label styleClass="page-title" text="Sign in" />
-                  <Label styleClass="page-subtitle" text="Dang nhap vao tai khoan cua ban" />
+                  <Label styleClass="page-title" text="Đăng nhập" />
+                  <Label styleClass="page-subtitle" text="Đăng nhập vào tài khoản của bạn" />
                </VBox>
 
                <VBox spacing="8.0">
                   <Label styleClass="field-name" text="USERNAME" />
-                  <TextField id="name" fx:id="name" promptText="Ten dang nhap" styleClass="input" />
+                  <TextField id="name" fx:id="name" promptText="Tên đăng nhập" styleClass="input" />
                </VBox>
 
                <VBox spacing="8.0">
                   <Label styleClass="field-name" text="PASSWORD" />
                   <HBox alignment="CENTER_LEFT" spacing="8.0">
-                     <PasswordField fx:id="loginPasswordHidden" HBox.hgrow="ALWAYS" promptText="Mat khau" styleClass="input" />
-                     <TextField fx:id="loginPasswordVisible" HBox.hgrow="ALWAYS" managed="false" promptText="Mat khau" styleClass="input" visible="false" />
+                     <PasswordField fx:id="loginPasswordHidden" HBox.hgrow="ALWAYS" promptText="Mật khẩu" styleClass="input" />
+                     <TextField fx:id="loginPasswordVisible" HBox.hgrow="ALWAYS" managed="false" promptText="Mật khẩu" styleClass="input" visible="false" />
                      <Button fx:id="loginEyeButton" mnemonicParsing="false" onAction="#toggleLoginPassword" prefWidth="42.0" styleClass="secondary-button" text="..." />
                   </HBox>
                </VBox>
 
-               <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#login" prefHeight="42.0" styleClass="primary-button" text="Dang nhap ->" />
+               <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#login" prefHeight="42.0" styleClass="primary-button" text="Đăng nhập ->" />
                <HBox alignment="CENTER" spacing="10.0">
-                  <Label styleClass="muted" text="Chua co tai khoan?" />
-                  <Button mnemonicParsing="false" onAction="#Register" styleClass="secondary-button" text="Dang ky" />
+                  <Label styleClass="muted" text="Chưa có tài khoản?" />
+                  <Button mnemonicParsing="false" onAction="#Register" styleClass="secondary-button" text="Đăng ký" />
                </HBox>
                <Label fx:id="welcomeText" styleClass="field-value" text="" />
             </VBox>

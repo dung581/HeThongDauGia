@@ -17,8 +17,8 @@
          <padding>
             <Insets bottom="16.0" left="42.0" right="42.0" top="16.0" />
          </padding>
-         <Button mnemonicParsing="false" onAction="#goToLogin" styleClass="secondary-button" text="Tro lai" />
-         <Label styleClass="muted" text="BidNow / Register" />
+         <Button mnemonicParsing="false" onAction="#goToLogin" styleClass="secondary-button" text="Trở lại" />
+         <Label styleClass="muted" text="BidNow / Đăng ký" />
       </HBox>
    </top>
 
@@ -30,8 +30,8 @@
 
          <VBox alignment="CENTER" spacing="18.0" prefWidth="360.0">
             <Label styleClass="brand" text="BidNow" />
-            <Label styleClass="page-title" text="Create Account" />
-            <Label alignment="CENTER" maxWidth="320.0" styleClass="page-subtitle" text="Tao tai khoan buyer hoac seller de tham gia he thong dau gia." wrapText="true" />
+            <Label styleClass="page-title" text="Tạo tài khoản" />
+            <Label alignment="CENTER" maxWidth="320.0" styleClass="page-subtitle" text="Tạo tài khoản người mua hoặc người bán để tham gia hệ thống đấu giá." wrapText="true" />
          </VBox>
 
          <VBox alignment="CENTER_LEFT" maxWidth="440.0" prefWidth="440.0" spacing="14.0" styleClass="card">
@@ -40,44 +40,49 @@
             </padding>
 
             <VBox spacing="6.0">
-               <Label styleClass="page-title" text="Register" />
-               <Label styleClass="page-subtitle" text="Chon vai tro va thong tin dang nhap" />
+               <Label styleClass="page-title" text="Đăng ký" />
+               <Label styleClass="page-subtitle" text="Chọn vai trò và thông tin đăng ký" />
             </VBox>
 
             <VBox spacing="8.0">
-               <Label styleClass="field-name" text="USERNAME" />
-               <TextField fx:id="regname" promptText="Ten dang nhap" styleClass="input" />
+               <Label styleClass="field-name" text="HỌ VÀ TÊN" />
+               <TextField fx:id="regfullname" promptText="Họ và tên" styleClass="input" />
             </VBox>
 
             <VBox spacing="8.0">
-               <Label styleClass="field-name" text="PASSWORD" />
+               <Label styleClass="field-name" text="TÊN ĐĂNG NHẬP" />
+               <TextField fx:id="regname" promptText="Tên đăng nhập" styleClass="input" />
+            </VBox>
+
+            <VBox spacing="8.0">
+               <Label styleClass="field-name" text="MẬT KHẨU" />
                <HBox alignment="CENTER_LEFT" spacing="8.0">
-                  <PasswordField fx:id="regpassHidden" HBox.hgrow="ALWAYS" promptText="Mat khau" styleClass="input" />
-                  <TextField fx:id="regpassVisible" HBox.hgrow="ALWAYS" managed="false" promptText="Mat khau" styleClass="input" visible="false" />
+                  <PasswordField fx:id="regpassHidden" HBox.hgrow="ALWAYS" promptText="Mật khẩu" styleClass="input" />
+                  <TextField fx:id="regpassVisible" HBox.hgrow="ALWAYS" managed="false" promptText="Mật khẩu" styleClass="input" visible="false" />
                   <Button mnemonicParsing="false" onAction="#toggleRegisterPassword" prefWidth="42.0" styleClass="secondary-button" text="..." />
                </HBox>
             </VBox>
 
             <VBox spacing="8.0">
-               <Label styleClass="field-name" text="CONFIRM PASSWORD" />
+               <Label styleClass="field-name" text="NHẬP LẠI MẬT KHẨU" />
                <HBox alignment="CENTER_LEFT" spacing="8.0">
-                  <PasswordField fx:id="regpassagainHidden" HBox.hgrow="ALWAYS" promptText="Nhap lai mat khau" styleClass="input" />
-                  <TextField fx:id="regpassagainVisible" HBox.hgrow="ALWAYS" managed="false" promptText="Nhap lai mat khau" styleClass="input" visible="false" />
+                  <PasswordField fx:id="regpassagainHidden" HBox.hgrow="ALWAYS" promptText="Nhập lại mật khẩu" styleClass="input" />
+                  <TextField fx:id="regpassagainVisible" HBox.hgrow="ALWAYS" managed="false" promptText="Nhập lại mật khẩu" styleClass="input" visible="false" />
                   <Button mnemonicParsing="false" onAction="#toggleRegisterPasswordAgain" prefWidth="42.0" styleClass="secondary-button" text="..." />
                </HBox>
             </VBox>
 
             <VBox spacing="8.0">
-               <Label styleClass="field-name" text="ROLE" />
+               <Label styleClass="field-name" text="VAI TRÒ" />
                <HBox spacing="18.0">
-                  <RadioButton fx:id="Bidder" mnemonicParsing="false" styleClass="field-value" text="Nguoi dau gia">
+                  <RadioButton fx:id="Bidder" mnemonicParsing="false" styleClass="field-value" text="Người đấu giá">
                      <toggleGroup><ToggleGroup fx:id="group" /></toggleGroup>
                   </RadioButton>
-                  <RadioButton fx:id="Seller" mnemonicParsing="false" styleClass="field-value" text="Nguoi ban" toggleGroup="$group" />
+                  <RadioButton fx:id="Seller" mnemonicParsing="false" styleClass="field-value" text="Người bán" toggleGroup="$group" />
                </HBox>
             </VBox>
 
-            <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#Register2" prefHeight="42.0" styleClass="primary-button" text="Dang ky ->" />
+            <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#Register2" prefHeight="42.0" styleClass="primary-button" text="Đăng ký ->" />
             <Label fx:id="registerMessage" prefWidth="320.0" styleClass="success-value" text="" visible="false" />
          </VBox>
       </HBox>
