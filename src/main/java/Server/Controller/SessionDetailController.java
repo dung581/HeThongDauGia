@@ -804,7 +804,6 @@ final class BidActionSection {
             }
             controller.updateActionState();
             controller.startAutoRefresh();
-            controller.refreshLiveDataSilently();
             resumeAutoBidsSilently();
         });
 
@@ -856,7 +855,6 @@ final class BidActionSection {
             controller.setText(controller.bidPanelMessageLabel, "Auto bid đã bật.");
             controller.updateActionState();
             controller.startAutoRefresh();
-            controller.refreshLiveDataSilently();
             startImmediateAutobidCheckAsync(requestToken, version, userId, sessionId, itemId, minIncrement);
         });
 
@@ -898,11 +896,7 @@ final class BidActionSection {
             if (result.getMessage() != null && !result.getMessage().isBlank()) {
                 controller.setText(controller.bidPanelMessageLabel, result.getMessage());
             }
-            if (result.isImmediateBidPlaced()) {
-                controller.refreshData();
-            } else {
-                controller.refreshLiveDataSilently();
-            }
+            controller.refreshLiveDataSilently();
         });
 
         task.setOnFailed(event -> {
@@ -946,9 +940,7 @@ final class BidActionSection {
                     || controller.session.getId() != sessionId) {
                 return;
             }
-            if (Boolean.TRUE.equals(task.getValue())) {
-                controller.refreshLiveDataSilently();
-            }
+            controller.refreshLiveDataSilently();
         });
 
         task.setOnFailed(event -> controller.autoBidResumeRunning = false);
