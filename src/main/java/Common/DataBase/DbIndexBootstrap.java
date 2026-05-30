@@ -5,6 +5,10 @@ import java.sql.Statement;
 
 public class DbIndexBootstrap {
 
+    private static final String[] MIGRATION_SQL = new String[] {
+            "ALTER TABLE item ADD COLUMN IF NOT EXISTS minIncrement BIGINT NOT NULL DEFAULT 1"
+    };
+
     private static final String[] INDEX_SQL = new String[] {
             "CREATE INDEX IF NOT EXISTS idx_account_user_id ON account(user_id)",
             "CREATE INDEX IF NOT EXISTS idx_auction_state ON auction(state)",
@@ -22,6 +26,9 @@ public class DbIndexBootstrap {
     public static void ensureIndexes() {
         try (Connection conn = DbConnection.getConnection();
              Statement st = conn.createStatement()) {
+            for (String sql : MIGRATION_SQL) {
+                st.execute(sql);
+            }
             for (String sql : INDEX_SQL) {
                 st.execute(sql);
             }
