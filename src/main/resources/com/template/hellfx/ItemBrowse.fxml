@@ -16,9 +16,9 @@
             <padding>
                 <Insets bottom="16.0" left="32.0" right="32.0" top="16.0" />
             </padding>
-            <Label styleClass="muted" text="BidNow / Items" />
+            <Label styleClass="muted" text="BidNow / Danh sách vật phẩm" />
             <HBox HBox.hgrow="ALWAYS" />
-            <Button onAction="#onBack" styleClass="secondary-button" text="Tro lai" />
+            <Button onAction="#onBack" styleClass="secondary-button" text="Trở lại" />
         </HBox>
     </top>
 
@@ -29,8 +29,8 @@
             </padding>
 
             <VBox spacing="6.0">
-                <Label styleClass="page-title" text="Danh sach san pham" />
-                <Label styleClass="page-subtitle" text="Loc item theo trang thai va xu ly tac vu duyet rieng cho admin." />
+                <Label styleClass="page-title" text="Danh sách sản phẩm" />
+                <Label styleClass="page-subtitle" text="Lọc sản phẩm theo trạng thái và xử lý tác vụ duyệt riêng cho admin." />
             </VBox>
 
             <HBox alignment="CENTER_LEFT" spacing="14.0" styleClass="card">
@@ -38,7 +38,7 @@
                     <Insets bottom="14.0" left="18.0" right="18.0" top="14.0" />
                 </padding>
                 <Label fx:id="lblRole" styleClass="field-value" text="Vai tro: ?" />
-                <Label styleClass="field-name" text="TRANG THAI" />
+                <Label styleClass="field-name" text="TRẠNG THÁI" />
                 <ChoiceBox fx:id="statusFilter" prefWidth="180.0" styleClass="input" />
                 <HBox HBox.hgrow="ALWAYS" />
                 <Label fx:id="lblTotal" styleClass="field-value" text="Tong: 0 san pham" />
@@ -51,20 +51,20 @@
                     <padding>
                         <Insets bottom="14.0" left="18.0" right="18.0" top="14.0" />
                     </padding>
-                    <Label styleClass="field-name" text="LY DO TU CHOI" />
+                    <Label styleClass="field-name" text="LÝ DO TỪ CHỐI" />
                     <TextField fx:id="rejectReason" prefWidth="260.0" promptText="Nhap ly do" styleClass="input" />
                     <Label styleClass="field-name" text="SO GIO DAU GIA" />
                     <TextField fx:id="endTime" prefWidth="140.0" promptText="VD: 24" styleClass="input" />
                 </HBox>
 
                 <HBox alignment="CENTER" spacing="10.0">
-                    <Button onAction="#loadData" styleClass="secondary-button" text="Tai lai" />
+                    <Button onAction="#loadData" styleClass="secondary-button" text="Tải lại" />
                     <HBox fx:id="adminActionBox" alignment="CENTER" spacing="10.0">
                         <Button onAction="#onApprove" styleClass="primary-button" text="Duyet + Mo phien" />
-                        <Button onAction="#onReject" styleClass="danger-button" text="Tu choi" />
+                        <Button onAction="#onReject" styleClass="danger-button" text="Từ chối" />
                         <Button onAction="#onCreateSession" styleClass="secondary-button" text="Mo phien APPROVED" />
                     </HBox>
-                    <Button onAction="#onBack" styleClass="secondary-button" text="Tro lai" />
+                    <Button onAction="#onBack" styleClass="secondary-button" text="Trở lại" />
                 </HBox>
             </VBox>
         </VBox>

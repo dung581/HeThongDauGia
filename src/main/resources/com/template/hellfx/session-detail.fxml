@@ -39,7 +39,7 @@
             <HBox HBox.hgrow="ALWAYS" />
             <Label styleClass="field-name" text="ENDS IN" />
             <Label fx:id="countdownLabel" styleClass="danger-value" text="--:--:--" />
-            <Button mnemonicParsing="false" onAction="#onBackClick" styleClass="secondary-button" text="Tro lai" />
+            <Button mnemonicParsing="false" onAction="#onBackClick" styleClass="secondary-button" text="Trở lại" />
         </HBox>
     </top>
 

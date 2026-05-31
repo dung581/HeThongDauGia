@@ -22,7 +22,7 @@
             </VBox>
 
             <VBox spacing="12.0">
-                <Label styleClass="section-label" text="NAVIGATION" />
+                <Label styleClass="section-label" text="ĐIỀU HƯỚNG" />
                 <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goHome" styleClass="nav-item" text="Home" />
                 <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goToSessions" styleClass="nav-item" text="Sessions" />
                 <Button fx:id="browseItemsNav" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToBrowseItems" styleClass="nav-item" text="Browse Items" />
@@ -30,7 +30,7 @@
             </VBox>
 
             <VBox spacing="12.0">
-                <Label styleClass="section-label" text="ACCOUNT" />
+                <Label styleClass="section-label" text="TÀI KHOẢN" />
                 <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goToDeposit" styleClass="nav-active" text="Deposit" />
                 <Button fx:id="uploadItemNav" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToUploadItem" styleClass="nav-item" text="Upload Item" />
             </VBox>
@@ -42,9 +42,9 @@
             <padding>
                 <Insets bottom="16.0" left="32.0" right="32.0" top="16.0" />
             </padding>
-            <Label styleClass="muted" text="BidNow / Deposit" />
+            <Label styleClass="muted" text="BidNow / Nạp tiền" />
             <HBox HBox.hgrow="ALWAYS" />
-            <Button mnemonicParsing="false" onAction="#onBack" styleClass="secondary-button" text="Tro lai" />
+            <Button mnemonicParsing="false" onAction="#onBack" styleClass="secondary-button" text="Trở lại" />
         </HBox>
     </top>
 
@@ -55,24 +55,24 @@
             </padding>
 
             <VBox spacing="8.0">
-                <Label styleClass="page-title" text="Nap tien vao tai khoan" />
-                <Label styleClass="page-subtitle" text="Bo sung so du kha dung de tham gia dau gia va cau hinh auto bid." />
+                <Label styleClass="page-title" text="Nạp tiền vào tài khoản" />
+                <Label styleClass="page-subtitle" text="Bổ sung số dư khả dụng để tham gia đấu giá và cấu hình tự động đấu giá (auto bid)." />
             </VBox>
 
             <HBox spacing="14.0">
                 <VBox prefHeight="78.0" prefWidth="230.0" spacing="6.0" styleClass="card">
                     <padding><Insets bottom="12.0" left="18.0" right="18.0" top="12.0" /></padding>
-                    <Label styleClass="field-name" text="SO DU HIEN TAI" />
+                    <Label styleClass="field-name" text="SỐ DƯ HIỆN TẠI" />
                     <Label fx:id="lblBalance" styleClass="money-value" text="0" />
                 </VBox>
                 <VBox prefHeight="78.0" prefWidth="230.0" spacing="6.0" styleClass="card">
                     <padding><Insets bottom="12.0" left="18.0" right="18.0" top="12.0" /></padding>
-                    <Label styleClass="field-name" text="DANG KHOA" />
+                    <Label styleClass="field-name" text="ĐANG KHÓA" />
                     <Label fx:id="lblLocked" styleClass="money-value" text="0" />
                 </VBox>
                 <VBox prefHeight="78.0" prefWidth="230.0" spacing="6.0" styleClass="card">
                     <padding><Insets bottom="12.0" left="18.0" right="18.0" top="12.0" /></padding>
-                    <Label styleClass="field-name" text="KHA DUNG" />
+                    <Label styleClass="field-name" text="KHẢ DỤNG" />
                     <Label fx:id="lblAvailable" styleClass="money-value" text="0" />
                 </VBox>
             </HBox>
@@ -82,18 +82,18 @@
                     <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
                 </padding>
                 <VBox spacing="6.0">
-                    <Label styleClass="section-label" text="DEPOSIT" />
+                    <Label styleClass="section-label" text="NẠP TIỀN" />
                     <Label styleClass="field-value" text="Nhap so tien can nap vao tai khoan." />
                 </VBox>
 
                 <GridPane hgap="14.0" vgap="10.0">
-                    <Label styleClass="field-name" text="SO TIEN NAP" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <Label styleClass="field-name" text="SỐ TIỀN NẠP" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                     <TextField fx:id="depositAmountField" prefWidth="300.0" promptText="Nhap so tien VND" styleClass="input" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                 </GridPane>
 
                 <HBox alignment="CENTER_RIGHT" spacing="10.0">
-                    <Button mnemonicParsing="false" onAction="#onBack" styleClass="secondary-button" text="Huy" />
-                    <Button mnemonicParsing="false" onAction="#onConfirmDeposit" styleClass="primary-button" text="Xac nhan nap" />
+                    <Button mnemonicParsing="false" onAction="#onBack" styleClass="secondary-button" text="Hủy" />
+                    <Button mnemonicParsing="false" onAction="#onConfirmDeposit" styleClass="primary-button" text="Xác nhận nạp" />
                 </HBox>
             </VBox>
         </VBox>
@@ -104,7 +104,7 @@
             <padding>
                 <Insets bottom="10.0" left="42.0" right="42.0" top="10.0" />
             </padding>
-            <Label styleClass="muted" text="BidNow Desktop | JavaFX 21 | Deposit workspace" />
+            <Label styleClass="muted" text="BidNow Desktop | JavaFX 21 | Nạp tiền vào tài khoản" />
         </HBox>
     </bottom>
 </BorderPane>

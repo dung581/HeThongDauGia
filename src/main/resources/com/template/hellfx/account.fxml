@@ -24,7 +24,7 @@
             </VBox>
 
             <VBox spacing="12.0">
-                <Label styleClass="section-label" text="NAVIGATION" />
+                <Label styleClass="section-label" text="ĐIỀU HƯỚNG" />
                 <Button fx:id="accountNavButton" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToAccount" styleClass="nav-active" text="My Account" />
             </VBox>
         </VBox>
@@ -37,7 +37,7 @@
             </padding>
             <Label fx:id="lblBreadcrumb" styleClass="muted" text="BidNow / My Account" />
             <HBox HBox.hgrow="ALWAYS" />
-            <Button mnemonicParsing="false" onAction="#backToDashboard" styleClass="secondary-button" text="Tro lai" />
+            <Button mnemonicParsing="false" onAction="#backToDashboard" styleClass="secondary-button" text="Trở lại" />
         </HBox>
     </top>
 
@@ -60,12 +60,12 @@
                 </VBox>
                 <VBox prefHeight="78.0" prefWidth="220.0" spacing="6.0" styleClass="card">
                     <padding><Insets bottom="12.0" left="18.0" right="18.0" top="12.0" /></padding>
-                    <Label styleClass="field-name" text="TIEN DANG KHOA" />
+                    <Label styleClass="field-name" text="TIỀN ĐANG KHÓA" />
                     <Label fx:id="lblLocked" styleClass="money-value" text="0" />
                 </VBox>
                 <VBox prefHeight="78.0" prefWidth="220.0" spacing="6.0" styleClass="card">
                     <padding><Insets bottom="12.0" left="18.0" right="18.0" top="12.0" /></padding>
-                    <Label styleClass="field-name" text="SO DU KHA DUNG" />
+                    <Label styleClass="field-name" text="SỐ DƯ KHẢ DỤNG" />
                     <Label fx:id="lblAvailable" styleClass="money-value" text="0" />
                 </VBox>
             </HBox>
@@ -104,13 +104,13 @@
                 </padding>
                 <Label styleClass="page-subtitle" text="ACCOUNT DETAIL" />
                 <GridPane hgap="14.0" vgap="12.0">
-                    <Label styleClass="field-name" text="USERNAME" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <Label styleClass="field-name" text="TÊN ĐĂNG NHẬP" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                     <Label fx:id="lblUsername" styleClass="field-value" text="" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
                     <Label styleClass="field-name" text="HO TEN" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                     <Label fx:id="lblFullname" styleClass="field-value" text="" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                    <Label styleClass="field-name" text="ROLE" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <Label styleClass="field-name" text="VAI TRÒ" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                     <Label fx:id="lblRole" styleClass="field-value" text="" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                 </GridPane>
             </VBox>
@@ -122,7 +122,7 @@
             <padding>
                 <Insets bottom="10.0" left="42.0" right="42.0" top="10.0" />
             </padding>
-            <Label fx:id="lblFooter" styleClass="muted" text="BidNow Desktop | JavaFX 21 | Account workspace" />
+            <Label fx:id="lblFooter" styleClass="muted" text="BidNow Desktop | JavaFX 21 | Không gian Tài khoản" />
         </HBox>
     </bottom>
 </BorderPane>

@@ -6,6 +6,7 @@ import Common.DataBase.repository.AuctionRepository;
 import Common.DataBase.repository.AutoBidRepository;
 import Common.Enum.AuctionState;
 
+import java.util.Comparator;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -86,8 +87,8 @@ public class AutoBidService {
     ) {
         boolean placedAnyBid = false;
 
-        // Resolve lần lượt các auto bid còn hợp lệ, nhưng chạy trong background task của controller.
-        for (int guard = 0; guard < 1000; guard++) {
+        // Resolve chuỗi autobid bằng các bước nhảy lớn, tránh ghi hàng trăm bid khi minIncrement nhỏ.
+        for (int guard = 0; guard < 10; guard++) {
             Auction latestSession = auctionRepo.getById(sessionId);
             if (latestSession == null || latestSession.getState() != AuctionState.RUNNING) {
                 return placedAnyBid;
@@ -113,31 +114,60 @@ public class AutoBidService {
 
     public boolean trigger(long itemId, long currentPrice, long currentUserId, long minIncrement) {
         long step = minIncrement > 0 ? minIncrement : 1L;
-        long nextPrice;
+        long minNextPrice;
         try {
-            nextPrice = Math.addExact(currentPrice, step);
+            minNextPrice = Math.addExact(currentPrice, step);
         } catch (ArithmeticException e) {
             return false;
         }
         BidService bidService = new BidService();
-        List<Autobid> list = repo.getActiveByItemId(itemId);
+        List<Autobid> activeBids = repo.getActiveByItemId(itemId).stream()
+                .filter(Autobid::is_active)
+                .filter(autobid -> autobid.getMax_price() >= minNextPrice)
+                .sorted(Comparator
+                        .comparingLong(Autobid::getMax_price)
+                        .reversed()
+                        .thenComparingLong(Autobid::getId))
+                .toList();
 
-        for (Autobid ab : list) {
+        Autobid nextBidder = activeBids.stream()
+                // Auto bid chỉ phản ứng với bid của người khác, không tự đẩy giá của chính người vừa đặt.
+                .filter(autobid -> autobid.getUser_id() != currentUserId)
+                .findFirst()
+                .orElse(null);
+        if (nextBidder == null) {
+            return false;
+        }
 
-            if (!ab.is_active()) continue;
-            // Auto bid chỉ phản ứng với bid của người khác, không tự đẩy giá của chính người vừa đặt.
-            if (ab.getUser_id() == currentUserId) continue;
-            if (ab.getMax_price() < nextPrice) continue;
-
-            try {
-                bidService.placeBid(ab.getUser_id(), itemId, nextPrice);
-                return true;
-            } catch (RuntimeException e) {
-                // Auto bid lỗi không được làm fail lệnh đặt giá thủ công vừa thành công.
-                continue;
+        long strongestOpponentMax = currentPrice;
+        for (Autobid autobid : activeBids) {
+            if (autobid.getUser_id() != nextBidder.getUser_id()) {
+                strongestOpponentMax = Math.max(strongestOpponentMax, autobid.getMax_price());
             }
         }
-        return false;
+
+        long competitivePrice = addOrCap(Math.max(currentPrice, strongestOpponentMax), step);
+        long nextPrice = Math.min(nextBidder.getMax_price(), competitivePrice);
+        if (nextPrice < minNextPrice) {
+            return false;
+        }
+
+        try {
+            bidService.placeBid(nextBidder.getUser_id(), itemId, nextPrice);
+            return true;
+        } catch (RuntimeException e) {
+            // Auto bid lỗi không được làm fail lệnh đặt giá thủ công vừa thành công.
+            return false;
+        }
+    }
+
+    // Cộng có chặn tràn số để auto bid không làm vỡ luồng khi giá cực lớn.
+    private long addOrCap(long value, long increment) {
+        try {
+            return Math.addExact(value, increment);
+        } catch (ArithmeticException e) {
+            return Long.MAX_VALUE;
+        }
     }
 
     public List<Autobid> getByUserId(long userId) {

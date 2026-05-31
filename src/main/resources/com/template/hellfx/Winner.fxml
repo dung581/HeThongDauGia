@@ -14,7 +14,7 @@
             <padding>
                 <Insets bottom="16.0" left="32.0" right="32.0" top="16.0" />
             </padding>
-            <Label styleClass="muted" text="BidNow / Winner" />
+            <Label styleClass="muted" text="BidNow / Người thắng cuộc" />
             <HBox HBox.hgrow="ALWAYS" />
             <Button onAction="#onBack" styleClass="secondary-button" text="Tro lai Dashboard" />
         </HBox>
@@ -40,7 +40,7 @@
                     <Label styleClass="field-name" text="SESSION ID" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                     <Label fx:id="lblSessionId" styleClass="field-value" text="(?)" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                    <Label styleClass="field-name" text="TRANG THAI" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <Label styleClass="field-name" text="TRẠNG THÁI" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                     <Label fx:id="lblSessionState" styleClass="field-value" text="(?)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
                     <Label styleClass="field-name" text="ITEM ID" GridPane.columnIndex="0" GridPane.rowIndex="2" />
@@ -70,7 +70,7 @@
             <padding>
                 <Insets bottom="10.0" left="42.0" right="42.0" top="10.0" />
             </padding>
-            <Label styleClass="muted" text="BidNow Desktop | JavaFX 21 | Winner workspace" />
+            <Label styleClass="muted" text="BidNow Desktop | JavaFX 21 | Không gian Người thắng" />
         </HBox>
     </bottom>
 </BorderPane>

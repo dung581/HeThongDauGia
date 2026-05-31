@@ -39,7 +39,7 @@
             </padding>
             <Label styleClass="muted" text="BidNow / Sessions" />
             <HBox HBox.hgrow="ALWAYS" />
-            <Button mnemonicParsing="false" onAction="#trolai" styleClass="secondary-button" text="Tro lai" />
+            <Button mnemonicParsing="false" onAction="#trolai" styleClass="secondary-button" text="Trở lại" />
         </HBox>
     </top>
 
@@ -75,7 +75,7 @@
             <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="filter-bar">
                 <TextField fx:id="searchField" prefWidth="280.0" promptText="Tim theo ten, ID item, leader" styleClass="input" />
                 <ChoiceBox fx:id="stateFilter" prefWidth="160.0" />
-                <Button mnemonicParsing="false" onAction="#loadData" styleClass="secondary-button" text="Tai lai" />
+                <Button mnemonicParsing="false" onAction="#loadData" styleClass="secondary-button" text="Tải lại" />
                 <HBox HBox.hgrow="ALWAYS" />
                 <Button mnemonicParsing="false" onAction="#openSessionDetail" styleClass="primary-button" text="Tham gia ->" />
             </HBox>
@@ -110,7 +110,7 @@
                     <Label styleClass="field-name" text="BUOC GIA" GridPane.columnIndex="0" GridPane.rowIndex="3" />
                     <Label fx:id="minIncrementLabel" styleClass="field-value" text=" " GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
-                    <Label styleClass="field-name" text="TRANG THAI" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <Label styleClass="field-name" text="TRẠNG THÁI" GridPane.columnIndex="0" GridPane.rowIndex="4" />
                     <Label fx:id="trangthaiLabel" styleClass="field-value" text=" " GridPane.columnIndex="1" GridPane.rowIndex="4" />
                 </GridPane>
 

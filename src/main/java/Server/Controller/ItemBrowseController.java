@@ -102,13 +102,13 @@ public class    ItemBrowseController {
         Label title = new Label(nullToText(item.getFullname(), "Item " + item.getId()));
         title.getStyleClass().add("data-title");
         title.setWrapText(true);
-        Label description = new Label(nullToText(item.getDescription(), "Khong co thong tin"));
+        Label description = new Label(nullToText(item.getDescription(), "Không có thông tin"));
         description.getStyleClass().add("product-description");
         description.setWrapText(true);
         HBox meta = new HBox(10.0);
         Label id = new Label("ID #" + item.getId());
         id.getStyleClass().add("data-meta");
-        Label minStep = new Label("Buoc gia " + formatMoney(getEffectiveMinIncrement(item)));
+        Label minStep = new Label("Bước giá " + formatMoney(getEffectiveMinIncrement(item)));
         minStep.getStyleClass().add("data-meta");
         Label note = new Label(nullToText(item.getMota(), ""));
         note.getStyleClass().add("data-meta");

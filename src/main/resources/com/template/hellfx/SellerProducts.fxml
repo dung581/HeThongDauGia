@@ -18,7 +18,7 @@
             </padding>
             <Label styleClass="muted" text="BidNow / Seller / Upload Item" />
             <HBox HBox.hgrow="ALWAYS" />
-            <Button mnemonicParsing="false" onAction="#backToSellerDashboard" styleClass="secondary-button" text="Tro lai" />
+            <Button mnemonicParsing="false" onAction="#backToSellerDashboard" styleClass="secondary-button" text="Trở lại" />
         </HBox>
     </top>
 
@@ -69,7 +69,7 @@
                 <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="filter-bar">
                     <TextField fx:id="searchField" prefWidth="300.0" promptText="Tim ten, ID, ghi chu" styleClass="input" />
                     <ChoiceBox fx:id="statusFilter" prefWidth="170.0" />
-                    <Button mnemonicParsing="false" onAction="#loadMyItems" styleClass="secondary-button" text="Tai lai" />
+                    <Button mnemonicParsing="false" onAction="#loadMyItems" styleClass="secondary-button" text="Tải lại" />
                 </HBox>
 
                 <ListView fx:id="table" styleClass="data-list" VBox.vgrow="ALWAYS" />

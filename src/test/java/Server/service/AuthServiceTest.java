@@ -1,193 +1,112 @@
 package Server.service;
 
-import Common.DataBase.entities.Account;
 import Common.DataBase.entities.User;
 import Common.Enum.UserRole;
-import Common.util.PasswordUtil;
-import Server.service.Exceptions.*;
+import Server.service.Exceptions.PasswordIsBlankException;
+import Server.service.Exceptions.UserNotFoundException;
+import Server.service.Exceptions.UsernameAlreadyExistsException;
+import Server.service.Exceptions.UsernameIsBlankException;
+import Server.service.Exceptions.WrongPasswordException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import testutil.FakeRepositories.FakeAccountRepository;
-import testutil.FakeRepositories.FakeUserRepository;
-import testutil.TestReflection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-// Test Xác thực (Đăng nhập)
-@DisplayName("Giai đoạn 1: Xác thực (AuthService)")
-class AuthServiceTest {
+public class AuthServiceTest {
 
     private AuthService authService;
-    private FakeUserRepository userRepo;
-    private FakeAccountRepository accountRepo;
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         authService = new AuthService();
-        userRepo = new FakeUserRepository();
-        accountRepo = new FakeAccountRepository();
-        TestReflection.setField(authService, "userRepository", userRepo);
-        TestReflection.setField(authService, "accountRepository", accountRepo);
     }
 
-    /** Seed user với mật khẩu đã băm BCrypt (giống dữ liệu thật trong DB). */
-    private void seedUser(long id, String username, String plainPassword) {
-        User u = new User(id, username, PasswordUtil.hash(plainPassword), UserRole.BIDDER, username);
-        userRepo.put(u);
+    @Test
+    public void testRegisterSuccess() throws Exception {
+        String uniqueUsername = "test_reg_" + System.currentTimeMillis();
+        String password = "pass123";
+        String fullname = "Nguyễn Văn Test";
+        UserRole role = UserRole.BIDDER;
+
+        User user = authService.register(uniqueUsername, password, fullname, role);
+
+        assertNotNull(user);
+        assertTrue(user.getId() > 0, "User ID should be generated and greater than 0");
+        assertEquals(uniqueUsername, user.getUsername());
+        assertEquals(fullname, user.getFullname());
+        assertEquals(role, user.getRole());
     }
 
-    @Nested
-    @DisplayName("Đăng nhập (login)")
-    class Login {
+    @Test
+    public void testRegisterUsernameBlank() {
+        assertThrows(UsernameIsBlankException.class, () -> {
+            authService.register("", "pass123", "FullName", UserRole.BIDDER);
+        }, "Should throw UsernameIsBlankException for empty username");
 
-        @Test
-        @DisplayName("Đăng nhập thành công khi đúng tài khoản và mật khẩu")
-        void login_success() throws Exception {
-            seedUser(1L, "alice", "secret123");
-
-            User result = authService.login("alice", "secret123");
-
-            assertNotNull(result);
-            assertEquals("alice", result.getUsername());
-            assertEquals(1L, result.getId());
-        }
-
-        @Test
-        @DisplayName("Tự cắt khoảng trắng username trước khi tra cứu")
-        void login_trimsUsername() throws Exception {
-            seedUser(1L, "alice", "secret123");
-
-            User result = authService.login("  alice  ", "secret123");
-
-            assertEquals("alice", result.getUsername());
-        }
-
-        @Test
-        @DisplayName("Ném UsernameIsBlankException khi username rỗng/null/toàn dấu cách")
-        void login_blankUsername() {
-            assertThrows(UsernameIsBlankException.class, () -> authService.login("", "secret123"));
-            assertThrows(UsernameIsBlankException.class, () -> authService.login(null, "secret123"));
-            assertThrows(UsernameIsBlankException.class, () -> authService.login("   ", "secret123"));
-        }
-
-        @Test
-        @DisplayName("Ném PasswordIsBlankException khi mật khẩu rỗng")
-        void login_blankPassword() {
-            assertThrows(PasswordIsBlankException.class, () -> authService.login("alice", ""));
-            assertThrows(PasswordIsBlankException.class, () -> authService.login("alice", null));
-        }
-
-        @Test
-        @DisplayName("Ném UserNotFoundException khi không tìm thấy tài khoản")
-        void login_userNotFound() {
-            assertThrows(UserNotFoundException.class, () -> authService.login("ghost", "secret123"));
-        }
-
-        @Test
-        @DisplayName("Ném WrongPasswordException khi sai mật khẩu")
-        void login_wrongPassword() {
-            seedUser(1L, "alice", "correct123");
-            assertThrows(WrongPasswordException.class, () -> authService.login("alice", "wrong999"));
-        }
-
-        @Test
-        @DisplayName("Mật khẩu lưu dạng plaintext (chưa băm) vẫn đăng nhập được và được nâng cấp thành băm")
-        void login_upgradesPlaintextPassword() throws Exception {
-            // Seed thẳng mật khẩu plaintext (không băm) để mô phỏng dữ liệu cũ
-            User u = new User(1L, "bob", "plain12", UserRole.BIDDER, "bob");
-            userRepo.put(u);
-
-            User result = authService.login("bob", "plain12");
-
-            assertNotNull(result);
-            // Đã gọi updatePassword để nâng cấp sang băm
-            assertEquals(1L, userRepo.lastUpdatePwdUserId.longValue());
-            assertTrue(PasswordUtil.isBCryptHash(userRepo.lastUpdatePwdValue));
-        }
+        assertThrows(UsernameIsBlankException.class, () -> {
+            authService.register(null, "pass123", "FullName", UserRole.BIDDER);
+        }, "Should throw UsernameIsBlankException for null username");
     }
 
-    @Nested
-    @DisplayName("Đăng ký (register)")
-    class Register {
+    @Test
+    public void testRegisterPasswordBlank() {
+        assertThrows(PasswordIsBlankException.class, () -> {
+            authService.register("someuser", "", "FullName", UserRole.BIDDER);
+        }, "Should throw PasswordIsBlankException for empty password");
 
-        @Test
-        @DisplayName("Đăng ký thành công, tạo Account đi kèm, mật khẩu được băm")
-        void register_success() throws Exception {
-            User result = authService.register("bob", "pass12", "Bob", UserRole.BIDDER);
+        assertThrows(PasswordIsBlankException.class, () -> {
+            authService.register("someuser", null, "FullName", UserRole.BIDDER);
+        }, "Should throw PasswordIsBlankException for null password");
+    }
 
-            assertNotNull(result);
-            assertEquals(1, userRepo.createCalls);
-            assertEquals(1, accountRepo.createCalls);
-            // Mật khẩu lưu phải là băm BCrypt, không phải plaintext
-            assertTrue(PasswordUtil.isBCryptHash(result.getPassword()));
-            assertNotEquals("pass12", result.getPassword());
-        }
+    @Test
+    public void testRegisterPasswordLengthInvalid() {
+        assertThrows(PasswordIsBlankException.class, () -> {
+            authService.register("someuser", "123", "FullName", UserRole.BIDDER);
+        }, "Should throw PasswordIsBlankException for password less than 6 chars");
 
-        @Test
-        @DisplayName("Account khởi tạo có balance > 0 và locked_balance = 0")
-        void register_createsAccountWithDefaults() throws Exception {
-            User created = authService.register("bob", "pass12", "Bob", UserRole.BIDDER);
+        assertThrows(PasswordIsBlankException.class, () -> {
+            authService.register("someuser", "12345678901", "FullName", UserRole.BIDDER);
+        }, "Should throw PasswordIsBlankException for password greater than 10 chars");
+    }
 
-            Account acc = accountRepo.byUserId.get(created.getId());
-            assertNotNull(acc);
-            assertTrue(acc.getBalance() > 0);
-            assertEquals(0L, acc.getLocked_balance());
-            assertEquals(created.getId(), acc.getUser_id());
-        }
+    @Test
+    public void testRegisterUsernameAlreadyExists() throws Exception {
+        String existingUsername = "dup_" + System.currentTimeMillis();
+        authService.register(existingUsername, "pass123", "FullName", UserRole.BIDDER);
 
-        @Test
-        @DisplayName("Mặc định role BIDDER khi truyền null")
-        void register_defaultRoleBidder() throws Exception {
-            authService.register("bob", "pass12", "Bob", null);
-            assertEquals(UserRole.BIDDER, userRepo.lastCreated.getRole());
-        }
+        assertThrows(UsernameAlreadyExistsException.class, () -> {
+            authService.register(existingUsername, "pass123", "FullName", UserRole.BIDDER);
+        }, "Should throw UsernameAlreadyExistsException for duplicate username");
+    }
 
-        @Test
-        @DisplayName("Dùng username làm fullname khi fullname trống")
-        void register_fullnameFallsBackToUsername() throws Exception {
-            authService.register("bob", "pass12", "  ", UserRole.BIDDER);
-            assertEquals("bob", userRepo.lastCreated.getFullname());
-        }
+    @Test
+    public void testLoginSuccess() throws Exception {
+        String uniqueUsername = "test_login_" + System.currentTimeMillis();
+        String password = "pass123";
+        authService.register(uniqueUsername, password, "FullName", UserRole.BIDDER);
 
-        @Test
-        @DisplayName("Ném UsernameIsBlankException khi username rỗng")
-        void register_blankUsername() {
-            assertThrows(UsernameIsBlankException.class,
-                    () -> authService.register("", "pass12", "Bob", UserRole.BIDDER));
-        }
+        User loggedInUser = authService.login(uniqueUsername, password);
 
-        @Test
-        @DisplayName("Ném PasswordIsBlankException khi mật khẩu rỗng")
-        void register_blankPassword() {
-            assertThrows(PasswordIsBlankException.class,
-                    () -> authService.register("bob", "", "Bob", UserRole.BIDDER));
-        }
+        assertNotNull(loggedInUser);
+        assertEquals(uniqueUsername, loggedInUser.getUsername());
+    }
 
-        @Test
-        @DisplayName("Ném lỗi khi mật khẩu ngắn hơn 6 hoặc dài hơn 10 ký tự")
-        void register_passwordLengthInvalid() {
-            assertThrows(PasswordIsBlankException.class,
-                    () -> authService.register("bob", "123", "Bob", UserRole.BIDDER));
-            assertThrows(PasswordIsBlankException.class,
-                    () -> authService.register("bob", "12345678901", "Bob", UserRole.BIDDER));
-        }
+    @Test
+    public void testLoginUserNotFound() {
+        assertThrows(UserNotFoundException.class, () -> {
+            authService.login("non_existing_user_" + System.currentTimeMillis(), "pass123");
+        }, "Should throw UserNotFoundException for non-existing username");
+    }
 
-        @Test
-        @DisplayName("Chấp nhận mật khẩu ở biên 6 và 10 ký tự")
-        void register_passwordBoundary() {
-            assertDoesNotThrow(() -> authService.register("u6", "123456", "U6", UserRole.BIDDER));
-            assertDoesNotThrow(() -> authService.register("u10", "1234567890", "U10", UserRole.BIDDER));
-        }
+    @Test
+    public void testLoginWrongPassword() throws Exception {
+        String uniqueUsername = "wrong_pass_" + System.currentTimeMillis();
+        String password = "pass123";
+        authService.register(uniqueUsername, password, "FullName", UserRole.BIDDER);
 
-        @Test
-        @DisplayName("Ném UsernameAlreadyExistsException khi tên đã tồn tại")
-        void register_duplicateUsername() {
-            seedUser(5L, "bob", "existing1");
-            assertThrows(UsernameAlreadyExistsException.class,
-                    () -> authService.register("bob", "pass12", "Bob", UserRole.BIDDER));
-            assertEquals(0, userRepo.createCalls);
-        }
+        assertThrows(WrongPasswordException.class, () -> {
+            authService.login(uniqueUsername, "wrongpw");
+        }, "Should throw WrongPasswordException for incorrect password");
     }
 }

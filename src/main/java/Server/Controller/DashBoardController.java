@@ -59,48 +59,56 @@ import java.util.stream.Collectors;
 
 public class DashBoardController {
 
-    @FXML private Label availableBalanceLabel;
-    @FXML private Label lockedBalanceLabel;
-    @FXML private Label activeStakeCountLabel;
-    @FXML private Label leadingSessionCountLabel;
-    @FXML private Label liveSessionSummaryLabel;
-    @FXML private Label sidebarUserLabel;
-    @FXML private Label sidebarRoleLabel;
-    @FXML private Label sidebarLiveLabel;
-    @FXML private Label endedSessionSummaryLabel;
-    @FXML private ListView<LiveSessionRow> liveSessionTable;
-    @FXML private ListView<EndedSessionRow> endedSessionTable;
-    @FXML private Label ownedProductSummaryLabel;
-    @FXML private VBox ownedProductList;
-    @FXML private Label adminActiveSessionsLabel;
-    @FXML private Label adminPendingItemsLabel;
-    @FXML private Label adminTotalItemsLabel;
-    @FXML private Label adminTotalUsersLabel;
-    @FXML private Label adminSidebarUserLabel;
-    @FXML private Label adminSidebarPendingLabel;
-    @FXML private Label adminSessionSummaryLabel;
-    @FXML private Label adminPendingSummaryLabel;
-    @FXML private VBox adminSessionList;
-    @FXML private ListView<ItemOverviewRow> adminPendingItemTable;
-    @FXML private Label sellerTotalItemsLabel;
-    @FXML private Label sellerPendingItemsLabel;
-    @FXML private Label sellerInAuctionItemsLabel;
-    @FXML private Label sellerSoldItemsLabel;
-    @FXML private Label sellerSidebarUserLabel;
-    @FXML private Label sellerSidebarRoleLabel;
-    @FXML private Label sellerSidebarItemsLabel;
-    @FXML private Label sellerItemSummaryLabel;
-    @FXML private Label sellerSessionSummaryLabel;
-    @FXML private ListView<ItemOverviewRow> sellerItemTable;
-    @FXML private ListView<SessionOverviewRow> sellerSessionTable;
+    @FXML Label availableBalanceLabel;
+    @FXML Label lockedBalanceLabel;
+    @FXML Label activeStakeCountLabel;
+    @FXML Label leadingSessionCountLabel;
+    @FXML Label liveSessionSummaryLabel;
+    @FXML Label sidebarUserLabel;
+    @FXML Label sidebarRoleLabel;
+    @FXML Label sidebarLiveLabel;
+    @FXML Label endedSessionSummaryLabel;
+    @FXML ListView<LiveSessionRow> liveSessionTable;
+    @FXML ListView<EndedSessionRow> endedSessionTable;
+    @FXML Label ownedProductSummaryLabel;
+    @FXML VBox ownedProductList;
+    @FXML Label adminActiveSessionsLabel;
+    @FXML Label adminPendingItemsLabel;
+    @FXML Label adminTotalItemsLabel;
+    @FXML Label adminTotalUsersLabel;
+    @FXML Label adminSidebarUserLabel;
+    @FXML Label adminSidebarPendingLabel;
+    @FXML Label adminSessionSummaryLabel;
+    @FXML Label adminPendingSummaryLabel;
+    @FXML VBox adminSessionList;
+    @FXML ListView<ItemOverviewRow> adminPendingItemTable;
+    @FXML Label sellerTotalItemsLabel;
+    @FXML Label sellerPendingItemsLabel;
+    @FXML Label sellerInAuctionItemsLabel;
+    @FXML Label sellerSoldItemsLabel;
+    @FXML Label sellerSidebarUserLabel;
+    @FXML Label sellerSidebarRoleLabel;
+    @FXML Label sellerSidebarItemsLabel;
+    @FXML Label sellerItemSummaryLabel;
+    @FXML Label sellerSessionSummaryLabel;
+    @FXML ListView<ItemOverviewRow> sellerItemTable;
+    @FXML ListView<SessionOverviewRow> sellerSessionTable;
 
-    private final AccountService accountService = new AccountService();
-    private final AuctionService auctionService = new AuctionService();
-    private final StakeService stakeService = new StakeService();
-    private final ItemService itemService = new ItemService();
-    private Timeline liveCountdownTimeline;
-    private final ObservableList<LiveSessionRow> liveSessionRows = FXCollections.observableArrayList();
-    private final ObservableList<EndedSessionRow> endedSessionRows = FXCollections.observableArrayList();
+    final AccountService accountService = new AccountService();
+    final AuctionService auctionService = new AuctionService();
+    final StakeService stakeService = new StakeService();
+    final ItemService itemService = new ItemService();
+    Timeline liveCountdownTimeline;
+    final ObservableList<LiveSessionRow> liveSessionRows = FXCollections.observableArrayList();
+    final ObservableList<EndedSessionRow> endedSessionRows = FXCollections.observableArrayList();
+    final DashboardNavigation navigation = new DashboardNavigation(this);
+    final DashboardTableSection tableSection = new DashboardTableSection(this);
+    final DashboardAdminSection adminSection = new DashboardAdminSection(this);
+    final DashboardSellerSection sellerSection = new DashboardSellerSection(this);
+    final DashboardBidderSection bidderSection = new DashboardBidderSection(this);
+    final DashboardRowFactory rowFactory = new DashboardRowFactory(this);
+    final DashboardDataMapper dataMapper = new DashboardDataMapper(this);
+    final DashboardCountdownSection countdownSection = new DashboardCountdownSection(this);
 
     // JavaFX tự gọi sau khi load FXML: nhận diện dashboard theo fx:id rồi tải dữ liệu tương ứng.
     @FXML
@@ -125,1039 +133,270 @@ public class DashBoardController {
     // Điều hướng về dashboard đúng với role hiện tại.
     @FXML
     public void goHome(ActionEvent actionEvent) throws IOException {
-        UserRole role = UserAccount.getCurrentRole();
-        if (role == UserRole.ADMIN) {
-            switchScene(actionEvent, "/com/template/hellfx/dashboard - Admin.fxml");
-        } else if (role == UserRole.SELLER) {
-            switchScene(actionEvent, "/com/template/hellfx/dashboard - Seller.fxml");
-        } else {
-            switchScene(actionEvent, "/com/template/hellfx/dashboard-Bidder.fxml");
-        }
+        navigation.goHome(actionEvent);
     }
 
     // Đăng xuất: xóa session user và quay về màn đăng nhập.
     @FXML
     public void goToLogin(ActionEvent actionEvent) throws IOException {
-        UserAccount.clearSession();
-        switchScene(actionEvent, "/com/template/hellfx/UILogin.fxml");
+        navigation.goToLogin(actionEvent);
     }
 
     // Mở màn danh sách phiên đấu giá.
     @FXML
     public void Sandaugia(ActionEvent actionEvent) throws IOException {
-        switchScene(actionEvent, "/com/template/hellfx/danhSachDauGia.fxml");
+        navigation.switchScene(actionEvent, "/com/template/hellfx/danhSachDauGia.fxml");
     }
 
     // Mở màn sản phẩm của Seller; chặn Bidder vì Bidder không được đăng bán.
     @FXML
     public void dangban(ActionEvent actionEvent) throws IOException {
-        UserRole role = UserAccount.getCurrentRole();
-        if (role == UserRole.BIDDER) {
-            showWarning("Bidder chỉ được đấu giá, không được đăng bán.");
-            return;
-        }
-        switchScene(actionEvent, "/com/template/hellfx/SellerProducts.fxml");
+        navigation.goToSellerProducts(actionEvent);
     }
 
     // Mở màn tài khoản: Admin xem quản lý account, role khác xem tài khoản cá nhân.
     @FXML
     public void quanlytk(ActionEvent actionEvent) throws IOException {
-        switchScene(actionEvent, "/com/template/hellfx/account.fxml");
+        navigation.switchScene(actionEvent, "/com/template/hellfx/account.fxml");
     }
 
     // Mở màn nạp tiền.
     @FXML
     public void goToDeposit(ActionEvent actionEvent) throws IOException {
-        switchScene(actionEvent, "/com/template/hellfx/Deposit.fxml");
+        navigation.switchScene(actionEvent, "/com/template/hellfx/Deposit.fxml");
     }
 
     // Mở màn duyệt sản phẩm đang chờ cho Admin.
     @FXML
     public void duyetsp(ActionEvent actionEvent) throws IOException {
-        switchScene(actionEvent, "/com/template/hellfx/ApproveItem.fxml");
+        navigation.switchScene(actionEvent, "/com/template/hellfx/ApproveItem.fxml");
     }
 
     // Mở màn quản lý toàn bộ vật phẩm cho Admin.
     @FXML
     public void quanlyvatpham(ActionEvent actionEvent) throws IOException {
-        switchScene(actionEvent, "/com/template/hellfx/AdminItemManagement.fxml");
+        navigation.switchScene(actionEvent, "/com/template/hellfx/AdminItemManagement.fxml");
     }
 
     // Hiện popup cảnh báo cho thao tác không hợp lệ.
-    private void showWarning(String msg) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Thông báo");
-        alert.setHeaderText(null);
-        alert.setContentText(msg);
-        alert.showAndWait();
+    void showWarning(String msg) {
+        navigation.showWarning(msg);
     }
 
     // Load FXML mới, dừng timer dashboard nếu có và thay root scene hiện tại.
-    private void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {
-        URL resource = getClass().getResource(fxmlPath);
-        if (resource == null) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Lỗi điều hướng");
-            alert.setHeaderText("Không tìm thấy màn hình");
-            alert.setContentText(fxmlPath);
-            alert.showAndWait();
-            return;
-        }
-
-        stopLiveCountdown();
-        Parent root = FXMLLoader.load(resource);
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        Scene currentScene = stage.getScene();
-        if (currentScene == null) {
-            stage.setScene(new Scene(root, UILogin.APP_WIDTH, UILogin.APP_HEIGHT));
-        } else {
-            currentScene.setRoot(root);
-        }
-        stage.show();
+    void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {
+        navigation.switchScene(actionEvent, fxmlPath);
     }
 
     // Cấu hình các danh sách riêng của dashboard Bidder.
     private void configureBidderTables() {
-        if (liveSessionTable != null) {
-            liveSessionTable.setCellFactory(list -> new ListCell<>() {
-                @Override
-                protected void updateItem(LiveSessionRow row, boolean empty) {
-                    super.updateItem(row, empty);
-                    if (empty || row == null) {
-                        setText(null);
-                        setGraphic(null);
-                        return;
-                    }
-                    setText(null);
-                    setGraphic(createLiveSessionCard(row));
-                }
-            });
-        }
-
-        if (endedSessionTable != null) {
-            endedSessionTable.setCellFactory(list -> new ListCell<>() {
-                @Override
-                protected void updateItem(EndedSessionRow row, boolean empty) {
-                    super.updateItem(row, empty);
-                    if (empty || row == null) {
-                        setText(null);
-                        setGraphic(null);
-                        return;
-                    }
-                    setText(null);
-                    setGraphic(createEndedSessionCard(row));
-                }
-            });
-        }
-
+        tableSection.configureBidderTables();
     }
 
     // Cấu hình các danh sách riêng của dashboard Admin.
     private void configureAdminTables() {
-        if (adminPendingItemTable != null) {
-            adminPendingItemTable.setCellFactory(list -> new ListCell<>() {
-                @Override
-                protected void updateItem(ItemOverviewRow row, boolean empty) {
-                    super.updateItem(row, empty);
-                    if (empty || row == null) {
-                        setText(null);
-                        setGraphic(null);
-                        return;
-                    }
-                    setText(null);
-                    setGraphic(createItemOverviewCard(row, true));
-                }
-            });
-        }
+        tableSection.configureAdminTables();
     }
 
     // Cấu hình các danh sách riêng của dashboard Seller.
     private void configureSellerTables() {
-        if (sellerItemTable != null) {
-            sellerItemTable.setCellFactory(list -> new ListCell<>() {
-                @Override
-                protected void updateItem(ItemOverviewRow row, boolean empty) {
-                    super.updateItem(row, empty);
-                    if (empty || row == null) {
-                        setText(null);
-                        setGraphic(null);
-                        return;
-                    }
-                    setText(null);
-                    setGraphic(createItemOverviewCard(row, false));
-                }
-            });
-        }
-
-        if (sellerSessionTable != null) {
-            sellerSessionTable.setCellFactory(list -> new ListCell<>() {
-                @Override
-                protected void updateItem(SessionOverviewRow row, boolean empty) {
-                    super.updateItem(row, empty);
-                    if (empty || row == null) {
-                        setText(null);
-                        setGraphic(null);
-                        return;
-                    }
-                    setText(null);
-                    setGraphic(createAdminSessionNode(row));
-                }
-            });
-        }
+        tableSection.configureSellerTables();
     }
 
     // Tải số liệu dashboard Admin trên background thread để UI không bị lag.
     private void loadAdminDashboardAsync() {
-        setText(adminActiveSessionsLabel, "-");
-        setText(adminPendingItemsLabel, "-");
-        setText(adminTotalItemsLabel, "-");
-        setText(adminTotalUsersLabel, "-");
-        setText(adminSidebarPendingLabel, "-");
-        setText(adminSessionSummaryLabel, "Dang tai du lieu...");
-        setText(adminPendingSummaryLabel, "Dang tai du lieu...");
-
-        Task<AdminDashboardData> task = new Task<>() {
-            @Override
-            // Controller gom dữ liệu dashboard bằng các service nhỏ đúng style project.
-            protected AdminDashboardData call() {
-                List<Item> items = itemService.listAll();
-                List<Auction> sessions = auctionService.getAll();
-                List<AccountService.ManagedAccount> accounts = accountService.listManagedAccounts();
-
-                long activeSessions = sessions.stream()
-                        .filter(DashBoardController.this::isLiveSession)
-                        .count();
-                long pendingItems = items.stream()
-                        .filter(item -> item.getStatus() == ItemStatus.PENDING)
-                        .count();
-
-                List<SessionOverviewRow> sessionRows = sessions.stream()
-                        .sorted(Comparator.comparingLong(Auction::getId).reversed())
-                        .limit(10)
-                        .map(session -> toSessionOverviewRow(session, items))
-                        .toList();
-
-                List<ItemOverviewRow> pendingRows = items.stream()
-                        .filter(item -> item.getStatus() == ItemStatus.PENDING)
-                        .sorted(Comparator.comparingLong(Item::getId).reversed())
-                        .limit(10)
-                        .map(item -> toItemOverviewRow(item, true))
-                        .toList();
-
-                return new AdminDashboardData(
-                        activeSessions,
-                        pendingItems,
-                        items.size(),
-                        accounts.size(),
-                        sessionRows,
-                        pendingRows
-                );
-            }
-        };
-
-        task.setOnSucceeded(event -> renderAdminDashboard(task.getValue()));
-        task.setOnFailed(event -> {
-            setText(adminActiveSessionsLabel, "0");
-            setText(adminPendingItemsLabel, "0");
-            setText(adminTotalItemsLabel, "0");
-            setText(adminTotalUsersLabel, "0");
-            setText(adminSidebarPendingLabel, "0");
-            setText(adminSessionSummaryLabel, "Khong tai duoc du lieu.");
-            setText(adminPendingSummaryLabel, "Khong tai duoc du lieu.");
-            renderAdminSessionList(List.of());
-            if (adminPendingItemTable != null) {
-                adminPendingItemTable.setItems(FXCollections.observableArrayList());
-            }
-        });
-
-        Thread worker = new Thread(task, "admin-dashboard-load");
-        worker.setDaemon(true);
-        worker.start();
+        adminSection.loadDashboardAsync();
     }
 
     // Đổ dữ liệu đã tải lên các thẻ thống kê và bảng của Admin.
-    private void renderAdminDashboard(AdminDashboardData data) {
-        setText(adminActiveSessionsLabel, String.valueOf(data.activeSessions()));
-        setText(adminPendingItemsLabel, String.valueOf(data.pendingItems()));
-        setText(adminTotalItemsLabel, String.valueOf(data.totalItems()));
-        setText(adminTotalUsersLabel, String.valueOf(data.totalUsers()));
-        setText(adminSidebarPendingLabel, String.valueOf(data.pendingItems()));
-        setText(adminSessionSummaryLabel, data.sessionRows().size() + " phien gan day");
-        setText(adminPendingSummaryLabel, data.pendingRows().size() + " item dang cho duyet");
-
-        renderAdminSessionList(data.sessionRows());
-        if (adminPendingItemTable != null) {
-            adminPendingItemTable.setItems(FXCollections.observableArrayList(data.pendingRows()));
-        }
+    void renderAdminDashboard(AdminDashboardData data) {
+        adminSection.renderDashboard(data);
     }
 
     // Render phiên gần đây của Admin thành từng thanh mềm, có thể bấm để xem hoạt động phiên.
-    private void renderAdminSessionList(List<SessionOverviewRow> rows) {
-        if (adminSessionList == null) {
-            return;
-        }
-
-        adminSessionList.getChildren().clear();
-        List<SessionOverviewRow> sessions = rows == null ? List.of() : rows;
-        if (sessions.isEmpty()) {
-            VBox empty = new VBox(6.0);
-            empty.setPadding(new Insets(18.0));
-            empty.getStyleClass().add("product-empty");
-            Label title = new Label("Chua co phien gan day");
-            title.getStyleClass().add("product-title");
-            Label subtitle = new Label("Cac phien dau gia moi tao hoac vua ket thuc se hien thi o day.");
-            subtitle.getStyleClass().add("page-subtitle");
-            subtitle.setWrapText(true);
-            empty.getChildren().addAll(title, subtitle);
-            adminSessionList.getChildren().add(empty);
-            return;
-        }
-
-        for (SessionOverviewRow row : sessions) {
-            adminSessionList.getChildren().add(createAdminSessionNode(row));
-        }
+    void renderAdminSessionList(List<SessionOverviewRow> rows) {
+        adminSection.renderSessionList(rows);
     }
 
     // Tạo một thanh phiên đấu giá gồm tên item, id phiên, giá, leader và trạng thái.
-    private Node createAdminSessionNode(SessionOverviewRow row) {
-        HBox sessionRow = new HBox(14.0);
-        sessionRow.setAlignment(Pos.CENTER_LEFT);
-        sessionRow.setPadding(new Insets(13.0, 16.0, 13.0, 16.0));
-        sessionRow.getStyleClass().add("session-row");
-        sessionRow.setCursor(Cursor.HAND);
-        sessionRow.setOnMouseEntered(event -> sessionRow.setTranslateY(-2.0));
-        sessionRow.setOnMouseExited(event -> sessionRow.setTranslateY(0.0));
-        sessionRow.setOnMouseClicked(event -> openSessionDetailFromNode(sessionRow, row.sessionId()));
-
-        VBox textBox = new VBox(5.0);
-        textBox.setAlignment(Pos.CENTER_LEFT);
-        HBox.setHgrow(textBox, Priority.ALWAYS);
-
-        Label title = new Label(row.itemName());
-        title.getStyleClass().add("product-title");
-        title.setWrapText(true);
-        Label description = new Label(nullToText(row.description(), "Khong co mo ta"));
-        description.getStyleClass().add("product-description");
-        description.setWrapText(true);
-
-        HBox metaBox = new HBox(10.0);
-        metaBox.setAlignment(Pos.CENTER_LEFT);
-        Label sessionId = new Label("Phien #" + row.sessionId());
-        sessionId.getStyleClass().add("product-meta");
-        Label itemId = new Label("Item #" + row.itemId());
-        itemId.getStyleClass().add("product-meta");
-        Label minStep = new Label("Buoc gia " + row.minIncrement());
-        minStep.getStyleClass().add("product-meta");
-        metaBox.getChildren().addAll(sessionId, itemId, minStep);
-        textBox.getChildren().addAll(title, description, metaBox);
-
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        VBox leaderBox = new VBox(4.0);
-        leaderBox.setAlignment(Pos.CENTER_RIGHT);
-        Label leaderLabel = new Label("Leader");
-        leaderLabel.getStyleClass().add("product-meta");
-        Label leaderValue = new Label(row.leader());
-        leaderValue.getStyleClass().add("field-value");
-        leaderBox.getChildren().addAll(leaderLabel, leaderValue);
-
-        VBox priceBox = new VBox(6.0);
-        priceBox.setAlignment(Pos.CENTER_RIGHT);
-        Label price = new Label(row.price());
-        price.getStyleClass().add("product-price");
-        Label status = new Label(row.status());
-        status.getStyleClass().add("session-status-pill");
-        priceBox.getChildren().addAll(price, status);
-
-        sessionRow.getChildren().addAll(textBox, spacer, leaderBox, priceBox);
-        return sessionRow;
+    Node createAdminSessionNode(SessionOverviewRow row) {
+        return rowFactory.createAdminSessionNode(row);
     }
 
     // Mở màn chi tiết phiên từ thanh phiên trên dashboard Admin.
-    private void openSessionDetailFromNode(Node source, long sessionId) {
-        if (sessionId <= 0) {
-            showWarning("Phiên không hợp lệ.");
-            return;
-        }
-
-        try {
-            SessionDetailController.setSessionId(sessionId);
-            switchSceneFromNode(source, "/com/template/hellfx/session-detail.fxml");
-        } catch (IOException e) {
-            showWarning("Không mở được hoạt động phiên: " + e.getMessage());
-        }
+    void openSessionDetailFromNode(Node source, long sessionId) {
+        navigation.openSessionDetailFromNode(source, sessionId);
     }
 
     // Tạo card phiên đang chạy cho dashboard Bidder.
-    private Node createLiveSessionCard(LiveSessionRow row) {
-        HBox card = new HBox(12.0);
-        card.setAlignment(Pos.CENTER_LEFT);
-        card.setPadding(new Insets(12.0, 14.0, 12.0, 14.0));
-        card.getStyleClass().add("data-row");
-        card.setCursor(Cursor.HAND);
-        card.setOnMouseClicked(event -> openSessionDetailFromNode(card, row.getSessionId()));
-
-        VBox main = new VBox(4.0);
-        HBox.setHgrow(main, Priority.ALWAYS);
-        Label title = new Label(row.getItemName());
-        title.getStyleClass().add("data-title");
-        title.setWrapText(true);
-        Label description = new Label(nullToText(row.getDescription(), "Khong co mo ta"));
-        description.getStyleClass().add("product-description");
-        description.setWrapText(true);
-        Label meta = new Label("Phien #" + row.getSessionId()
-                + " | Leader " + row.getLeader()
-                + " | Buoc gia " + row.getMinIncrement());
-        meta.getStyleClass().add("data-meta");
-        main.getChildren().addAll(title, description, meta);
-
-        VBox value = new VBox(5.0);
-        value.setAlignment(Pos.CENTER_RIGHT);
-        Label price = new Label(row.getCurrentPrice());
-        price.getStyleClass().add("data-money");
-        Label time = new Label(row.getTimeLeft());
-        time.getStyleClass().add("data-pill");
-        value.getChildren().addAll(price, time);
-
-        card.getChildren().addAll(main, value);
-        return card;
+    Node createLiveSessionCard(LiveSessionRow row) {
+        return rowFactory.createLiveSessionCard(row);
     }
 
     // Tạo card phiên đã kết thúc cho dashboard Bidder.
-    private Node createEndedSessionCard(EndedSessionRow row) {
-        HBox card = new HBox(12.0);
-        card.setAlignment(Pos.CENTER_LEFT);
-        card.setPadding(new Insets(12.0, 14.0, 12.0, 14.0));
-        card.getStyleClass().add("data-row");
-        card.setCursor(Cursor.HAND);
-        card.setOnMouseClicked(event -> openWinnerFromNode(card, row.sessionId()));
-
-        VBox main = new VBox(4.0);
-        HBox.setHgrow(main, Priority.ALWAYS);
-        Label title = new Label(row.itemName());
-        title.getStyleClass().add("data-title");
-        title.setWrapText(true);
-        Label description = new Label(nullToText(row.description(), "Khong co mo ta"));
-        description.getStyleClass().add("product-description");
-        description.setWrapText(true);
-        Label meta = new Label("Winner " + row.winner()
-                + " | Phien #" + row.sessionId()
-                + " | Buoc gia " + row.minIncrement());
-        meta.getStyleClass().add("data-meta");
-        main.getChildren().addAll(title, description, meta);
-
-        VBox value = new VBox(5.0);
-        value.setAlignment(Pos.CENTER_RIGHT);
-        Label price = new Label(row.finalPrice());
-        price.getStyleClass().add("data-money");
-        Label status = new Label(row.status());
-        status.getStyleClass().add("data-pill");
-        value.getChildren().addAll(price, status);
-
-        card.getChildren().addAll(main, value);
-        return card;
+    Node createEndedSessionCard(EndedSessionRow row) {
+        return rowFactory.createEndedSessionCard(row);
     }
 
     // Tạo card item tổng quan dùng cho dashboard Admin/Seller.
-    private Node createItemOverviewCard(ItemOverviewRow row, boolean showOwner) {
-        HBox card = new HBox(12.0);
-        card.setAlignment(Pos.CENTER_LEFT);
-        card.setPadding(new Insets(12.0, 14.0, 12.0, 14.0));
-        card.getStyleClass().add("data-row");
-
-        VBox main = new VBox(4.0);
-        HBox.setHgrow(main, Priority.ALWAYS);
-        Label title = new Label(row.itemName());
-        title.getStyleClass().add("data-title");
-        title.setWrapText(true);
-        Label description = new Label(nullToText(row.description(), "Khong co mo ta"));
-        description.getStyleClass().add("product-description");
-        description.setWrapText(true);
-        String metaText = "Item #" + row.id();
-        if (showOwner && row.owner() != null && !row.owner().isBlank()) {
-            metaText += " | Seller #" + row.owner();
-        }
-        metaText += " | Buoc gia " + row.minIncrement();
-        Label meta = new Label(metaText);
-        meta.getStyleClass().add("data-meta");
-        main.getChildren().addAll(title, description, meta);
-
-        VBox value = new VBox(5.0);
-        value.setAlignment(Pos.CENTER_RIGHT);
-        Label price = new Label(row.price());
-        price.getStyleClass().add("data-money");
-        Label status = new Label(row.status());
-        status.getStyleClass().add("data-pill");
-        value.getChildren().addAll(price, status);
-
-        card.getChildren().addAll(main, value);
-        return card;
+    Node createItemOverviewCard(ItemOverviewRow row, boolean showOwner) {
+        return rowFactory.createItemOverviewCard(row, showOwner);
     }
 
     // Tải số liệu dashboard Seller trên background thread.
     private void loadSellerDashboardAsync() {
-        setText(sellerTotalItemsLabel, "-");
-        setText(sellerPendingItemsLabel, "-");
-        setText(sellerInAuctionItemsLabel, "-");
-        setText(sellerSoldItemsLabel, "-");
-        setText(sellerSidebarItemsLabel, "-");
-        setText(sellerItemSummaryLabel, "Dang tai du lieu...");
-        setText(sellerSessionSummaryLabel, "Dang tai du lieu...");
-
-        Task<SellerDashboardData> task = new Task<>() {
-            @Override
-            // Controller quyết định màn Seller cần dữ liệu gì, service chỉ cung cấp danh sách gốc.
-            protected SellerDashboardData call() {
-                long sellerId = UserAccount.getUserId();
-                List<Item> items = itemService.listByOwner(sellerId);
-                Set<Long> itemIds = items.stream()
-                        .map(Item::getId)
-                        .collect(Collectors.toSet());
-                List<Auction> sessions = auctionService.getAll().stream()
-                        .filter(session -> itemIds.contains(session.getItem_id()))
-                        .toList();
-
-                long pending = items.stream()
-                        .filter(item -> item.getStatus() == ItemStatus.PENDING)
-                        .count();
-                long inAuction = items.stream()
-                        .filter(item -> item.getStatus() == ItemStatus.IN_AUCTION)
-                        .count();
-                long sold = items.stream()
-                        .filter(item -> item.getStatus() == ItemStatus.SOLD)
-                        .count();
-
-                List<ItemOverviewRow> itemRows = items.stream()
-                        .sorted(Comparator.comparingLong(Item::getId).reversed())
-                        .map(item -> toItemOverviewRow(item, false))
-                        .toList();
-
-                List<SessionOverviewRow> sessionRows = sessions.stream()
-                        .sorted(Comparator.comparingLong(Auction::getId).reversed())
-                        .limit(10)
-                        .map(session -> toSessionOverviewRow(session, items))
-                        .toList();
-
-                return new SellerDashboardData(items.size(), pending, inAuction, sold, itemRows, sessionRows);
-            }
-        };
-
-        task.setOnSucceeded(event -> renderSellerDashboard(task.getValue()));
-        task.setOnFailed(event -> {
-            setText(sellerTotalItemsLabel, "0");
-            setText(sellerPendingItemsLabel, "0");
-            setText(sellerInAuctionItemsLabel, "0");
-            setText(sellerSoldItemsLabel, "0");
-            setText(sellerSidebarItemsLabel, "0");
-            setText(sellerItemSummaryLabel, "Khong tai duoc du lieu.");
-            setText(sellerSessionSummaryLabel, "Khong tai duoc du lieu.");
-            if (sellerItemTable != null) {
-                sellerItemTable.setItems(FXCollections.observableArrayList());
-            }
-            if (sellerSessionTable != null) {
-                sellerSessionTable.setItems(FXCollections.observableArrayList());
-            }
-        });
-
-        Thread worker = new Thread(task, "seller-dashboard-load");
-        worker.setDaemon(true);
-        worker.start();
+        sellerSection.loadDashboardAsync();
     }
 
     // Đổ dữ liệu đã tải lên các thẻ thống kê và bảng của Seller.
-    private void renderSellerDashboard(SellerDashboardData data) {
-        setText(sellerTotalItemsLabel, String.valueOf(data.totalItems()));
-        setText(sellerPendingItemsLabel, String.valueOf(data.pendingItems()));
-        setText(sellerInAuctionItemsLabel, String.valueOf(data.inAuctionItems()));
-        setText(sellerSoldItemsLabel, String.valueOf(data.soldItems()));
-        setText(sellerSidebarItemsLabel, String.valueOf(data.totalItems()));
-        setText(sellerItemSummaryLabel, "Tat ca " + data.itemRows().size() + " item da dang ban");
-        setText(sellerSessionSummaryLabel, data.sessionRows().size() + " phien lien quan");
-
-        if (sellerItemTable != null) {
-            sellerItemTable.setItems(FXCollections.observableArrayList(data.itemRows()));
-        }
-        if (sellerSessionTable != null) {
-            sellerSessionTable.setItems(FXCollections.observableArrayList(data.sessionRows()));
-        }
+    void renderSellerDashboard(SellerDashboardData data) {
+        sellerSection.renderDashboard(data);
     }
 
     // Helper cho dashboard: phiên live là RUNNING và chưa quá end_time.
-    private boolean isLiveSession(Auction session) {
-        return session.getState() == AuctionState.RUNNING
-                && session.getEndTime() != null
-                && session.getEndTime().isAfter(LocalDateTime.now());
+    boolean isLiveSession(Auction session) {
+        return dataMapper.isLiveSession(session);
     }
 
     // Helper cho dashboard: phiên ended là không RUNNING hoặc đã quá end_time.
-    private boolean isEndedSession(Auction session) {
-        return session.getState() != AuctionState.RUNNING
-                || session.getEndTime() == null
-                || !session.getEndTime().isAfter(LocalDateTime.now());
+    boolean isEndedSession(Auction session) {
+        return dataMapper.isEndedSession(session);
     }
 
     // Đổi trạng thái session thành text ngắn để render ở dashboard.
-    private String displaySessionStatus(Auction session) {
-        if (session.getState() == AuctionState.RUNNING && !isLiveSession(session)) {
-            return "ENDED";
-        }
-        return session.getState() == null ? "" : session.getState().name();
+    String displaySessionStatus(Auction session) {
+        return dataMapper.displaySessionStatus(session);
     }
 
     // Tạo row tổng quan phiên từ dữ liệu service trả về.
-    private SessionOverviewRow toSessionOverviewRow(Auction session, List<Item> items) {
-        String leader = session.getCurrent_user_id() == 0 ? "-" : String.valueOf(session.getCurrent_user_id());
-        return new SessionOverviewRow(
-                session.getId(),
-                session.getItem_id(),
-                findItemName(items, session.getItem_id()),
-                findItemDescription(items, session.getItem_id()),
-                formatMoney(session.getCurrent_price()),
-                findItemMinIncrement(items, session.getItem_id()),
-                leader,
-                displaySessionStatus(session)
-        );
+    SessionOverviewRow toSessionOverviewRow(Auction session, List<Item> items) {
+        return dataMapper.toSessionOverviewRow(session, items);
     }
 
     // Tạo row tổng quan item cho ListView dashboard.
-    private ItemOverviewRow toItemOverviewRow(Item item, boolean includeOwner) {
-        return new ItemOverviewRow(
-                item.getId(),
-                item.getFullname(),
-                nullToText(item.getDescription(), "Khong co mo ta"),
-                includeOwner ? String.valueOf(item.getOwner_user_id()) : "",
-                formatMoney(item.getBeginPrice()),
-                formatMoney(getEffectiveMinIncrement(item)),
-                item.getStatus() == null ? "" : item.getStatus().name()
-        );
+    ItemOverviewRow toItemOverviewRow(Item item, boolean includeOwner) {
+        return dataMapper.toItemOverviewRow(item, includeOwner);
     }
 
     // Tạo row phiên live của Bidder; nếu user đang dẫn thì hiển thị "Ban".
-    private LiveSessionRow toLiveSessionRow(Auction session, long userId, List<Item> items) {
-        String leader = session.getCurrent_user_id() == 0
-                ? "-"
-                : session.getCurrent_user_id() == userId ? "Ban" : String.valueOf(session.getCurrent_user_id());
-        return new LiveSessionRow(
-                session.getId(),
-                findItemName(items, session.getItem_id()),
-                findItemDescription(items, session.getItem_id()),
-                formatMoney(session.getCurrent_price()),
-                findItemMinIncrement(items, session.getItem_id()),
-                leader,
-                session.getEndTime()
-        );
+    LiveSessionRow toLiveSessionRow(Auction session, long userId, List<Item> items) {
+        return dataMapper.toLiveSessionRow(session, userId, items);
     }
 
     // Tạo row phiên ended của Bidder; nếu user thắng/dẫn cuối thì hiển thị "Ban".
-    private EndedSessionRow toEndedSessionRow(Auction session, long userId, List<Item> items) {
-        String winner = session.getCurrent_user_id() == 0
-                ? "-"
-                : session.getCurrent_user_id() == userId ? "Ban" : String.valueOf(session.getCurrent_user_id());
-        String status = session.getState() == AuctionState.RUNNING ? "ENDED" : session.getState().name();
-        return new EndedSessionRow(
-                session.getId(),
-                findItemName(items, session.getItem_id()),
-                findItemDescription(items, session.getItem_id()),
-                formatMoney(session.getCurrent_price()),
-                findItemMinIncrement(items, session.getItem_id()),
-                winner,
-                status
-        );
+    EndedSessionRow toEndedSessionRow(Auction session, long userId, List<Item> items) {
+        return dataMapper.toEndedSessionRow(session, userId, items);
     }
 
     // Tạo row sản phẩm Bidder đã thắng để render ở khu owned products.
-    private OwnedProductRow toOwnedProductRow(Auction session, List<Item> items) {
-        Item item = findItem(items, session.getItem_id());
-        String itemName = item == null || item.getFullname() == null || item.getFullname().isBlank()
-                ? "Item " + session.getItem_id()
-                : item.getFullname();
-        String description = item == null || item.getDescription() == null || item.getDescription().isBlank()
-                ? "San pham da thang tu phien #" + session.getId()
-                : item.getDescription();
-        String status = session.getState() == AuctionState.PAID ? "DA THANG" : "WON";
-        return new OwnedProductRow(
-                session.getItem_id(),
-                session.getId(),
-                itemName,
-                description,
-                formatMoney(session.getCurrent_price()),
-                status
-        );
+    OwnedProductRow toOwnedProductRow(Auction session, List<Item> items) {
+        return dataMapper.toOwnedProductRow(session, items);
     }
 
     // Tìm tên item theo itemId trong danh sách đã load sẵn.
-    private String findItemName(List<Item> items, long itemId) {
-        if (items == null) {
-            return "Item " + itemId;
-        }
-        return items.stream()
-                .filter(item -> item.getId() == itemId)
-                .map(Item::getFullname)
-                .filter(name -> name != null && !name.isBlank())
-                .findFirst()
-                .orElse("Item " + itemId);
+    String findItemName(List<Item> items, long itemId) {
+        return dataMapper.findItemName(items, itemId);
     }
 
     // Tìm mô tả item theo itemId trong danh sách đã load sẵn.
-    private String findItemDescription(List<Item> items, long itemId) {
-        if (items == null) {
-            return "Khong co mo ta";
-        }
-        return items.stream()
-                .filter(item -> item.getId() == itemId)
-                .map(Item::getDescription)
-                .filter(description -> description != null && !description.isBlank())
-                .findFirst()
-                .orElse("Khong co mo ta");
+    String findItemDescription(List<Item> items, long itemId) {
+        return dataMapper.findItemDescription(items, itemId);
     }
 
     // Tìm bước giá tối thiểu, fallback 1 cho dữ liệu cũ chưa có minIncrement.
-    private String findItemMinIncrement(List<Item> items, long itemId) {
-        return formatMoney(getEffectiveMinIncrement(findItem(items, itemId)));
+    String findItemMinIncrement(List<Item> items, long itemId) {
+        return dataMapper.findItemMinIncrement(items, itemId);
     }
 
     // Chuẩn hóa minIncrement cho dữ liệu cũ.
-    private long getEffectiveMinIncrement(Item item) {
-        return item == null || item.getMinIncrement() <= 0 ? 1L : item.getMinIncrement();
+    long getEffectiveMinIncrement(Item item) {
+        return dataMapper.getEffectiveMinIncrement(item);
     }
 
     // Tìm item theo id trong list đã có để không query lặp.
-    private Item findItem(List<Item> items, long itemId) {
-        if (items == null) {
-            return null;
-        }
-        return items.stream()
-                .filter(item -> item.getId() == itemId)
-                .findFirst()
-                .orElse(null);
+    Item findItem(List<Item> items, long itemId) {
+        return dataMapper.findItem(items, itemId);
     }
 
     // Tải dữ liệu dashboard Bidder: số dư, phiên đang chạy, phiên đã kết thúc và sản phẩm đã thắng.
     private void loadBidderDashboardAsync() {
-        setText(availableBalanceLabel, "Dang tai...");
-        setText(lockedBalanceLabel, "Dang tai...");
-        setText(activeStakeCountLabel, "-");
-        setText(leadingSessionCountLabel, "-");
-        setText(liveSessionSummaryLabel, "Dang tai du lieu...");
-        setText(endedSessionSummaryLabel, "Dang tai du lieu...");
-        setText(ownedProductSummaryLabel, "Dang tai du lieu...");
-        setText(sidebarLiveLabel, "-");
-
-        Task<BidderDashboardData> task = new Task<>() {
-            @Override
-            // Controller gom dữ liệu cho màn Bidder từ các service chức năng.
-            protected BidderDashboardData call() {
-                long userId = UserAccount.getUserId();
-                Account account = accountService.getBalance(userId);
-                List<Stake> stakes = stakeService.getUserStakes(userId);
-                List<Auction> allSessions = auctionService.getAll();
-                List<Item> allItems = itemService.listAll();
-                List<Auction> liveSessions = allSessions.stream()
-                        .filter(DashBoardController.this::isLiveSession)
-                        .toList();
-                List<Auction> endedSessions = allSessions.stream()
-                        .filter(DashBoardController.this::isEndedSession)
-                        .toList();
-
-                long lockedStakeCount = stakes.stream()
-                        .filter(stake -> stake.getStatus() == StakeStatus.LOCKED)
-                        .count();
-                long leadingCount = liveSessions.stream()
-                        .filter(session -> session.getCurrent_user_id() == userId)
-                        .count();
-
-                List<LiveSessionRow> liveRows = liveSessions.stream()
-                        .sorted(Comparator.comparing(Auction::getEndTime, Comparator.nullsLast(Comparator.naturalOrder())))
-                        .limit(8)
-                        .map(session -> toLiveSessionRow(session, userId, allItems))
-                        .toList();
-
-                List<EndedSessionRow> endedRows = endedSessions.stream()
-                        .sorted(Comparator.comparing(Auction::getEndTime, Comparator.nullsLast(Comparator.reverseOrder())))
-                        .limit(8)
-                        .map(session -> toEndedSessionRow(session, userId, allItems))
-                        .toList();
-
-                List<OwnedProductRow> ownedProducts = endedSessions.stream()
-                        .filter(session -> session.getCurrent_user_id() == userId)
-                        .filter(session -> session.getState() != AuctionState.CANCELED)
-                        .sorted(Comparator.comparing(Auction::getEndTime, Comparator.nullsLast(Comparator.reverseOrder())))
-                        .limit(8)
-                        .map(session -> toOwnedProductRow(session, allItems))
-                        .toList();
-
-                long total = account.getBalance();
-                long locked = account.getLocked_balance();
-                long available = total - locked;
-                return new BidderDashboardData(
-                        available,
-                        locked,
-                        lockedStakeCount,
-                        leadingCount,
-                        liveSessions.size(),
-                        endedSessions.size(),
-                        liveRows,
-                        endedRows,
-                        ownedProducts
-                );
-            }
-
-        };
-
-        task.setOnSucceeded(event -> renderBidderDashboard(task.getValue()));
-        task.setOnFailed(event -> {
-            setText(availableBalanceLabel, "N/A");
-            setText(lockedBalanceLabel, "N/A");
-            setText(activeStakeCountLabel, "0");
-            setText(leadingSessionCountLabel, "0");
-            setText(liveSessionSummaryLabel, "Khong tai duoc du lieu dashboard.");
-            setText(endedSessionSummaryLabel, "Khong tai duoc du lieu dashboard.");
-            setText(ownedProductSummaryLabel, "Khong tai duoc du lieu.");
-            setText(sidebarLiveLabel, "0");
-            stopLiveCountdown();
-            if (liveSessionTable != null) {
-                liveSessionTable.setItems(FXCollections.observableArrayList());
-            }
-            if (endedSessionTable != null) {
-                endedSessionTable.setItems(FXCollections.observableArrayList());
-            }
-            renderOwnedProducts(List.of());
-        });
-
-        Thread worker = new Thread(task, "bidder-dashboard-load");
-        worker.setDaemon(true);
-        worker.start();
+        bidderSection.loadDashboardAsync();
     }
 
     // Đổ dữ liệu dashboard Bidder lên các thẻ thống kê và bảng.
-    private void renderBidderDashboard(BidderDashboardData data) {
-        setText(availableBalanceLabel, formatMoney(data.availableBalance()));
-        setText(lockedBalanceLabel, formatMoney(data.lockedBalance()));
-        setText(activeStakeCountLabel, String.valueOf(data.lockedStakeCount()));
-        setText(leadingSessionCountLabel, String.valueOf(data.leadingSessionCount()));
-        setText(liveSessionSummaryLabel, data.liveSessionCount() + " phien dang mo");
-        setText(endedSessionSummaryLabel, data.endedSessionCount() + " phien da ket thuc");
-        setText(sidebarLiveLabel, String.valueOf(data.liveSessionCount()));
-
-        if (liveSessionTable != null) {
-            liveSessionRows.setAll(data.liveSessions());
-            liveSessionTable.setItems(liveSessionRows);
-            startLiveCountdown();
-        }
-        if (endedSessionTable != null) {
-            endedSessionRows.setAll(data.endedSessions());
-            endedSessionTable.setItems(endedSessionRows);
-        }
-        renderOwnedProducts(data.ownedProducts());
+    void renderBidderDashboard(BidderDashboardData data) {
+        bidderSection.renderDashboard(data);
     }
 
     // Render danh sách sản phẩm đã thắng theo dạng từng thanh sản phẩm, không dùng bảng cứng.
-    private void renderOwnedProducts(List<OwnedProductRow> products) {
-        if (ownedProductList == null) {
-            return;
-        }
-
-        ownedProductList.getChildren().clear();
-        List<OwnedProductRow> rows = products == null ? List.of() : products;
-        setText(ownedProductSummaryLabel, rows.size() + " san pham");
-
-        if (rows.isEmpty()) {
-            VBox empty = new VBox(6.0);
-            empty.setPadding(new Insets(18.0));
-            empty.getStyleClass().add("product-empty");
-            Label title = new Label("Chua co san pham nao");
-            title.getStyleClass().add("product-title");
-            Label subtitle = new Label("San pham ban thang dau gia se hien thi o day.");
-            subtitle.getStyleClass().add("page-subtitle");
-            subtitle.setWrapText(true);
-            empty.getChildren().addAll(title, subtitle);
-            ownedProductList.getChildren().add(empty);
-            return;
-        }
-
-        for (OwnedProductRow row : rows) {
-            ownedProductList.getChildren().add(createOwnedProductNode(row));
-        }
+    void renderOwnedProducts(List<OwnedProductRow> products) {
+        bidderSection.renderOwnedProducts(products);
     }
 
     // Tạo một thanh sản phẩm gồm tên, mô tả, id phiên/item, giá thắng và trạng thái.
-    private Node createOwnedProductNode(OwnedProductRow row) {
-        HBox productRow = new HBox(14.0);
-        productRow.setAlignment(Pos.CENTER_LEFT);
-        productRow.setPadding(new Insets(14.0, 16.0, 14.0, 16.0));
-        productRow.getStyleClass().add("product-row");
-        productRow.setCursor(Cursor.HAND);
-        productRow.setOnMouseEntered(event -> productRow.setTranslateY(-2.0));
-        productRow.setOnMouseExited(event -> productRow.setTranslateY(0.0));
-        productRow.setOnMouseClicked(event -> openWinnerFromNode(productRow, row.sessionId()));
-
-        VBox textBox = new VBox(5.0);
-        textBox.setAlignment(Pos.CENTER_LEFT);
-        HBox.setHgrow(textBox, Priority.ALWAYS);
-        textBox.setCursor(Cursor.HAND);
-
-        Label title = new Label(row.itemName());
-        title.getStyleClass().add("product-title");
-        title.setWrapText(true);
-        title.setCursor(Cursor.HAND);
-
-        Label description = new Label(row.description());
-        description.getStyleClass().add("product-description");
-        description.setWrapText(true);
-        description.setCursor(Cursor.HAND);
-
-        HBox metaBox = new HBox(8.0);
-        metaBox.setAlignment(Pos.CENTER_LEFT);
-        metaBox.setCursor(Cursor.HAND);
-        Label session = new Label("Phien #" + row.sessionId());
-        session.getStyleClass().add("product-meta");
-        session.setCursor(Cursor.HAND);
-        Label item = new Label("Item #" + row.itemId());
-        item.getStyleClass().add("product-meta");
-        item.setCursor(Cursor.HAND);
-        metaBox.getChildren().addAll(session, item);
-
-        textBox.getChildren().addAll(title, description, metaBox);
-
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        spacer.setCursor(Cursor.HAND);
-
-        VBox valueBox = new VBox(8.0);
-        valueBox.setAlignment(Pos.CENTER_RIGHT);
-        valueBox.setCursor(Cursor.HAND);
-        Label price = new Label(row.finalPrice());
-        price.getStyleClass().add("product-price");
-        price.setCursor(Cursor.HAND);
-        Label status = new Label(row.status());
-        status.getStyleClass().add("product-pill");
-        status.setCursor(Cursor.HAND);
-        valueBox.getChildren().addAll(price, status);
-
-        productRow.getChildren().addAll(textBox, spacer, valueBox);
-        return productRow;
+    Node createOwnedProductNode(OwnedProductRow row) {
+        return rowFactory.createOwnedProductNode(row);
     }
 
     // Mở màn kết quả của phiên khi bấm vào sản phẩm đã thắng.
-    private void openWinnerFromNode(Node source, long sessionId) {
-        try {
-            WinnerController.setSessionId(sessionId);
-            switchSceneFromNode(source, "/com/template/hellfx/Winner.fxml");
-        } catch (IOException e) {
-            showWarning("Không mở được kết quả phiên: " + e.getMessage());
-        }
+    void openWinnerFromNode(Node source, long sessionId) {
+        navigation.openWinnerFromNode(source, sessionId);
     }
 
     // Chuyển màn từ một Node bất kỳ, dùng cho các card/list item không phát ActionEvent.
-    private void switchSceneFromNode(Node source, String fxmlPath) throws IOException {
-        URL resource = getClass().getResource(fxmlPath);
-        if (resource == null) {
-            showWarning("Không tìm thấy màn hình: " + fxmlPath);
-            return;
-        }
-
-        stopLiveCountdown();
-        Parent root = FXMLLoader.load(resource);
-        Stage stage = (Stage) source.getScene().getWindow();
-        Scene currentScene = stage.getScene();
-        if (currentScene == null) {
-            stage.setScene(new Scene(root, UILogin.APP_WIDTH, UILogin.APP_HEIGHT));
-        } else {
-            currentScene.setRoot(root);
-        }
-        stage.show();
+    void switchSceneFromNode(Node source, String fxmlPath) throws IOException {
+        navigation.switchSceneFromNode(source, fxmlPath);
     }
 
     // Khởi động timer cập nhật thời gian còn lại của các phiên đang chạy.
-    private void startLiveCountdown() {
-        stopLiveCountdown();
-        refreshLiveCountdown();
-
-        liveCountdownTimeline = new Timeline(new KeyFrame(
-                javafx.util.Duration.seconds(1),
-                event -> refreshLiveCountdown()
-        ));
-        liveCountdownTimeline.setCycleCount(Timeline.INDEFINITE);
-        liveCountdownTimeline.play();
+    void startLiveCountdown() {
+        countdownSection.startLiveCountdown();
     }
 
     // Cập nhật countdown từng dòng; phiên hết giờ được chuyển sang bảng đã kết thúc.
-    private void refreshLiveCountdown() {
-        if (liveSessionRows == null) {
-            return;
-        }
-
-        List<LiveSessionRow> expiredRows = new ArrayList<>();
-        for (LiveSessionRow row : liveSessionRows) {
-            if (isExpired(row.getEndTime())) {
-                expiredRows.add(row);
-                continue;
-            }
-            row.setTimeLeft(formatRemaining(row.getEndTime()));
-        }
-
-        for (LiveSessionRow row : expiredRows) {
-            liveSessionRows.remove(row);
-            addEndedSession(row.toEndedSessionRow());
-        }
-        if (liveSessionTable != null) {
-            liveSessionTable.refresh();
-        }
-        updateSessionSummaries();
+    void refreshLiveCountdown() {
+        countdownSection.refreshLiveCountdown();
     }
 
     // Kiểm tra thời gian kết thúc đã qua hay chưa.
-    private boolean isExpired(LocalDateTime endTime) {
-        return endTime == null || !endTime.isAfter(LocalDateTime.now());
+    boolean isExpired(LocalDateTime endTime) {
+        return countdownSection.isExpired(endTime);
     }
 
     // Thêm một phiên vào bảng đã kết thúc, tránh trùng và giới hạn số dòng hiển thị.
-    private void addEndedSession(EndedSessionRow endedRow) {
-        boolean exists = endedSessionRows.stream()
-                .anyMatch(row -> row.sessionId() == endedRow.sessionId());
-        if (!exists) {
-            endedSessionRows.add(0, endedRow);
-        }
-        while (endedSessionRows.size() > 8) {
-            endedSessionRows.remove(endedSessionRows.size() - 1);
-        }
+    void addEndedSession(EndedSessionRow endedRow) {
+        countdownSection.addEndedSession(endedRow);
     }
 
     // Cập nhật các label tổng quan số phiên đang mở và phiên gần đây.
-    private void updateSessionSummaries() {
-        setText(liveSessionSummaryLabel, liveSessionRows.size() + " phien dang mo");
-        setText(sidebarLiveLabel, String.valueOf(liveSessionRows.size()));
-        setText(endedSessionSummaryLabel, endedSessionRows.size() + " phien gan day");
+    void updateSessionSummaries() {
+        countdownSection.updateSessionSummaries();
     }
 
     // Dừng timer countdown khi rời dashboard hoặc tải lại màn.
-    private void stopLiveCountdown() {
-        if (liveCountdownTimeline != null) {
-            liveCountdownTimeline.stop();
-            liveCountdownTimeline = null;
-        }
+    void stopLiveCountdown() {
+        countdownSection.stopLiveCountdown();
     }
 
     // Set text an toàn cho Label có thể không tồn tại ở từng loại dashboard.
-    private void setText(Label label, String text) {
+    void setText(Label label, String text) {
         if (label != null) {
             label.setText(text == null ? "" : text);
         }
     }
 
     // Trả chuỗi dự phòng khi dữ liệu null/rỗng.
-    private String nullToText(String value, String fallback) {
+    String nullToText(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
     }
 
     // Định dạng số tiền có dấu phẩy ngăn cách hàng nghìn.
-    private String formatMoney(long amount) {
+    String formatMoney(long amount) {
         return NumberFormat.getNumberInstance(Locale.US).format(amount);
     }
 
     // Định dạng thời gian còn lại của phiên thành HH:mm:ss hoặc mm:ss.
-    private String formatRemaining(LocalDateTime endTime) {
+    String formatRemaining(LocalDateTime endTime) {
         if (endTime == null) {
             return "-";
         }
@@ -1176,4 +415,1044 @@ public class DashBoardController {
         return String.format("%02d:%02d", minutes, secs);
     }
 
+}
+
+// Nhóm điều hướng của dashboard: đổi màn, mở chi tiết phiên/kết quả và hiển thị cảnh báo.
+final class DashboardNavigation {
+    private final DashBoardController controller;
+
+    DashboardNavigation(DashBoardController controller) {
+        this.controller = controller;
+    }
+
+    // Điều hướng về dashboard đúng với role hiện tại.
+    void goHome(ActionEvent actionEvent) throws IOException {
+        UserRole role = UserAccount.getCurrentRole();
+        if (role == UserRole.ADMIN) {
+            switchScene(actionEvent, "/com/template/hellfx/dashboard - Admin.fxml");
+        } else if (role == UserRole.SELLER) {
+            switchScene(actionEvent, "/com/template/hellfx/dashboard - Seller.fxml");
+        } else {
+            switchScene(actionEvent, "/com/template/hellfx/dashboard-Bidder.fxml");
+        }
+    }
+
+    // Đăng xuất: xóa session user và quay về màn đăng nhập.
+    void goToLogin(ActionEvent actionEvent) throws IOException {
+        UserAccount.clearSession();
+        switchScene(actionEvent, "/com/template/hellfx/UILogin.fxml");
+    }
+
+    // Mở màn sản phẩm của Seller; chặn Bidder vì Bidder không được đăng bán.
+    void goToSellerProducts(ActionEvent actionEvent) throws IOException {
+        UserRole role = UserAccount.getCurrentRole();
+        if (role == UserRole.BIDDER) {
+            showWarning("Bidder chỉ được đấu giá, không được đăng bán.");
+            return;
+        }
+        switchScene(actionEvent, "/com/template/hellfx/SellerProducts.fxml");
+    }
+
+    // Hiện popup cảnh báo cho thao tác không hợp lệ.
+    void showWarning(String msg) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Thông báo");
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        alert.showAndWait();
+    }
+
+    // Load FXML mới, dừng timer dashboard nếu có và thay root scene hiện tại.
+    void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {
+        URL resource = controller.getClass().getResource(fxmlPath);
+        if (resource == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Lỗi điều hướng");
+            alert.setHeaderText("Không tìm thấy màn hình");
+            alert.setContentText(fxmlPath);
+            alert.showAndWait();
+            return;
+        }
+
+        controller.stopLiveCountdown();
+        Parent root = FXMLLoader.load(resource);
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        replaceSceneRoot(stage, root);
+    }
+
+    // Mở màn chi tiết phiên từ một card/list item bất kỳ.
+    void openSessionDetailFromNode(Node source, long sessionId) {
+        if (sessionId <= 0) {
+            showWarning("Phiên không hợp lệ.");
+            return;
+        }
+
+        try {
+            SessionDetailController.setSessionId(sessionId);
+            switchSceneFromNode(source, "/com/template/hellfx/session-detail.fxml");
+        } catch (IOException e) {
+            showWarning("Không mở được hoạt động phiên: " + e.getMessage());
+        }
+    }
+
+    // Mở màn kết quả của phiên khi bấm vào sản phẩm đã thắng.
+    void openWinnerFromNode(Node source, long sessionId) {
+        try {
+            WinnerController.setSessionId(sessionId);
+            switchSceneFromNode(source, "/com/template/hellfx/Winner.fxml");
+        } catch (IOException e) {
+            showWarning("Không mở được kết quả phiên: " + e.getMessage());
+        }
+    }
+
+    // Chuyển màn từ một Node bất kỳ, dùng cho các card/list item không phát ActionEvent.
+    void switchSceneFromNode(Node source, String fxmlPath) throws IOException {
+        URL resource = controller.getClass().getResource(fxmlPath);
+        if (resource == null) {
+            showWarning("Không tìm thấy màn hình: " + fxmlPath);
+            return;
+        }
+
+        controller.stopLiveCountdown();
+        Parent root = FXMLLoader.load(resource);
+        Stage stage = (Stage) source.getScene().getWindow();
+        replaceSceneRoot(stage, root);
+    }
+
+    // Thay root scene hiện tại và giữ kích thước cửa sổ thống nhất.
+    private void replaceSceneRoot(Stage stage, Parent root) {
+        Scene currentScene = stage.getScene();
+        if (currentScene == null) {
+            stage.setScene(new Scene(root, UILogin.APP_WIDTH, UILogin.APP_HEIGHT));
+        } else {
+            currentScene.setRoot(root);
+        }
+        stage.show();
+    }
+}
+
+// Nhóm cấu hình ListView cho dashboard Bidder/Admin/Seller.
+final class DashboardTableSection {
+    private final DashBoardController controller;
+
+    DashboardTableSection(DashBoardController controller) {
+        this.controller = controller;
+    }
+
+    // Cấu hình các danh sách riêng của dashboard Bidder.
+    void configureBidderTables() {
+        if (controller.liveSessionTable != null) {
+            controller.liveSessionTable.setCellFactory(list -> new ListCell<>() {
+                @Override
+                protected void updateItem(LiveSessionRow row, boolean empty) {
+                    super.updateItem(row, empty);
+                    setText(null);
+                    setGraphic(empty || row == null ? null : controller.createLiveSessionCard(row));
+                }
+            });
+        }
+
+        if (controller.endedSessionTable != null) {
+            controller.endedSessionTable.setCellFactory(list -> new ListCell<>() {
+                @Override
+                protected void updateItem(EndedSessionRow row, boolean empty) {
+                    super.updateItem(row, empty);
+                    setText(null);
+                    setGraphic(empty || row == null ? null : controller.createEndedSessionCard(row));
+                }
+            });
+        }
+    }
+
+    // Cấu hình danh sách item đang chờ duyệt của Admin.
+    void configureAdminTables() {
+        if (controller.adminPendingItemTable != null) {
+            controller.adminPendingItemTable.setCellFactory(list -> new ListCell<>() {
+                @Override
+                protected void updateItem(ItemOverviewRow row, boolean empty) {
+                    super.updateItem(row, empty);
+                    setText(null);
+                    setGraphic(empty || row == null ? null : controller.createItemOverviewCard(row, true));
+                }
+            });
+        }
+    }
+
+    // Cấu hình danh sách item và phiên liên quan của Seller.
+    void configureSellerTables() {
+        if (controller.sellerItemTable != null) {
+            controller.sellerItemTable.setCellFactory(list -> new ListCell<>() {
+                @Override
+                protected void updateItem(ItemOverviewRow row, boolean empty) {
+                    super.updateItem(row, empty);
+                    setText(null);
+                    setGraphic(empty || row == null ? null : controller.createItemOverviewCard(row, false));
+                }
+            });
+        }
+
+        if (controller.sellerSessionTable != null) {
+            controller.sellerSessionTable.setCellFactory(list -> new ListCell<>() {
+                @Override
+                protected void updateItem(SessionOverviewRow row, boolean empty) {
+                    super.updateItem(row, empty);
+                    setText(null);
+                    setGraphic(empty || row == null ? null : controller.createAdminSessionNode(row));
+                }
+            });
+        }
+    }
+}
+
+// Nhóm tải và render dashboard Admin.
+final class DashboardAdminSection {
+    private final DashBoardController controller;
+
+    DashboardAdminSection(DashBoardController controller) {
+        this.controller = controller;
+    }
+
+    // Tải số liệu dashboard Admin trên background thread để UI không bị lag.
+    void loadDashboardAsync() {
+        controller.setText(controller.adminActiveSessionsLabel, "-");
+        controller.setText(controller.adminPendingItemsLabel, "-");
+        controller.setText(controller.adminTotalItemsLabel, "-");
+        controller.setText(controller.adminTotalUsersLabel, "-");
+        controller.setText(controller.adminSidebarPendingLabel, "-");
+        controller.setText(controller.adminSessionSummaryLabel, "Dang tai du lieu...");
+        controller.setText(controller.adminPendingSummaryLabel, "Dang tai du lieu...");
+
+        Task<AdminDashboardData> task = new Task<>() {
+            @Override
+            protected AdminDashboardData call() {
+                List<Item> items = controller.itemService.listAll();
+                List<Auction> sessions = controller.auctionService.getAll();
+                List<AccountService.ManagedAccount> accounts = controller.accountService.listManagedAccounts();
+
+                long activeSessions = sessions.stream()
+                        .filter(controller::isLiveSession)
+                        .count();
+                long pendingItems = items.stream()
+                        .filter(item -> item.getStatus() == ItemStatus.PENDING)
+                        .count();
+
+                List<SessionOverviewRow> sessionRows = sessions.stream()
+                        .sorted(Comparator.comparingLong(Auction::getId).reversed())
+                        .limit(10)
+                        .map(session -> controller.toSessionOverviewRow(session, items))
+                        .toList();
+
+                List<ItemOverviewRow> pendingRows = items.stream()
+                        .filter(item -> item.getStatus() == ItemStatus.PENDING)
+                        .sorted(Comparator.comparingLong(Item::getId).reversed())
+                        .limit(10)
+                        .map(item -> controller.toItemOverviewRow(item, true))
+                        .toList();
+
+                return new AdminDashboardData(
+                        activeSessions,
+                        pendingItems,
+                        items.size(),
+                        accounts.size(),
+                        sessionRows,
+                        pendingRows
+                );
+            }
+        };
+
+        task.setOnSucceeded(event -> renderDashboard(task.getValue()));
+        task.setOnFailed(event -> {
+            controller.setText(controller.adminActiveSessionsLabel, "0");
+            controller.setText(controller.adminPendingItemsLabel, "0");
+            controller.setText(controller.adminTotalItemsLabel, "0");
+            controller.setText(controller.adminTotalUsersLabel, "0");
+            controller.setText(controller.adminSidebarPendingLabel, "0");
+            controller.setText(controller.adminSessionSummaryLabel, "Khong tai duoc du lieu.");
+            controller.setText(controller.adminPendingSummaryLabel, "Khong tai duoc du lieu.");
+            renderSessionList(List.of());
+            if (controller.adminPendingItemTable != null) {
+                controller.adminPendingItemTable.setItems(FXCollections.observableArrayList());
+            }
+        });
+
+        startDaemonTask(task, "admin-dashboard-load");
+    }
+
+    // Đổ dữ liệu đã tải lên các thẻ thống kê và bảng của Admin.
+    void renderDashboard(AdminDashboardData data) {
+        controller.setText(controller.adminActiveSessionsLabel, String.valueOf(data.activeSessions));
+        controller.setText(controller.adminPendingItemsLabel, String.valueOf(data.pendingItems));
+        controller.setText(controller.adminTotalItemsLabel, String.valueOf(data.totalItems));
+        controller.setText(controller.adminTotalUsersLabel, String.valueOf(data.totalUsers));
+        controller.setText(controller.adminSidebarPendingLabel, String.valueOf(data.pendingItems));
+        controller.setText(controller.adminSessionSummaryLabel, data.sessionRows.size() + " phien gan day");
+        controller.setText(controller.adminPendingSummaryLabel, data.pendingRows.size() + " item dang cho duyet");
+
+        renderSessionList(data.sessionRows);
+        if (controller.adminPendingItemTable != null) {
+            controller.adminPendingItemTable.setItems(FXCollections.observableArrayList(data.pendingRows));
+        }
+    }
+
+    // Render phiên gần đây của Admin thành từng thanh mềm, có thể bấm để xem hoạt động phiên.
+    void renderSessionList(List<SessionOverviewRow> rows) {
+        if (controller.adminSessionList == null) {
+            return;
+        }
+
+        controller.adminSessionList.getChildren().clear();
+        List<SessionOverviewRow> sessions = rows == null ? List.of() : rows;
+        if (sessions.isEmpty()) {
+            VBox empty = new VBox(6.0);
+            empty.setPadding(new Insets(18.0));
+            empty.getStyleClass().add("product-empty");
+            Label title = new Label("Chưa có phiên gần đây");
+            title.getStyleClass().add("product-title");
+            Label subtitle = new Label("Các phiên đấu giá mới tạo hoặc vừa kết thúc sẽ hiển thị ở đây.");
+            subtitle.getStyleClass().add("page-subtitle");
+            subtitle.setWrapText(true);
+            empty.getChildren().addAll(title, subtitle);
+            controller.adminSessionList.getChildren().add(empty);
+            return;
+        }
+
+        for (SessionOverviewRow row : sessions) {
+            controller.adminSessionList.getChildren().add(controller.createAdminSessionNode(row));
+        }
+    }
+
+    // Tạo daemon thread cho task nền của dashboard.
+    private void startDaemonTask(Task<?> task, String threadName) {
+        Thread worker = new Thread(task, threadName);
+        worker.setDaemon(true);
+        worker.start();
+    }
+}
+
+// Nhóm tải và render dashboard Seller.
+final class DashboardSellerSection {
+    private final DashBoardController controller;
+
+    DashboardSellerSection(DashBoardController controller) {
+        this.controller = controller;
+    }
+
+    // Tải số liệu dashboard Seller trên background thread.
+    void loadDashboardAsync() {
+        controller.setText(controller.sellerTotalItemsLabel, "-");
+        controller.setText(controller.sellerPendingItemsLabel, "-");
+        controller.setText(controller.sellerInAuctionItemsLabel, "-");
+        controller.setText(controller.sellerSoldItemsLabel, "-");
+        controller.setText(controller.sellerSidebarItemsLabel, "-");
+        controller.setText(controller.sellerItemSummaryLabel, "Dang tai du lieu...");
+        controller.setText(controller.sellerSessionSummaryLabel, "Dang tai du lieu...");
+
+        Task<SellerDashboardData> task = new Task<>() {
+            @Override
+            protected SellerDashboardData call() {
+                long sellerId = UserAccount.getUserId();
+                List<Item> items = controller.itemService.listByOwner(sellerId);
+                Set<Long> itemIds = items.stream()
+                        .map(Item::getId)
+                        .collect(Collectors.toSet());
+                List<Auction> sessions = controller.auctionService.getAll().stream()
+                        .filter(session -> itemIds.contains(session.getItem_id()))
+                        .toList();
+
+                long pending = items.stream()
+                        .filter(item -> item.getStatus() == ItemStatus.PENDING)
+                        .count();
+                long inAuction = items.stream()
+                        .filter(item -> item.getStatus() == ItemStatus.IN_AUCTION)
+                        .count();
+                long sold = items.stream()
+                        .filter(item -> item.getStatus() == ItemStatus.SOLD)
+                        .count();
+
+                List<ItemOverviewRow> itemRows = items.stream()
+                        .sorted(Comparator.comparingLong(Item::getId).reversed())
+                        .map(item -> controller.toItemOverviewRow(item, false))
+                        .toList();
+
+                List<SessionOverviewRow> sessionRows = sessions.stream()
+                        .sorted(Comparator.comparingLong(Auction::getId).reversed())
+                        .limit(10)
+                        .map(session -> controller.toSessionOverviewRow(session, items))
+                        .toList();
+
+                return new SellerDashboardData(items.size(), pending, inAuction, sold, itemRows, sessionRows);
+            }
+        };
+
+        task.setOnSucceeded(event -> renderDashboard(task.getValue()));
+        task.setOnFailed(event -> {
+            controller.setText(controller.sellerTotalItemsLabel, "0");
+            controller.setText(controller.sellerPendingItemsLabel, "0");
+            controller.setText(controller.sellerInAuctionItemsLabel, "0");
+            controller.setText(controller.sellerSoldItemsLabel, "0");
+            controller.setText(controller.sellerSidebarItemsLabel, "0");
+            controller.setText(controller.sellerItemSummaryLabel, "Khong tai duoc du lieu.");
+            controller.setText(controller.sellerSessionSummaryLabel, "Khong tai duoc du lieu.");
+            if (controller.sellerItemTable != null) {
+                controller.sellerItemTable.setItems(FXCollections.observableArrayList());
+            }
+            if (controller.sellerSessionTable != null) {
+                controller.sellerSessionTable.setItems(FXCollections.observableArrayList());
+            }
+        });
+
+        startDaemonTask(task, "seller-dashboard-load");
+    }
+
+    // Đổ dữ liệu đã tải lên các thẻ thống kê và bảng của Seller.
+    void renderDashboard(SellerDashboardData data) {
+        controller.setText(controller.sellerTotalItemsLabel, String.valueOf(data.totalItems));
+        controller.setText(controller.sellerPendingItemsLabel, String.valueOf(data.pendingItems));
+        controller.setText(controller.sellerInAuctionItemsLabel, String.valueOf(data.inAuctionItems));
+        controller.setText(controller.sellerSoldItemsLabel, String.valueOf(data.soldItems));
+        controller.setText(controller.sellerSidebarItemsLabel, String.valueOf(data.totalItems));
+        controller.setText(controller.sellerItemSummaryLabel, "Tat ca " + data.itemRows.size() + " item da dang ban");
+        controller.setText(controller.sellerSessionSummaryLabel, data.sessionRows.size() + " phien lien quan");
+
+        if (controller.sellerItemTable != null) {
+            controller.sellerItemTable.setItems(FXCollections.observableArrayList(data.itemRows));
+        }
+        if (controller.sellerSessionTable != null) {
+            controller.sellerSessionTable.setItems(FXCollections.observableArrayList(data.sessionRows));
+        }
+    }
+
+    // Tạo daemon thread cho task nền của dashboard.
+    private void startDaemonTask(Task<?> task, String threadName) {
+        Thread worker = new Thread(task, threadName);
+        worker.setDaemon(true);
+        worker.start();
+    }
+}
+
+// Nhóm tải và render dashboard Bidder.
+final class DashboardBidderSection {
+    private final DashBoardController controller;
+
+    DashboardBidderSection(DashBoardController controller) {
+        this.controller = controller;
+    }
+
+    // Tải dữ liệu dashboard Bidder: số dư, phiên đang chạy, phiên đã kết thúc và sản phẩm đã thắng.
+    void loadDashboardAsync() {
+        controller.setText(controller.availableBalanceLabel, "Dang tai...");
+        controller.setText(controller.lockedBalanceLabel, "Dang tai...");
+        controller.setText(controller.activeStakeCountLabel, "-");
+        controller.setText(controller.leadingSessionCountLabel, "-");
+        controller.setText(controller.liveSessionSummaryLabel, "Dang tai du lieu...");
+        controller.setText(controller.endedSessionSummaryLabel, "Dang tai du lieu...");
+        controller.setText(controller.ownedProductSummaryLabel, "Dang tai du lieu...");
+        controller.setText(controller.sidebarLiveLabel, "-");
+
+        Task<BidderDashboardData> task = new Task<>() {
+            @Override
+            protected BidderDashboardData call() {
+                long userId = UserAccount.getUserId();
+                Account account = controller.accountService.getBalance(userId);
+                List<Stake> stakes = controller.stakeService.getUserStakes(userId);
+                List<Auction> allSessions = controller.auctionService.getAll();
+                List<Item> allItems = controller.itemService.listAll();
+                List<Auction> liveSessions = allSessions.stream()
+                        .filter(controller::isLiveSession)
+                        .toList();
+                List<Auction> endedSessions = allSessions.stream()
+                        .filter(controller::isEndedSession)
+                        .toList();
+
+                long lockedStakeCount = stakes.stream()
+                        .filter(stake -> stake.getStatus() == StakeStatus.LOCKED)
+                        .count();
+                long leadingCount = liveSessions.stream()
+                        .filter(session -> session.getCurrent_user_id() == userId)
+                        .count();
+
+                List<LiveSessionRow> liveRows = liveSessions.stream()
+                        .sorted(Comparator.comparing(Auction::getEndTime, Comparator.nullsLast(Comparator.naturalOrder())))
+                        .limit(8)
+                        .map(session -> controller.toLiveSessionRow(session, userId, allItems))
+                        .toList();
+
+                List<EndedSessionRow> endedRows = endedSessions.stream()
+                        .sorted(Comparator.comparing(Auction::getEndTime, Comparator.nullsLast(Comparator.reverseOrder())))
+                        .limit(8)
+                        .map(session -> controller.toEndedSessionRow(session, userId, allItems))
+                        .toList();
+
+                List<OwnedProductRow> ownedProducts = endedSessions.stream()
+                        .filter(session -> session.getCurrent_user_id() == userId)
+                        .filter(session -> session.getState() != AuctionState.CANCELED)
+                        .sorted(Comparator.comparing(Auction::getEndTime, Comparator.nullsLast(Comparator.reverseOrder())))
+                        .limit(8)
+                        .map(session -> controller.toOwnedProductRow(session, allItems))
+                        .toList();
+
+                long total = account.getBalance();
+                long locked = account.getLocked_balance();
+                long available = total - locked;
+                return new BidderDashboardData(
+                        available,
+                        locked,
+                        lockedStakeCount,
+                        leadingCount,
+                        liveSessions.size(),
+                        endedSessions.size(),
+                        liveRows,
+                        endedRows,
+                        ownedProducts
+                );
+            }
+        };
+
+        task.setOnSucceeded(event -> renderDashboard(task.getValue()));
+        task.setOnFailed(event -> {
+            controller.setText(controller.availableBalanceLabel, "N/A");
+            controller.setText(controller.lockedBalanceLabel, "N/A");
+            controller.setText(controller.activeStakeCountLabel, "0");
+            controller.setText(controller.leadingSessionCountLabel, "0");
+            controller.setText(controller.liveSessionSummaryLabel, "Khong tai duoc du lieu dashboard.");
+            controller.setText(controller.endedSessionSummaryLabel, "Khong tai duoc du lieu dashboard.");
+            controller.setText(controller.ownedProductSummaryLabel, "Khong tai duoc du lieu.");
+            controller.setText(controller.sidebarLiveLabel, "0");
+            controller.stopLiveCountdown();
+            if (controller.liveSessionTable != null) {
+                controller.liveSessionTable.setItems(FXCollections.observableArrayList());
+            }
+            if (controller.endedSessionTable != null) {
+                controller.endedSessionTable.setItems(FXCollections.observableArrayList());
+            }
+            renderOwnedProducts(List.of());
+        });
+
+        startDaemonTask(task, "bidder-dashboard-load");
+    }
+
+    // Đổ dữ liệu dashboard Bidder lên các thẻ thống kê và bảng.
+    void renderDashboard(BidderDashboardData data) {
+        controller.setText(controller.availableBalanceLabel, controller.formatMoney(data.availableBalance));
+        controller.setText(controller.lockedBalanceLabel, controller.formatMoney(data.lockedBalance));
+        controller.setText(controller.activeStakeCountLabel, String.valueOf(data.lockedStakeCount));
+        controller.setText(controller.leadingSessionCountLabel, String.valueOf(data.leadingSessionCount));
+        controller.setText(controller.liveSessionSummaryLabel, data.liveSessionCount + " phien dang mo");
+        controller.setText(controller.endedSessionSummaryLabel, data.endedSessionCount + " phien da ket thuc");
+        controller.setText(controller.sidebarLiveLabel, String.valueOf(data.liveSessionCount));
+
+        if (controller.liveSessionTable != null) {
+            controller.liveSessionRows.setAll(data.liveSessions);
+            controller.liveSessionTable.setItems(controller.liveSessionRows);
+            controller.startLiveCountdown();
+        }
+        if (controller.endedSessionTable != null) {
+            controller.endedSessionRows.setAll(data.endedSessions);
+            controller.endedSessionTable.setItems(controller.endedSessionRows);
+        }
+        renderOwnedProducts(data.ownedProducts);
+    }
+
+    // Render danh sách sản phẩm đã thắng theo dạng từng thanh sản phẩm, không dùng bảng cứng.
+    void renderOwnedProducts(List<OwnedProductRow> products) {
+        if (controller.ownedProductList == null) {
+            return;
+        }
+
+        controller.ownedProductList.getChildren().clear();
+        List<OwnedProductRow> rows = products == null ? List.of() : products;
+        controller.setText(controller.ownedProductSummaryLabel, rows.size() + " san pham");
+
+        if (rows.isEmpty()) {
+            VBox empty = new VBox(6.0);
+            empty.setPadding(new Insets(18.0));
+            empty.getStyleClass().add("product-empty");
+            Label title = new Label("Chua co san pham nao");
+            title.getStyleClass().add("product-title");
+            Label subtitle = new Label("San pham ban thang dau gia se hien thi o day.");
+            subtitle.getStyleClass().add("page-subtitle");
+            subtitle.setWrapText(true);
+            empty.getChildren().addAll(title, subtitle);
+            controller.ownedProductList.getChildren().add(empty);
+            return;
+        }
+
+        for (OwnedProductRow row : rows) {
+            controller.ownedProductList.getChildren().add(controller.createOwnedProductNode(row));
+        }
+    }
+
+    // Tạo daemon thread cho task nền của dashboard.
+    private void startDaemonTask(Task<?> task, String threadName) {
+        Thread worker = new Thread(task, threadName);
+        worker.setDaemon(true);
+        worker.start();
+    }
+}
+
+// Nhóm dựng Node/Card dùng chung cho các bảng dashboard.
+final class DashboardRowFactory {
+    private final DashBoardController controller;
+
+    DashboardRowFactory(DashBoardController controller) {
+        this.controller = controller;
+    }
+
+    // Tạo một thanh phiên đấu giá gồm tên item, id phiên, giá, leader và trạng thái.
+    Node createAdminSessionNode(SessionOverviewRow row) {
+        HBox sessionRow = new HBox(14.0);
+        sessionRow.setAlignment(Pos.CENTER_LEFT);
+        sessionRow.setPadding(new Insets(13.0, 16.0, 13.0, 16.0));
+        sessionRow.getStyleClass().add("session-row");
+        sessionRow.setCursor(Cursor.HAND);
+        sessionRow.setOnMouseEntered(event -> sessionRow.setTranslateY(-2.0));
+        sessionRow.setOnMouseExited(event -> sessionRow.setTranslateY(0.0));
+        sessionRow.setOnMouseClicked(event -> controller.openSessionDetailFromNode(sessionRow, row.getSessionId()));
+
+        VBox textBox = new VBox(5.0);
+        textBox.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(textBox, Priority.ALWAYS);
+
+        Label title = new Label(row.getItemName());
+        title.getStyleClass().add("product-title");
+        title.setWrapText(true);
+        Label description = new Label(controller.nullToText(row.getDescription(), "Không có mô tả"));
+        description.getStyleClass().add("product-description");
+        description.setWrapText(true);
+
+        HBox metaBox = new HBox(10.0);
+        metaBox.setAlignment(Pos.CENTER_LEFT);
+        Label sessionId = new Label("Phiên #" + row.getSessionId());
+        sessionId.getStyleClass().add("product-meta");
+        Label itemId = new Label("Sản phẩm #" + row.getItemId());
+        itemId.getStyleClass().add("product-meta");
+        Label minStep = new Label("Bước giá " + row.getMinIncrement());
+        minStep.getStyleClass().add("product-meta");
+        metaBox.getChildren().addAll(sessionId, itemId, minStep);
+        textBox.getChildren().addAll(title, description, metaBox);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        VBox leaderBox = new VBox(4.0);
+        leaderBox.setAlignment(Pos.CENTER_RIGHT);
+        Label leaderLabel = new Label("Leader");
+        leaderLabel.getStyleClass().add("product-meta");
+        Label leaderValue = new Label(row.getLeader());
+        leaderValue.getStyleClass().add("field-value");
+        leaderBox.getChildren().addAll(leaderLabel, leaderValue);
+
+        VBox priceBox = new VBox(6.0);
+        priceBox.setAlignment(Pos.CENTER_RIGHT);
+        Label price = new Label(row.getPrice());
+        price.getStyleClass().add("product-price");
+        Label status = new Label(row.getStatus());
+        status.getStyleClass().add("session-status-pill");
+        priceBox.getChildren().addAll(price, status);
+
+        sessionRow.getChildren().addAll(textBox, spacer, leaderBox, priceBox);
+        return sessionRow;
+    }
+
+    // Tạo card phiên đang chạy cho dashboard Bidder.
+    Node createLiveSessionCard(LiveSessionRow row) {
+        HBox card = new HBox(12.0);
+        card.setAlignment(Pos.CENTER_LEFT);
+        card.setPadding(new Insets(12.0, 14.0, 12.0, 14.0));
+        card.getStyleClass().add("data-row");
+        card.setCursor(Cursor.HAND);
+        card.setOnMouseClicked(event -> controller.openSessionDetailFromNode(card, row.getSessionId()));
+
+        VBox main = new VBox(4.0);
+        HBox.setHgrow(main, Priority.ALWAYS);
+        Label title = new Label(row.getItemName());
+        title.getStyleClass().add("data-title");
+        title.setWrapText(true);
+        Label description = new Label(controller.nullToText(row.getDescription(), "Không có mô tả"));
+        description.getStyleClass().add("product-description");
+        description.setWrapText(true);
+        Label meta = new Label("Phiên #" + row.getSessionId()
+                + " | Leader " + row.getLeader()
+                + " | Bước giá " + row.getMinIncrement());
+        meta.getStyleClass().add("data-meta");
+        main.getChildren().addAll(title, description, meta);
+
+        VBox value = new VBox(5.0);
+        value.setAlignment(Pos.CENTER_RIGHT);
+        Label price = new Label(row.getCurrentPrice());
+        price.getStyleClass().add("data-money");
+        Label time = new Label(row.getTimeLeft());
+        time.getStyleClass().add("data-pill");
+        value.getChildren().addAll(price, time);
+
+        card.getChildren().addAll(main, value);
+        return card;
+    }
+
+    // Tạo card phiên đã kết thúc cho dashboard Bidder.
+    Node createEndedSessionCard(EndedSessionRow row) {
+        HBox card = new HBox(12.0);
+        card.setAlignment(Pos.CENTER_LEFT);
+        card.setPadding(new Insets(12.0, 14.0, 12.0, 14.0));
+        card.getStyleClass().add("data-row");
+        card.setCursor(Cursor.HAND);
+        card.setOnMouseClicked(event -> controller.openWinnerFromNode(card, row.getSessionId()));
+
+        VBox main = new VBox(4.0);
+        HBox.setHgrow(main, Priority.ALWAYS);
+        Label title = new Label(row.getItemName());
+        title.getStyleClass().add("data-title");
+        title.setWrapText(true);
+        Label description = new Label(controller.nullToText(row.getDescription(), "Không có mô tả"));
+        description.getStyleClass().add("product-description");
+        description.setWrapText(true);
+        Label meta = new Label("Winner " + row.getWinner()
+                + " | Phien #" + row.getSessionId()
+                + " | Bước giá " + row.getMinIncrement());
+        meta.getStyleClass().add("data-meta");
+        main.getChildren().addAll(title, description, meta);
+
+        VBox value = new VBox(5.0);
+        value.setAlignment(Pos.CENTER_RIGHT);
+        Label price = new Label(row.getFinalPrice());
+        price.getStyleClass().add("data-money");
+        Label status = new Label(row.getStatus());
+        status.getStyleClass().add("data-pill");
+        value.getChildren().addAll(price, status);
+
+        card.getChildren().addAll(main, value);
+        return card;
+    }
+
+    // Tạo card item tổng quan dùng cho dashboard Admin/Seller.
+    Node createItemOverviewCard(ItemOverviewRow row, boolean showOwner) {
+        HBox card = new HBox(12.0);
+        card.setAlignment(Pos.CENTER_LEFT);
+        card.setPadding(new Insets(12.0, 14.0, 12.0, 14.0));
+        card.getStyleClass().add("data-row");
+
+        VBox main = new VBox(4.0);
+        HBox.setHgrow(main, Priority.ALWAYS);
+        Label title = new Label(row.getItemName());
+        title.getStyleClass().add("data-title");
+        title.setWrapText(true);
+        Label description = new Label(controller.nullToText(row.getDescription(), "Không có mô tả"));
+        description.getStyleClass().add("product-description");
+        description.setWrapText(true);
+        String metaText = "Sản phẩm #" + row.getId();
+        if (showOwner && row.getOwner() != null && !row.getOwner().isBlank()) {
+            metaText += " | Seller #" + row.getOwner();
+        }
+        metaText += " | Bước giá " + row.getMinIncrement();
+        Label meta = new Label(metaText);
+        meta.getStyleClass().add("data-meta");
+        main.getChildren().addAll(title, description, meta);
+
+        VBox value = new VBox(5.0);
+        value.setAlignment(Pos.CENTER_RIGHT);
+        Label price = new Label(row.getPrice());
+        price.getStyleClass().add("data-money");
+        Label status = new Label(row.getStatus());
+        status.getStyleClass().add("data-pill");
+        value.getChildren().addAll(price, status);
+
+        card.getChildren().addAll(main, value);
+        return card;
+    }
+
+    // Tạo một thanh sản phẩm gồm tên, mô tả, id phiên/item, giá thắng và trạng thái.
+    Node createOwnedProductNode(OwnedProductRow row) {
+        HBox productRow = new HBox(14.0);
+        productRow.setAlignment(Pos.CENTER_LEFT);
+        productRow.setPadding(new Insets(14.0, 16.0, 14.0, 16.0));
+        productRow.getStyleClass().add("product-row");
+        productRow.setCursor(Cursor.HAND);
+        productRow.setOnMouseEntered(event -> productRow.setTranslateY(-2.0));
+        productRow.setOnMouseExited(event -> productRow.setTranslateY(0.0));
+        productRow.setOnMouseClicked(event -> controller.openWinnerFromNode(productRow, row.getSessionId()));
+
+        VBox textBox = new VBox(5.0);
+        textBox.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(textBox, Priority.ALWAYS);
+        textBox.setCursor(Cursor.HAND);
+
+        Label title = new Label(row.getItemName());
+        title.getStyleClass().add("product-title");
+        title.setWrapText(true);
+        title.setCursor(Cursor.HAND);
+
+        Label description = new Label(row.getDescription());
+        description.getStyleClass().add("product-description");
+        description.setWrapText(true);
+        description.setCursor(Cursor.HAND);
+
+        HBox metaBox = new HBox(8.0);
+        metaBox.setAlignment(Pos.CENTER_LEFT);
+        metaBox.setCursor(Cursor.HAND);
+        Label session = new Label("Phiên #" + row.getSessionId());
+        session.getStyleClass().add("product-meta");
+        session.setCursor(Cursor.HAND);
+        Label item = new Label("Sản phẩm #" + row.getItemId());
+        item.getStyleClass().add("product-meta");
+        item.setCursor(Cursor.HAND);
+        metaBox.getChildren().addAll(session, item);
+
+        textBox.getChildren().addAll(title, description, metaBox);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        spacer.setCursor(Cursor.HAND);
+
+        VBox valueBox = new VBox(8.0);
+        valueBox.setAlignment(Pos.CENTER_RIGHT);
+        valueBox.setCursor(Cursor.HAND);
+        Label price = new Label(row.getFinalPrice());
+        price.getStyleClass().add("product-price");
+        price.setCursor(Cursor.HAND);
+        Label status = new Label(row.getStatus());
+        status.getStyleClass().add("product-pill");
+        status.setCursor(Cursor.HAND);
+        valueBox.getChildren().addAll(price, status);
+
+        productRow.getChildren().addAll(textBox, spacer, valueBox);
+        return productRow;
+    }
+}
+
+// Nhóm chuyển entity sang model hiển thị của dashboard.
+final class DashboardDataMapper {
+    private final DashBoardController controller;
+
+    DashboardDataMapper(DashBoardController controller) {
+        this.controller = controller;
+    }
+
+    // Helper cho dashboard: phiên live là RUNNING và chưa quá end_time.
+    boolean isLiveSession(Auction session) {
+        return session.getState() == AuctionState.RUNNING
+                && session.getEndTime() != null
+                && session.getEndTime().isAfter(LocalDateTime.now());
+    }
+
+    // Helper cho dashboard: phiên ended là không RUNNING hoặc đã quá end_time.
+    boolean isEndedSession(Auction session) {
+        return session.getState() != AuctionState.RUNNING
+                || session.getEndTime() == null
+                || !session.getEndTime().isAfter(LocalDateTime.now());
+    }
+
+    // Đổi trạng thái session thành text ngắn để render ở dashboard.
+    String displaySessionStatus(Auction session) {
+        if (session.getState() == AuctionState.RUNNING && !isLiveSession(session)) {
+            return "ENDED";
+        }
+        return session.getState() == null ? "" : session.getState().name();
+    }
+
+    // Tạo row tổng quan phiên từ dữ liệu service trả về.
+    SessionOverviewRow toSessionOverviewRow(Auction session, List<Item> items) {
+        String leader = session.getCurrent_user_id() == 0 ? "-" : String.valueOf(session.getCurrent_user_id());
+        return new SessionOverviewRow(
+                session.getId(),
+                session.getItem_id(),
+                findItemName(items, session.getItem_id()),
+                findItemDescription(items, session.getItem_id()),
+                controller.formatMoney(session.getCurrent_price()),
+                findItemMinIncrement(items, session.getItem_id()),
+                leader,
+                displaySessionStatus(session)
+        );
+    }
+
+    // Tạo row tổng quan item cho ListView dashboard.
+    ItemOverviewRow toItemOverviewRow(Item item, boolean includeOwner) {
+        return new ItemOverviewRow(
+                item.getId(),
+                item.getFullname(),
+                controller.nullToText(item.getDescription(), "Không có mô tả"),
+                includeOwner ? String.valueOf(item.getOwner_user_id()) : "",
+                controller.formatMoney(item.getBeginPrice()),
+                controller.formatMoney(getEffectiveMinIncrement(item)),
+                item.getStatus() == null ? "" : item.getStatus().name()
+        );
+    }
+
+    // Tạo row phiên live của Bidder; nếu user đang dẫn thì hiển thị "Ban".
+    LiveSessionRow toLiveSessionRow(Auction session, long userId, List<Item> items) {
+        String leader = session.getCurrent_user_id() == 0
+                ? "-"
+                : session.getCurrent_user_id() == userId ? "Ban" : String.valueOf(session.getCurrent_user_id());
+        return new LiveSessionRow(
+                session.getId(),
+                findItemName(items, session.getItem_id()),
+                findItemDescription(items, session.getItem_id()),
+                controller.formatMoney(session.getCurrent_price()),
+                findItemMinIncrement(items, session.getItem_id()),
+                leader,
+                session.getEndTime()
+        );
+    }
+
+    // Tạo row phiên ended của Bidder; nếu user thắng/dẫn cuối thì hiển thị "Ban".
+    EndedSessionRow toEndedSessionRow(Auction session, long userId, List<Item> items) {
+        String winner = session.getCurrent_user_id() == 0
+                ? "-"
+                : session.getCurrent_user_id() == userId ? "Ban" : String.valueOf(session.getCurrent_user_id());
+        String status = session.getState() == AuctionState.RUNNING ? "ENDED" : session.getState().name();
+        return new EndedSessionRow(
+                session.getId(),
+                findItemName(items, session.getItem_id()),
+                findItemDescription(items, session.getItem_id()),
+                controller.formatMoney(session.getCurrent_price()),
+                findItemMinIncrement(items, session.getItem_id()),
+                winner,
+                status
+        );
+    }
+
+    // Tạo row sản phẩm Bidder đã thắng để render ở khu owned products.
+    OwnedProductRow toOwnedProductRow(Auction session, List<Item> items) {
+        Item item = findItem(items, session.getItem_id());
+        String itemName = item == null || item.getFullname() == null || item.getFullname().isBlank()
+                ? "Item " + session.getItem_id()
+                : item.getFullname();
+        String description = item == null || item.getDescription() == null || item.getDescription().isBlank()
+                ? "San pham da thang tu phien #" + session.getId()
+                : item.getDescription();
+        String status = session.getState() == AuctionState.PAID ? "DA THANG" : "WON";
+        return new OwnedProductRow(
+                session.getItem_id(),
+                session.getId(),
+                itemName,
+                description,
+                controller.formatMoney(session.getCurrent_price()),
+                status
+        );
+    }
+
+    // Tìm tên item theo itemId trong danh sách đã load sẵn.
+    String findItemName(List<Item> items, long itemId) {
+        if (items == null) {
+            return "Item " + itemId;
+        }
+        return items.stream()
+                .filter(item -> item.getId() == itemId)
+                .map(Item::getFullname)
+                .filter(name -> name != null && !name.isBlank())
+                .findFirst()
+                .orElse("Item " + itemId);
+    }
+
+    // Tìm mô tả item theo itemId trong danh sách đã load sẵn.
+    String findItemDescription(List<Item> items, long itemId) {
+        if (items == null) {
+            return "Không có mô tả";
+        }
+        return items.stream()
+                .filter(item -> item.getId() == itemId)
+                .map(Item::getDescription)
+                .filter(description -> description != null && !description.isBlank())
+                .findFirst()
+                .orElse("Không có mô tả");
+    }
+
+    // Tìm bước giá tối thiểu, fallback 1 cho dữ liệu cũ chưa có minIncrement.
+    String findItemMinIncrement(List<Item> items, long itemId) {
+        return controller.formatMoney(getEffectiveMinIncrement(findItem(items, itemId)));
+    }
+
+    // Chuẩn hóa minIncrement cho dữ liệu cũ.
+    long getEffectiveMinIncrement(Item item) {
+        return item == null || item.getMinIncrement() <= 0 ? 1L : item.getMinIncrement();
+    }
+
+    // Tìm item theo id trong list đã có để không query lặp.
+    Item findItem(List<Item> items, long itemId) {
+        if (items == null) {
+            return null;
+        }
+        return items.stream()
+                .filter(item -> item.getId() == itemId)
+                .findFirst()
+                .orElse(null);
+    }
+}
+
+// Nhóm countdown cho các phiên live trong dashboard Bidder.
+final class DashboardCountdownSection {
+    private final DashBoardController controller;
+
+    DashboardCountdownSection(DashBoardController controller) {
+        this.controller = controller;
+    }
+
+    // Khởi động timer cập nhật thời gian còn lại của các phiên đang chạy.
+    void startLiveCountdown() {
+        stopLiveCountdown();
+        refreshLiveCountdown();
+
+        controller.liveCountdownTimeline = new Timeline(new KeyFrame(
+                javafx.util.Duration.seconds(1),
+                event -> refreshLiveCountdown()
+        ));
+        controller.liveCountdownTimeline.setCycleCount(Timeline.INDEFINITE);
+        controller.liveCountdownTimeline.play();
+    }
+
+    // Cập nhật countdown từng dòng; phiên hết giờ được chuyển sang bảng đã kết thúc.
+    void refreshLiveCountdown() {
+        if (controller.liveSessionRows == null) {
+            return;
+        }
+
+        List<LiveSessionRow> expiredRows = new ArrayList<>();
+        for (LiveSessionRow row : controller.liveSessionRows) {
+            if (isExpired(row.getEndTime())) {
+                expiredRows.add(row);
+                continue;
+            }
+            row.setTimeLeft(controller.formatRemaining(row.getEndTime()));
+        }
+
+        for (LiveSessionRow row : expiredRows) {
+            controller.liveSessionRows.remove(row);
+            addEndedSession(row.toEndedSessionRow());
+        }
+        if (controller.liveSessionTable != null) {
+            controller.liveSessionTable.refresh();
+        }
+        updateSessionSummaries();
+    }
+
+    // Kiểm tra thời gian kết thúc đã qua hay chưa.
+    boolean isExpired(LocalDateTime endTime) {
+        return endTime == null || !endTime.isAfter(LocalDateTime.now());
+    }
+
+    // Thêm một phiên vào bảng đã kết thúc, tránh trùng và giới hạn số dòng hiển thị.
+    void addEndedSession(EndedSessionRow endedRow) {
+        boolean exists = controller.endedSessionRows.stream()
+                .anyMatch(row -> row.getSessionId() == endedRow.getSessionId());
+        if (!exists) {
+            controller.endedSessionRows.add(0, endedRow);
+        }
+        while (controller.endedSessionRows.size() > 8) {
+            controller.endedSessionRows.remove(controller.endedSessionRows.size() - 1);
+        }
+    }
+
+    // Cập nhật các label tổng quan số phiên đang mở và phiên gần đây.
+    void updateSessionSummaries() {
+        controller.setText(controller.liveSessionSummaryLabel, controller.liveSessionRows.size() + " phien dang mo");
+        controller.setText(controller.sidebarLiveLabel, String.valueOf(controller.liveSessionRows.size()));
+        controller.setText(controller.endedSessionSummaryLabel, controller.endedSessionRows.size() + " phien gan day");
+    }
+
+    // Dừng timer countdown khi rời dashboard hoặc tải lại màn.
+    void stopLiveCountdown() {
+        if (controller.liveCountdownTimeline != null) {
+            controller.liveCountdownTimeline.stop();
+            controller.liveCountdownTimeline = null;
+        }
+    }
 }

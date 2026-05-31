@@ -7,11 +7,23 @@ import Common.Enum.ItemStatus;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ItemRepository {
     DbConnection db = new DbConnection();
+
+    // DB của một số máy chưa có cột minIncrement nên cần tự bổ sung trước khi đọc/ghi item.
+    private void ensureMinIncrementColumn() {
+        String sql = "ALTER TABLE item ADD COLUMN IF NOT EXISTS minIncrement BIGINT NOT NULL DEFAULT 1";
+        try (Connection conn = db.getConnection();
+             Statement st = conn.createStatement()) {
+            st.execute(sql);
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot ensure item.minIncrement column", e);
+        }
+    }
 
     private Item map(ResultSet rs) throws Exception {
         Item i = new Item();
@@ -37,6 +49,7 @@ public class ItemRepository {
     }
 
     public List<Item> getAllItem() {
+        ensureMinIncrementColumn();
         List<Item> items = new ArrayList<>();
         String sql = "SELECT * FROM item ORDER BY id DESC";
         try (Connection conn = DbConnection.getConnection();
@@ -53,6 +66,7 @@ public class ItemRepository {
     }
 
     public void saveItem(Item item) {
+        ensureMinIncrementColumn();
         String sql = "INSERT INTO item (fullname, owner_user_id, description, beginPrice, minIncrement, mota, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DbConnection.getConnection();
@@ -71,6 +85,7 @@ public class ItemRepository {
     }
 
     public Item getItemById(long id) {
+        ensureMinIncrementColumn();
         String sql = "SELECT * FROM item WHERE id = ?";
 
         try (Connection conn = DbConnection.getConnection();
@@ -89,6 +104,7 @@ public class ItemRepository {
     }
 
     public void update(Item item) {
+        ensureMinIncrementColumn();
         String sql = "UPDATE item SET fullname = ?, owner_user_id = ?, description = ?, beginPrice = ?, minIncrement = ?, mota = ?, status = ? WHERE id = ?";
 
         try (Connection conn = DbConnection.getConnection();
@@ -130,6 +146,7 @@ public class ItemRepository {
     }
 
     public List<Item> getByStatus(ItemStatus status) {
+        ensureMinIncrementColumn();
         List<Item> list = new ArrayList<>();
         String sql = "SELECT * FROM item WHERE status = ?";
 
@@ -151,6 +168,7 @@ public class ItemRepository {
     }
 
     public List<Item> getByOwnerUserId(long ownerUserId) {
+        ensureMinIncrementColumn();
         List<Item> list = new ArrayList<>();
         String sql = "SELECT * FROM item WHERE owner_user_id = ? ORDER BY id DESC";
         try (Connection conn = DbConnection.getConnection();

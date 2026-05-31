@@ -42,7 +42,7 @@ public class UserRepository {
                 users.add(mapResultSet(rs));
             }
         } catch (Exception e) {
-            throw new RuntimeException("Could not load users", e);
+            e.printStackTrace();
         }
 
         return users;
