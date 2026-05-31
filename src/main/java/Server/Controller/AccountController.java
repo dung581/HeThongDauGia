@@ -296,12 +296,12 @@ public class AccountController {
 
         VBox main = new VBox(5.0);
         HBox.setHgrow(main, Priority.ALWAYS);
-        Label title = new Label(account.getUsername() == null ? "User #" + account.getUserId() : account.getUsername());
+        Label title = new Label(account.username() == null ? "User #" + account.userId() : account.username());
         title.getStyleClass().add("data-title");
-        Label fullname = new Label(account.getFullname() == null ? "" : account.getFullname());
+        Label fullname = new Label(account.fullname() == null ? "" : account.fullname());
         fullname.getStyleClass().add("product-description");
         HBox meta = new HBox(10.0);
-        Label id = new Label("User #" + account.getUserId());
+        Label id = new Label("User #" + account.userId());
         id.getStyleClass().add("data-meta");
         meta.getChildren().add(id);
         main.getChildren().addAll(title, fullname, meta);
@@ -311,11 +311,11 @@ public class AccountController {
 
         VBox value = new VBox(6.0);
         value.setAlignment(Pos.CENTER_RIGHT);
-        Label balance = new Label(String.format("%,d", account.getBalance()));
+        Label balance = new Label(String.format("%,d", account.balance()));
         balance.getStyleClass().add("data-money");
-        Label locked = new Label("Locked " + String.format("%,d", account.getLockedBalance()));
+        Label locked = new Label("Locked " + String.format("%,d", account.lockedBalance()));
         locked.getStyleClass().add("data-meta");
-        Label role = new Label(account.getRole() == null ? "" : account.getRole());
+        Label role = new Label(account.role() == null ? "" : account.role());
         role.getStyleClass().add("data-pill");
         value.getChildren().addAll(balance, locked, role);
 
@@ -460,7 +460,7 @@ public class AccountController {
         if (selectedRole == null || selectedRole.equals(ALL_FILTER)) {
             return true;
         }
-        return selectedRole.equals(account.getRole());
+        return selectedRole.equals(account.role());
     }
 
     // Kiểm tra keyword theo user ID, username, họ tên, role và số dư.
@@ -470,12 +470,12 @@ public class AccountController {
         }
 
         String target = String.join(" ",
-                String.valueOf(account.getUserId()),
-                account.getUsername() == null ? "" : account.getUsername(),
-                account.getFullname() == null ? "" : account.getFullname(),
-                account.getRole() == null ? "" : account.getRole(),
-                String.valueOf(account.getBalance()),
-                String.valueOf(account.getLockedBalance())
+                String.valueOf(account.userId()),
+                account.username() == null ? "" : account.username(),
+                account.fullname() == null ? "" : account.fullname(),
+                account.role() == null ? "" : account.role(),
+                String.valueOf(account.balance()),
+                String.valueOf(account.lockedBalance())
         );
         return normalize(target).contains(query);
     }

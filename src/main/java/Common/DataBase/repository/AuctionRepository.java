@@ -13,7 +13,7 @@ import java.util.List;
 
 public class AuctionRepository {
 
-    private static DbConnection db = new DbConnection();
+    private static final DbConnection db = new DbConnection();
 
     public List<Auction> getAll() {
 
@@ -21,7 +21,7 @@ public class AuctionRepository {
 
         String sql = "SELECT * FROM auction";
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -67,7 +67,7 @@ public class AuctionRepository {
             VALUES (?, ?, ?, ?, ?, ?)
         """;
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, a.getItem_id());
@@ -101,7 +101,7 @@ public class AuctionRepository {
             WHERE id = ?
         """;
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, userId);
@@ -132,7 +132,7 @@ public class AuctionRepository {
             WHERE id = ?
         """;
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, a.getItem_id());
@@ -179,7 +179,7 @@ public class AuctionRepository {
                   AND i.status = 'IN_AUCTION'
                 """;
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -218,7 +218,7 @@ public class AuctionRepository {
 
         String sql = "SELECT * FROM auction WHERE id = ?";
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, id);
@@ -264,7 +264,7 @@ public class AuctionRepository {
 
         String sql = "SELECT * FROM auction WHERE item_id = ?";
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, itemId);

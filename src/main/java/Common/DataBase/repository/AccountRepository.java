@@ -43,7 +43,7 @@ public class AccountRepository {
 
         String sql = "INSERT INTO account (user_id, balance, locked_balance) VALUES (?, ?, ?)";
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, account.getUser_id());
@@ -61,7 +61,7 @@ public class AccountRepository {
 
         String sql = "SELECT * FROM account WHERE user_id = ?";
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, user_id);
@@ -95,7 +95,7 @@ public class AccountRepository {
             WHERE user_id = ?
         """;
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, a.getBalance());

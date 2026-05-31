@@ -13,10 +13,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 public class AuctionService{
 
-    private AuctionRepository repo = new AuctionRepository();
-    private StakeService stakeService = new StakeService();
-    private ItemRepository itemRepo= new ItemRepository();
-    private AccountService accountService = new AccountService();
+    private final AuctionRepository repo = new AuctionRepository();
+    private final StakeService stakeService = new StakeService();
+    private final ItemRepository itemRepo= new ItemRepository();
+    private final AccountService accountService = new AccountService();
 
     public Auction createSession(long itemId, LocalDateTime endTime) {
 

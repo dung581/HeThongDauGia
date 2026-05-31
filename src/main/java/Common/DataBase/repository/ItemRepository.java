@@ -39,7 +39,7 @@ public class ItemRepository {
     public List<Item> getAllItem() {
         List<Item> items = new ArrayList<>();
         String sql = "SELECT * FROM item ORDER BY id DESC";
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -55,7 +55,7 @@ public class ItemRepository {
     public void saveItem(Item item) {
         String sql = "INSERT INTO item (fullname, owner_user_id, description, beginPrice, minIncrement, mota, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, item.getFullname());
             ps.setLong(2, item.getOwner_user_id());
@@ -73,7 +73,7 @@ public class ItemRepository {
     public Item getItemById(long id) {
         String sql = "SELECT * FROM item WHERE id = ?";
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, id);
@@ -91,7 +91,7 @@ public class ItemRepository {
     public void update(Item item) {
         String sql = "UPDATE item SET fullname = ?, owner_user_id = ?, description = ?, beginPrice = ?, minIncrement = ?, mota = ?, status = ? WHERE id = ?";
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, item.getFullname());
@@ -115,7 +115,7 @@ public class ItemRepository {
 
     public void rejectWithReason(long id, String reason) {
         String sql = "UPDATE item SET status = ?, mota = ? WHERE id = ?";
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, ItemStatus.CANCELED.name());
             ps.setString(2, reason);
@@ -133,7 +133,7 @@ public class ItemRepository {
         List<Item> list = new ArrayList<>();
         String sql = "SELECT * FROM item WHERE status = ?";
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, status.name());
@@ -153,7 +153,7 @@ public class ItemRepository {
     public List<Item> getByOwnerUserId(long ownerUserId) {
         List<Item> list = new ArrayList<>();
         String sql = "SELECT * FROM item WHERE owner_user_id = ? ORDER BY id DESC";
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, ownerUserId);

@@ -12,8 +12,8 @@ import java.util.Optional;
 
 public class AutoBidService {
 
-    private AutoBidRepository repo = new AutoBidRepository();
-    private AuctionRepository auctionRepo = new AuctionRepository();
+    private final AutoBidRepository repo = new AutoBidRepository();
+    private final AuctionRepository auctionRepo = new AuctionRepository();
 
     private void deactivate(long id) {
         repo.updateActive(id, false);
@@ -156,28 +156,12 @@ public class AutoBidService {
     }
 
     // Kết quả service trả về cho màn chi tiết phiên sau khi bật autobid.
-    public static class AutoBidActionResult {
-        private final Optional<Autobid> autobid;
-        private final boolean immediateBidPlaced;
-        private final String message;
-
-        public AutoBidActionResult(Optional<Autobid> autobid, boolean immediateBidPlaced, String message) {
-            this.autobid = autobid == null ? Optional.empty() : autobid;
-            this.immediateBidPlaced = immediateBidPlaced;
-            this.message = message;
+        public record AutoBidActionResult(Optional<Autobid> autobid, boolean immediateBidPlaced, String message) {
+            public AutoBidActionResult(Optional<Autobid> autobid, boolean immediateBidPlaced, String message) {
+                this.autobid = autobid == null ? Optional.empty() : autobid;
+                this.immediateBidPlaced = immediateBidPlaced;
+                this.message = message;
+            }
         }
-
-        public Optional<Autobid> getAutobid() {
-            return autobid;
-        }
-
-        public boolean isImmediateBidPlaced() {
-            return immediateBidPlaced;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-    }
 
 }

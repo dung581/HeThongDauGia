@@ -377,17 +377,17 @@ public class DashBoardController {
 
     // Đổ dữ liệu đã tải lên các thẻ thống kê và bảng của Admin.
     private void renderAdminDashboard(AdminDashboardData data) {
-        setText(adminActiveSessionsLabel, String.valueOf(data.activeSessions));
-        setText(adminPendingItemsLabel, String.valueOf(data.pendingItems));
-        setText(adminTotalItemsLabel, String.valueOf(data.totalItems));
-        setText(adminTotalUsersLabel, String.valueOf(data.totalUsers));
-        setText(adminSidebarPendingLabel, String.valueOf(data.pendingItems));
-        setText(adminSessionSummaryLabel, data.sessionRows.size() + " phien gan day");
-        setText(adminPendingSummaryLabel, data.pendingRows.size() + " item dang cho duyet");
+        setText(adminActiveSessionsLabel, String.valueOf(data.activeSessions()));
+        setText(adminPendingItemsLabel, String.valueOf(data.pendingItems()));
+        setText(adminTotalItemsLabel, String.valueOf(data.totalItems()));
+        setText(adminTotalUsersLabel, String.valueOf(data.totalUsers()));
+        setText(adminSidebarPendingLabel, String.valueOf(data.pendingItems()));
+        setText(adminSessionSummaryLabel, data.sessionRows().size() + " phien gan day");
+        setText(adminPendingSummaryLabel, data.pendingRows().size() + " item dang cho duyet");
 
-        renderAdminSessionList(data.sessionRows);
+        renderAdminSessionList(data.sessionRows());
         if (adminPendingItemTable != null) {
-            adminPendingItemTable.setItems(FXCollections.observableArrayList(data.pendingRows));
+            adminPendingItemTable.setItems(FXCollections.observableArrayList(data.pendingRows()));
         }
     }
 
@@ -427,26 +427,26 @@ public class DashBoardController {
         sessionRow.setCursor(Cursor.HAND);
         sessionRow.setOnMouseEntered(event -> sessionRow.setTranslateY(-2.0));
         sessionRow.setOnMouseExited(event -> sessionRow.setTranslateY(0.0));
-        sessionRow.setOnMouseClicked(event -> openSessionDetailFromNode(sessionRow, row.getSessionId()));
+        sessionRow.setOnMouseClicked(event -> openSessionDetailFromNode(sessionRow, row.sessionId()));
 
         VBox textBox = new VBox(5.0);
         textBox.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(textBox, Priority.ALWAYS);
 
-        Label title = new Label(row.getItemName());
+        Label title = new Label(row.itemName());
         title.getStyleClass().add("product-title");
         title.setWrapText(true);
-        Label description = new Label(nullToText(row.getDescription(), "Khong co mo ta"));
+        Label description = new Label(nullToText(row.description(), "Khong co mo ta"));
         description.getStyleClass().add("product-description");
         description.setWrapText(true);
 
         HBox metaBox = new HBox(10.0);
         metaBox.setAlignment(Pos.CENTER_LEFT);
-        Label sessionId = new Label("Phien #" + row.getSessionId());
+        Label sessionId = new Label("Phien #" + row.sessionId());
         sessionId.getStyleClass().add("product-meta");
-        Label itemId = new Label("Item #" + row.getItemId());
+        Label itemId = new Label("Item #" + row.itemId());
         itemId.getStyleClass().add("product-meta");
-        Label minStep = new Label("Buoc gia " + row.getMinIncrement());
+        Label minStep = new Label("Buoc gia " + row.minIncrement());
         minStep.getStyleClass().add("product-meta");
         metaBox.getChildren().addAll(sessionId, itemId, minStep);
         textBox.getChildren().addAll(title, description, metaBox);
@@ -458,15 +458,15 @@ public class DashBoardController {
         leaderBox.setAlignment(Pos.CENTER_RIGHT);
         Label leaderLabel = new Label("Leader");
         leaderLabel.getStyleClass().add("product-meta");
-        Label leaderValue = new Label(row.getLeader());
+        Label leaderValue = new Label(row.leader());
         leaderValue.getStyleClass().add("field-value");
         leaderBox.getChildren().addAll(leaderLabel, leaderValue);
 
         VBox priceBox = new VBox(6.0);
         priceBox.setAlignment(Pos.CENTER_RIGHT);
-        Label price = new Label(row.getPrice());
+        Label price = new Label(row.price());
         price.getStyleClass().add("product-price");
-        Label status = new Label(row.getStatus());
+        Label status = new Label(row.status());
         status.getStyleClass().add("session-status-pill");
         priceBox.getChildren().addAll(price, status);
 
@@ -531,27 +531,27 @@ public class DashBoardController {
         card.setPadding(new Insets(12.0, 14.0, 12.0, 14.0));
         card.getStyleClass().add("data-row");
         card.setCursor(Cursor.HAND);
-        card.setOnMouseClicked(event -> openWinnerFromNode(card, row.getSessionId()));
+        card.setOnMouseClicked(event -> openWinnerFromNode(card, row.sessionId()));
 
         VBox main = new VBox(4.0);
         HBox.setHgrow(main, Priority.ALWAYS);
-        Label title = new Label(row.getItemName());
+        Label title = new Label(row.itemName());
         title.getStyleClass().add("data-title");
         title.setWrapText(true);
-        Label description = new Label(nullToText(row.getDescription(), "Khong co mo ta"));
+        Label description = new Label(nullToText(row.description(), "Khong co mo ta"));
         description.getStyleClass().add("product-description");
         description.setWrapText(true);
-        Label meta = new Label("Winner " + row.getWinner()
-                + " | Phien #" + row.getSessionId()
-                + " | Buoc gia " + row.getMinIncrement());
+        Label meta = new Label("Winner " + row.winner()
+                + " | Phien #" + row.sessionId()
+                + " | Buoc gia " + row.minIncrement());
         meta.getStyleClass().add("data-meta");
         main.getChildren().addAll(title, description, meta);
 
         VBox value = new VBox(5.0);
         value.setAlignment(Pos.CENTER_RIGHT);
-        Label price = new Label(row.getFinalPrice());
+        Label price = new Label(row.finalPrice());
         price.getStyleClass().add("data-money");
-        Label status = new Label(row.getStatus());
+        Label status = new Label(row.status());
         status.getStyleClass().add("data-pill");
         value.getChildren().addAll(price, status);
 
@@ -568,26 +568,26 @@ public class DashBoardController {
 
         VBox main = new VBox(4.0);
         HBox.setHgrow(main, Priority.ALWAYS);
-        Label title = new Label(row.getItemName());
+        Label title = new Label(row.itemName());
         title.getStyleClass().add("data-title");
         title.setWrapText(true);
-        Label description = new Label(nullToText(row.getDescription(), "Khong co mo ta"));
+        Label description = new Label(nullToText(row.description(), "Khong co mo ta"));
         description.getStyleClass().add("product-description");
         description.setWrapText(true);
-        String metaText = "Item #" + row.getId();
-        if (showOwner && row.getOwner() != null && !row.getOwner().isBlank()) {
-            metaText += " | Seller #" + row.getOwner();
+        String metaText = "Item #" + row.id();
+        if (showOwner && row.owner() != null && !row.owner().isBlank()) {
+            metaText += " | Seller #" + row.owner();
         }
-        metaText += " | Buoc gia " + row.getMinIncrement();
+        metaText += " | Buoc gia " + row.minIncrement();
         Label meta = new Label(metaText);
         meta.getStyleClass().add("data-meta");
         main.getChildren().addAll(title, description, meta);
 
         VBox value = new VBox(5.0);
         value.setAlignment(Pos.CENTER_RIGHT);
-        Label price = new Label(row.getPrice());
+        Label price = new Label(row.price());
         price.getStyleClass().add("data-money");
-        Label status = new Label(row.getStatus());
+        Label status = new Label(row.status());
         status.getStyleClass().add("data-pill");
         value.getChildren().addAll(price, status);
 
@@ -667,19 +667,19 @@ public class DashBoardController {
 
     // Đổ dữ liệu đã tải lên các thẻ thống kê và bảng của Seller.
     private void renderSellerDashboard(SellerDashboardData data) {
-        setText(sellerTotalItemsLabel, String.valueOf(data.totalItems));
-        setText(sellerPendingItemsLabel, String.valueOf(data.pendingItems));
-        setText(sellerInAuctionItemsLabel, String.valueOf(data.inAuctionItems));
-        setText(sellerSoldItemsLabel, String.valueOf(data.soldItems));
-        setText(sellerSidebarItemsLabel, String.valueOf(data.totalItems));
-        setText(sellerItemSummaryLabel, "Tat ca " + data.itemRows.size() + " item da dang ban");
-        setText(sellerSessionSummaryLabel, data.sessionRows.size() + " phien lien quan");
+        setText(sellerTotalItemsLabel, String.valueOf(data.totalItems()));
+        setText(sellerPendingItemsLabel, String.valueOf(data.pendingItems()));
+        setText(sellerInAuctionItemsLabel, String.valueOf(data.inAuctionItems()));
+        setText(sellerSoldItemsLabel, String.valueOf(data.soldItems()));
+        setText(sellerSidebarItemsLabel, String.valueOf(data.totalItems()));
+        setText(sellerItemSummaryLabel, "Tat ca " + data.itemRows().size() + " item da dang ban");
+        setText(sellerSessionSummaryLabel, data.sessionRows().size() + " phien lien quan");
 
         if (sellerItemTable != null) {
-            sellerItemTable.setItems(FXCollections.observableArrayList(data.itemRows));
+            sellerItemTable.setItems(FXCollections.observableArrayList(data.itemRows()));
         }
         if (sellerSessionTable != null) {
-            sellerSessionTable.setItems(FXCollections.observableArrayList(data.sessionRows));
+            sellerSessionTable.setItems(FXCollections.observableArrayList(data.sessionRows()));
         }
     }
 
@@ -932,24 +932,24 @@ public class DashBoardController {
 
     // Đổ dữ liệu dashboard Bidder lên các thẻ thống kê và bảng.
     private void renderBidderDashboard(BidderDashboardData data) {
-        setText(availableBalanceLabel, formatMoney(data.availableBalance));
-        setText(lockedBalanceLabel, formatMoney(data.lockedBalance));
-        setText(activeStakeCountLabel, String.valueOf(data.lockedStakeCount));
-        setText(leadingSessionCountLabel, String.valueOf(data.leadingSessionCount));
-        setText(liveSessionSummaryLabel, data.liveSessionCount + " phien dang mo");
-        setText(endedSessionSummaryLabel, data.endedSessionCount + " phien da ket thuc");
-        setText(sidebarLiveLabel, String.valueOf(data.liveSessionCount));
+        setText(availableBalanceLabel, formatMoney(data.availableBalance()));
+        setText(lockedBalanceLabel, formatMoney(data.lockedBalance()));
+        setText(activeStakeCountLabel, String.valueOf(data.lockedStakeCount()));
+        setText(leadingSessionCountLabel, String.valueOf(data.leadingSessionCount()));
+        setText(liveSessionSummaryLabel, data.liveSessionCount() + " phien dang mo");
+        setText(endedSessionSummaryLabel, data.endedSessionCount() + " phien da ket thuc");
+        setText(sidebarLiveLabel, String.valueOf(data.liveSessionCount()));
 
         if (liveSessionTable != null) {
-            liveSessionRows.setAll(data.liveSessions);
+            liveSessionRows.setAll(data.liveSessions());
             liveSessionTable.setItems(liveSessionRows);
             startLiveCountdown();
         }
         if (endedSessionTable != null) {
-            endedSessionRows.setAll(data.endedSessions);
+            endedSessionRows.setAll(data.endedSessions());
             endedSessionTable.setItems(endedSessionRows);
         }
-        renderOwnedProducts(data.ownedProducts);
+        renderOwnedProducts(data.ownedProducts());
     }
 
     // Render danh sách sản phẩm đã thắng theo dạng từng thanh sản phẩm, không dùng bảng cứng.
@@ -990,19 +990,19 @@ public class DashBoardController {
         productRow.setCursor(Cursor.HAND);
         productRow.setOnMouseEntered(event -> productRow.setTranslateY(-2.0));
         productRow.setOnMouseExited(event -> productRow.setTranslateY(0.0));
-        productRow.setOnMouseClicked(event -> openWinnerFromNode(productRow, row.getSessionId()));
+        productRow.setOnMouseClicked(event -> openWinnerFromNode(productRow, row.sessionId()));
 
         VBox textBox = new VBox(5.0);
         textBox.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(textBox, Priority.ALWAYS);
         textBox.setCursor(Cursor.HAND);
 
-        Label title = new Label(row.getItemName());
+        Label title = new Label(row.itemName());
         title.getStyleClass().add("product-title");
         title.setWrapText(true);
         title.setCursor(Cursor.HAND);
 
-        Label description = new Label(row.getDescription());
+        Label description = new Label(row.description());
         description.getStyleClass().add("product-description");
         description.setWrapText(true);
         description.setCursor(Cursor.HAND);
@@ -1010,10 +1010,10 @@ public class DashBoardController {
         HBox metaBox = new HBox(8.0);
         metaBox.setAlignment(Pos.CENTER_LEFT);
         metaBox.setCursor(Cursor.HAND);
-        Label session = new Label("Phien #" + row.getSessionId());
+        Label session = new Label("Phien #" + row.sessionId());
         session.getStyleClass().add("product-meta");
         session.setCursor(Cursor.HAND);
-        Label item = new Label("Item #" + row.getItemId());
+        Label item = new Label("Item #" + row.itemId());
         item.getStyleClass().add("product-meta");
         item.setCursor(Cursor.HAND);
         metaBox.getChildren().addAll(session, item);
@@ -1027,10 +1027,10 @@ public class DashBoardController {
         VBox valueBox = new VBox(8.0);
         valueBox.setAlignment(Pos.CENTER_RIGHT);
         valueBox.setCursor(Cursor.HAND);
-        Label price = new Label(row.getFinalPrice());
+        Label price = new Label(row.finalPrice());
         price.getStyleClass().add("product-price");
         price.setCursor(Cursor.HAND);
-        Label status = new Label(row.getStatus());
+        Label status = new Label(row.status());
         status.getStyleClass().add("product-pill");
         status.setCursor(Cursor.HAND);
         valueBox.getChildren().addAll(price, status);
@@ -1115,7 +1115,7 @@ public class DashBoardController {
     // Thêm một phiên vào bảng đã kết thúc, tránh trùng và giới hạn số dòng hiển thị.
     private void addEndedSession(EndedSessionRow endedRow) {
         boolean exists = endedSessionRows.stream()
-                .anyMatch(row -> row.getSessionId() == endedRow.getSessionId());
+                .anyMatch(row -> row.sessionId() == endedRow.sessionId());
         if (!exists) {
             endedSessionRows.add(0, endedRow);
         }

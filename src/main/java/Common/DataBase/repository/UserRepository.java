@@ -34,7 +34,7 @@ public class UserRepository {
         String sql = "SELECT * FROM " + USER_TABLE;
         DbConnection db = new DbConnection();
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -52,7 +52,7 @@ public class UserRepository {
         String sql = "SELECT * FROM " + USER_TABLE + " WHERE id = ?";
         DbConnection db = new DbConnection();
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, id);
@@ -73,7 +73,7 @@ public class UserRepository {
         String sql = "SELECT * FROM " + USER_TABLE + " WHERE LOWER(username) = LOWER(?)";
         DbConnection db = new DbConnection();
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, username);
@@ -94,7 +94,7 @@ public class UserRepository {
         String sql = "SELECT COUNT(1) FROM " + USER_TABLE + " WHERE LOWER(username) = LOWER(?)";
         DbConnection db = new DbConnection();
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, username);
@@ -115,7 +115,7 @@ public class UserRepository {
         String sql = "UPDATE " + USER_TABLE + " SET password = ? WHERE id = ?";
         DbConnection db = new DbConnection();
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, password);

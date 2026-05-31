@@ -14,7 +14,7 @@ import java.util.List;
 
 public class BidRepository {
 
-    private static DbConnection db = new DbConnection();
+    private static final DbConnection db = new DbConnection();
 
     private Bid mapResultSet(ResultSet rs) throws Exception {
         Bid b = new Bid();
@@ -67,7 +67,7 @@ public class BidRepository {
             VALUES (?, ?, ?, ?, ?)
         """;
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setLong(1, b.getAuction_id());
@@ -93,7 +93,7 @@ public class BidRepository {
             VALUES (?, ?, ?, ?)
         """;
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setLong(1, b.getAuction_id());
@@ -128,7 +128,7 @@ public class BidRepository {
             ORDER BY id ASC
         """;
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, sessionId);

@@ -34,7 +34,7 @@ public class AutoBidRepository {
             VALUES (?, ?, ?, ?)
         """;
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setLong(1, a.getUser_id());
@@ -69,7 +69,7 @@ public class AutoBidRepository {
             WHERE item_id = ? AND is_active = true
         """;
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, itemId);
@@ -92,7 +92,7 @@ public class AutoBidRepository {
 
         String sql = "UPDATE autobid SET is_active = ? WHERE id = ?";
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setBoolean(1, isActive);
@@ -113,7 +113,7 @@ public class AutoBidRepository {
 
         String sql = "UPDATE autobid SET max_price = ?, is_active = ? WHERE id = ?";
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, maxPrice);
@@ -137,7 +137,7 @@ public class AutoBidRepository {
 
         String sql = "SELECT * FROM autobid WHERE user_id = ?";
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, userId);
@@ -165,7 +165,7 @@ public class AutoBidRepository {
             LIMIT 1
         """;
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, userId);
@@ -186,7 +186,7 @@ public class AutoBidRepository {
     public void updateEndTime(long auctionId, LocalDateTime newEndTime) {
         String sql = "UPDATE auction SET end_time = ? WHERE id = ?";
 
-        try (Connection conn = db.getConnection();
+        try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setTimestamp(1, Timestamp.valueOf(newEndTime));

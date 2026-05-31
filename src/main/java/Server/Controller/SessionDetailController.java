@@ -323,11 +323,11 @@ public class SessionDetailController {
                 return;
             }
             AutoBidActionResult result = task.getValue();
-            setAutoBidStatus(result.getAutobid());
-            if (result.getMessage() != null && !result.getMessage().isBlank()) {
-                setText(bidPanelMessageLabel, result.getMessage());
+            setAutoBidStatus(result.autobid());
+            if (result.message() != null && !result.message().isBlank()) {
+                setText(bidPanelMessageLabel, result.message());
             }
-            if (result.isImmediateBidPlaced()) {
+            if (result.immediateBidPlaced()) {
                 refreshData();
             } else {
                 refreshLiveDataSilently();
@@ -543,19 +543,19 @@ public class SessionDetailController {
 
     // Đổ dữ liệu đã tải lên UI và cập nhật trạng thái nút.
     private void applySessionDetailData(SessionDetailData data) {
-        if (data == null || data.session == null) {
+        if (data == null || data.session() == null) {
             disableActions(true);
             return;
         }
 
-        session = data.session;
-        item = data.item;
-        currentAutobid = data.autobid;
+        session = data.session();
+        item = data.item();
+        currentAutobid = data.autobid();
         populateSession();
-        populateBidHistory(data.bids);
-        populatePriceChart(data.bids);
-        setText(balanceLabel, isBidder() ? formatMoney(data.availableBalance) : "N/A");
-        setAutoBidStatus(data.autobid);
+        populateBidHistory(data.bids());
+        populatePriceChart(data.bids());
+        setText(balanceLabel, isBidder() ? formatMoney(data.availableBalance()) : "N/A");
+        setAutoBidStatus(data.autobid());
         updateActionState();
     }
 

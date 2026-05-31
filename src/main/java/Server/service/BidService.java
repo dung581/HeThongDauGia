@@ -18,11 +18,11 @@ public class BidService {
 
     private static final Object BID_LOCK = new Object();
 
-    private AuctionRepository auctionRepo = new AuctionRepository();
-    private BidRepository bidRepo = new BidRepository();
-    private ItemRepository itemRepo = new ItemRepository();
-    private StakeService stakeService = new StakeService();
-    private AutoBidService autoBidService = new AutoBidService();
+    private final AuctionRepository auctionRepo = new AuctionRepository();
+    private final BidRepository bidRepo = new BidRepository();
+    private final ItemRepository itemRepo = new ItemRepository();
+    private final StakeService stakeService = new StakeService();
+    private final AutoBidService autoBidService = new AutoBidService();
 
     public Bid placeBid(long userId, long itemId, long price) {
         synchronized (BID_LOCK) {
