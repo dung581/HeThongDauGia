@@ -11,6 +11,7 @@ public class ItemService {
     private final ItemRepository repo = new ItemRepository();
 
     public Item upload(Item item) {
+        // Service là lớp chặn dữ liệu nghiệp vụ: controller nào upload item cũng phải có giá hợp lệ.
         if (item.getBeginPrice() <= 0) {
             throw new RuntimeException("Begin price must be greater than 0");
         }
@@ -34,6 +35,7 @@ public class ItemService {
         if (item == null) {
             throw new RuntimeException("Item not found");
         }
+        // Chỉ item PENDING mới được duyệt để tránh mở lại item đã hủy/đã đấu giá.
         if (item.getStatus() != ItemStatus.PENDING) {
             throw new RuntimeException("Item is not in PENDING state");
         }
@@ -47,6 +49,7 @@ public class ItemService {
         if (item == null) {
             throw new RuntimeException("Item not found");
         }
+        // Từ chối chỉ áp dụng trước khi item được duyệt, vì sau đó item có thể đã liên kết với phiên đấu giá.
         if (item.getStatus() != ItemStatus.PENDING) {
             throw new RuntimeException("Item is not in PENDING state");
         }

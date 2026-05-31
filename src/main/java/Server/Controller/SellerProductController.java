@@ -51,17 +51,19 @@ public class SellerProductController {
     // JavaFX tự gọi sau khi load FXML: cấu hình cột bảng và tải danh sách item của seller.
     @FXML
     public void initialize() {
-        configureList();
+        configureList(); //dágfda
         configureFilters();
         loadMyItems();
     }
 
     // Cấu hình danh sách sản phẩm của seller theo dạng card mềm.
     private void configureList() {
+        // ListView tái sử dụng ListCell khi cuộn, nên mỗi lần update phải tự gắn/xóa card hiển thị.
         table.setCellFactory(list -> new ListCell<>() {
             @Override
             protected void updateItem(Item item, boolean empty) {
                 super.updateItem(item, empty);
+                // Cell rỗng phải xóa graphic cũ, nếu không khi cuộn có thể hiện nhầm item trước đó.
                 if (empty || item == null) {
                     setText(null);
                     setGraphic(null);
@@ -147,6 +149,7 @@ public class SellerProductController {
         if (loading) return;
         loading = true;
 
+        // Query DB chạy trong Task riêng để màn SellerProducts không bị đứng khi dữ liệu nhiều hoặc DB chậm.
         Task<List<Item>> task = new Task<>() {
             @Override
             // Hàm chạy trong background task: lấy toàn bộ sản phẩm của seller để lọc/cuộn trực tiếp.
@@ -159,12 +162,14 @@ public class SellerProductController {
         task.setOnSucceeded(event -> {
             allItems.clear();
             allItems.addAll(task.getValue());
+            // Sau khi có dữ liệu gốc, áp dụng lại filter hiện tại thay vì đổ thẳng toàn bộ lên UI.
             applyFilters();
             loading = false;
         });
 
         task.setOnFailed(event -> {
             allItems.clear();
+            // Khi load lỗi vẫn refresh table về trạng thái rỗng để không giữ dữ liệu cũ gây hiểu nhầm.
             applyFilters();
             loading = false;
         });
@@ -180,6 +185,7 @@ public class SellerProductController {
         String status = statusFilter == null ? ALL_FILTER : statusFilter.getValue();
         List<Item> rows = new ArrayList<>();
 
+        // Lọc trên allItems để search/status không phải query DB lại mỗi lần người dùng gõ phím.
         for (Item item : allItems) {
             if (!matchesStatus(item, status)) {
                 continue;
@@ -231,6 +237,7 @@ public class SellerProductController {
         try {
             String name = itemName.getText() == null ? "" : itemName.getText().trim();
             String desc = itemDescription.getText() == null ? "" : itemDescription.getText().trim();
+            // Giá khởi điểm và bước giá phải validate trước khi tạo Item để service không nhận dữ liệu bẩn.
             long price = parsePositiveLong(itemPrice, "Giá khởi điểm không hợp lệ.");
             long minIncrement = parsePositiveLong(itemMinIncrement, "Bước giá tối thiểu không hợp lệ.");
 
@@ -239,6 +246,7 @@ public class SellerProductController {
                 return;
             }
 
+            // Controller chỉ gom dữ liệu từ form; rule trạng thái PENDING nằm trong ItemService.upload().
             Item item = new Item();
             item.setFullname(name);
             item.setOwner_user_id(UserAccount.getUserId());
