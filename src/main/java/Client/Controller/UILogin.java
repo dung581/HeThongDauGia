@@ -1,5 +1,6 @@
 package Client.Controller;
 
+import Common.DataBase.DbConnection;
 import Server.service.AutoBidBackgroundRunner;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -31,5 +32,6 @@ public class UILogin extends Application {
     @Override
     public void stop() {
         AutoBidBackgroundRunner.stop();
+        DbConnection.closePool();
     }
 }

@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="760.0" prefWidth="1220.0" styleClass="app-root" stylesheets="@bidnow-dark.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Server.Controller.dashboard.DashBoardController">
+<BorderPane prefHeight="760.0" prefWidth="1220.0" styleClass="app-root" stylesheets="@bidnow-dark.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Server.Controller.DashBoardController">
     <left>
         <VBox prefWidth="250.0" spacing="18.0" styleClass="sidebar">
             <padding>
