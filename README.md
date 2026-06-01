@@ -85,7 +85,7 @@ Chứa các lớp cấu trúc dùng chung giữa cả Client và Server để tr
 * 🛒 **`danhSachDauGia.fxml` / `session-detail.fxml`:** Giao diện chi tiết phiên đấu giá trực tuyến.
 * 💳 **`Deposit.fxml` / `account.fxml`:** Giao diện nạp tiền và xem số dư chi tiết.
 * 🏆 **`Winner.fxml`:** Hiển thị vinh danh người chiến thắng phiên đấu giá.
-* 🛡️ **`dashboard - Admin.fxml` / `ApproveItem.fxml`:** Không gian quản lý của Admin.
+* 🛡️ **`dashboard - Admin.fxml` / `PendingItems.fxml` / `AdminItemManagement.fxml`:** Không gian quản lý của Admin.
 * 📦 **`dashboard - Seller.fxml` / `SellerProducts.fxml`:** Không gian quản lý của Seller.
 * 🎨 **`bidnow-dark.css`:** Tập tin định nghĩa giao diện Dark Theme cốt lõi của hệ thống.
 
