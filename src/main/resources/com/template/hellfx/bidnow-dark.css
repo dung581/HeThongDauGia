@@ -631,14 +631,14 @@
 .live-auction-title {
     -fx-text-fill: #f4f7fb;
     -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 25px;
+    -fx-font-size: 18px;
     -fx-font-weight: bold;
 }
 
 .live-auction-meta {
     -fx-text-fill: #68717d;
     -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 16px;
+    -fx-font-size: 12px;
 }
 
 .live-auction-live-pill {
@@ -646,9 +646,9 @@
     -fx-background-radius: 6;
     -fx-text-fill: #ff6b63;
     -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 14px;
+    -fx-font-size: 10px;
     -fx-font-weight: bold;
-    -fx-padding: 6 18 6 18;
+    -fx-padding: 3 8 3 8;
 }
 
 .auction-card-muted .live-auction-live-pill {
@@ -659,28 +659,28 @@
 .live-auction-stat-label {
     -fx-text-fill: #68717d;
     -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 13px;
+    -fx-font-size: 10px;
     -fx-font-weight: bold;
 }
 
 .live-auction-start-price {
     -fx-text-fill: #aab3c0;
     -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 21px;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
 }
 
 .live-auction-current-price {
     -fx-text-fill: #2f86ff;
     -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 21px;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
 }
 
 .live-auction-total-bids {
     -fx-text-fill: #f4f7fb;
     -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 21px;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
 }
 
@@ -689,9 +689,9 @@
     -fx-background-radius: 8;
     -fx-text-fill: white;
     -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 17px;
+    -fx-font-size: 13px;
     -fx-font-weight: bold;
-    -fx-padding: 11 30 11 30;
+    -fx-padding: 6 15 6 15;
 }
 
 .live-auction-join-button:hover {
@@ -701,7 +701,7 @@
 .live-auction-timer-box {
     -fx-background-color: #3a1512;
     -fx-background-radius: 8;
-    -fx-padding: 10 18 10 18;
+    -fx-padding: 5 10 5 10;
 }
 
 .auction-card-muted .live-auction-timer-box {
@@ -711,7 +711,7 @@
 .live-auction-timer {
     -fx-text-fill: #ff6b63;
     -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 28px;
+    -fx-font-size: 18px;
     -fx-font-weight: bold;
 }
 

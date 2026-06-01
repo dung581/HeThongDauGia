@@ -46,9 +46,9 @@ final class DashboardRowFactory {
 
     // Tạo card phiên đang chạy cho dashboard Bidder.
     Node createLiveSessionCard(LiveSessionRow row) {
-        HBox card = new HBox(20.0);
+        HBox card = new HBox(16.0);
         card.setAlignment(Pos.CENTER_LEFT);
-        card.setPadding(new Insets(18.0, 24.0, 18.0, 24.0));
+        card.setPadding(new Insets(10.0, 16.0, 10.0, 16.0));
         card.getStyleClass().add("live-auction-card");
         card.setCursor(Cursor.HAND);
         card.setOnMouseClicked(event -> {
@@ -58,7 +58,7 @@ final class DashboardRowFactory {
             }
         });
 
-        VBox main = new VBox(10.0);
+        VBox main = new VBox(6.0);
         main.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(main, Priority.ALWAYS);
 
@@ -66,7 +66,7 @@ final class DashboardRowFactory {
         title.getStyleClass().add("live-auction-title");
         title.setWrapText(true);
 
-        HBox meta = new HBox(16.0);
+        HBox meta = new HBox(12.0);
         meta.setAlignment(Pos.CENTER_LEFT);
         Label seller = new Label("by " + row.getSeller());
         seller.getStyleClass().add("live-auction-meta");
@@ -76,7 +76,7 @@ final class DashboardRowFactory {
         session.getStyleClass().add("live-auction-meta");
         meta.getChildren().addAll(seller, separator, session);
 
-        HBox stats = new HBox(58.0);
+        HBox stats = new HBox(36.0);
         stats.setAlignment(Pos.CENTER_LEFT);
         stats.getChildren().addAll(
                 createLiveStat("LIVE", "START PRICE", row.getStartPrice(), "live-auction-start-price"),
@@ -86,7 +86,7 @@ final class DashboardRowFactory {
 
         main.getChildren().addAll(title, meta, stats);
 
-        VBox actionBox = new VBox(26.0);
+        VBox actionBox = new VBox(12.0);
         actionBox.setAlignment(Pos.CENTER_RIGHT);
         Button joinButton = new Button("Join ->");
         joinButton.getStyleClass().add("live-auction-join-button");
@@ -125,9 +125,9 @@ final class DashboardRowFactory {
 
     // Tạo một cụm chỉ số trong card phiên đang chạy: nhãn nhỏ ở trên, giá trị lớn ở dưới.
     private VBox createLiveStat(String pillText, String labelText, String valueText, String valueStyleClass) {
-        VBox box = new VBox(4.0);
+        VBox box = new VBox(3.0);
         box.setAlignment(Pos.CENTER_LEFT);
-        box.setMinWidth(145.0);
+        box.setMinWidth(100.0);
 
         if (pillText != null && !pillText.isBlank()) {
             Label pill = new Label(pillText);
