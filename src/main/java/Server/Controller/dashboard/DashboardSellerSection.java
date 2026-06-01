@@ -1,4 +1,4 @@
-package Server.Controller;
+package Server.Controller.dashboard;
 
 import Common.DataBase.entities.Auction;
 import Common.DataBase.entities.Item;

@@ -1,4 +1,4 @@
-package Server.Controller;
+package Server.Controller.account;
 
 import Client.Controller.UILogin;
 import Client.util.AlertUtil;

@@ -1,4 +1,4 @@
-package Server.Controller;
+package Server.Controller.dashboard;
 
 import Server.Controller.model.DashboardModels.EndedSessionRow;
 import Server.Controller.model.DashboardModels.ItemOverviewRow;

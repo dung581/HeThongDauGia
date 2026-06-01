@@ -1,4 +1,4 @@
-package Server.Controller;
+package Server.Controller.account;
 
 import Common.DataBase.entities.Stake;
 import Common.Model.user.UserAccount;

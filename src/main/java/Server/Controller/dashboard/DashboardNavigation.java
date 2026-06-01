@@ -1,4 +1,7 @@
-package Server.Controller;
+package Server.Controller.dashboard;
+
+import Server.Controller.SessionDetailController;
+import Server.Controller.WinnerController;
 
 import Client.Controller.UILogin;
 import Common.Enum.UserRole;

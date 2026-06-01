@@ -1,4 +1,4 @@
-package Server.Controller;
+package Server.Controller.dashboard;
 
 import Client.Controller.UILogin;
 import Common.DataBase.entities.Account;

@@ -1,4 +1,4 @@
-package Server.Controller;
+package Server.Controller.account;
 
 import Common.Enum.UserRole;
 import Server.service.AccountService;
