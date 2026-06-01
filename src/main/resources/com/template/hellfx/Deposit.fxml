@@ -93,7 +93,7 @@
 
                 <HBox alignment="CENTER_RIGHT" spacing="10.0">
                     <Button mnemonicParsing="false" onAction="#onBack" styleClass="secondary-button" text="Hủy" />
-                    <Button mnemonicParsing="false" onAction="#onConfirmDeposit" styleClass="primary-button" text="Xác nhận nạp" />
+                    <Button fx:id="btnConfirm" mnemonicParsing="false" onAction="#onConfirmDeposit" styleClass="primary-button" text="Xác nhận nạp" />
                 </HBox>
             </VBox>
         </VBox>
