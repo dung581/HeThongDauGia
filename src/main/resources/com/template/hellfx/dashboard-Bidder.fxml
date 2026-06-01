@@ -47,6 +47,10 @@
             </padding>
             <Label styleClass="muted" text="BidNow / Bảng điều khiển Người đấu giá" />
             <HBox HBox.hgrow="ALWAYS" />
+            <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-background-color: rgba(67, 196, 99, 0.1); -fx-background-radius: 6; -fx-padding: 6 12 6 12;">
+                <Label style="-fx-text-fill: #7d8794; -fx-font-size: 11px; -fx-font-weight: bold;" text="SỐ DƯ:" />
+                <Label fx:id="topbarBalanceLabel" style="-fx-text-fill: #43c463; -fx-font-size: 13px; -fx-font-weight: bold;" text="-" minWidth="-Infinity" />
+            </HBox>
             <Button mnemonicParsing="false" onAction="#goToLogin" styleClass="secondary-button" text="Đăng xuất" />
         </HBox>
     </top>
@@ -63,36 +67,36 @@
             </VBox>
 
             <HBox spacing="14.0">
-                <VBox prefHeight="78.0" prefWidth="210.0" spacing="8.0" styleClass="card">
+                <VBox prefHeight="78.0" prefWidth="235.0" spacing="8.0" styleClass="card">
                     <padding>
                         <Insets bottom="16.0" left="18.0" right="18.0" top="16.0" />
                     </padding>
                     <Label styleClass="field-name" text="SỐ DƯ KHẢ DỤNG" />
-                    <Label fx:id="availableBalanceLabel" styleClass="money-value" text="-" />
+                    <Label fx:id="availableBalanceLabel" styleClass="money-value" text="-" minWidth="-Infinity" />
                 </VBox>
 
-                <VBox prefHeight="78.0" prefWidth="210.0" spacing="8.0" styleClass="card">
+                <VBox prefHeight="78.0" prefWidth="235.0" spacing="8.0" styleClass="card">
                     <padding>
                         <Insets bottom="16.0" left="18.0" right="18.0" top="16.0" />
                     </padding>
                     <Label styleClass="field-name" text="TIỀN ĐANG KHÓA" />
-                    <Label fx:id="lockedBalanceLabel" styleClass="money-value" text="-" />
+                    <Label fx:id="lockedBalanceLabel" styleClass="money-value" text="-" minWidth="-Infinity" />
                 </VBox>
 
-                <VBox prefHeight="78.0" prefWidth="210.0" spacing="8.0" styleClass="card">
+                <VBox prefHeight="78.0" prefWidth="235.0" spacing="8.0" styleClass="card">
                     <padding>
                         <Insets bottom="16.0" left="18.0" right="18.0" top="16.0" />
                     </padding>
                     <Label styleClass="field-name" text="TIỀN ĐẶT CỌC ĐANG KHÓA" />
-                    <Label fx:id="activeStakeCountLabel" styleClass="accent-value" text="-" />
+                    <Label fx:id="activeStakeCountLabel" styleClass="accent-value" text="-" minWidth="-Infinity" />
                 </VBox>
 
-                <VBox prefHeight="78.0" prefWidth="210.0" spacing="8.0" styleClass="card">
+                <VBox prefHeight="78.0" prefWidth="135.0" spacing="8.0" styleClass="card">
                     <padding>
                         <Insets bottom="16.0" left="18.0" right="18.0" top="16.0" />
                     </padding>
                     <Label styleClass="field-name" text="ĐANG DẪN ĐẦU" />
-                    <Label fx:id="leadingSessionCountLabel" styleClass="success-value" text="-" />
+                    <Label fx:id="leadingSessionCountLabel" styleClass="success-value" text="-" minWidth="-Infinity" />
                 </VBox>
             </HBox>
 

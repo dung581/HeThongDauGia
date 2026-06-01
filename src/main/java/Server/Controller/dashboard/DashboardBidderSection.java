@@ -49,6 +49,7 @@ final class DashboardBidderSection {
 
         if (showLoading) {
             controller.setText(controller.availableBalanceLabel, "Dang tai...");
+            controller.setText(controller.topbarBalanceLabel, "Dang tai...");
             controller.setText(controller.lockedBalanceLabel, "Dang tai...");
             controller.setText(controller.activeStakeCountLabel, "-");
             controller.setText(controller.leadingSessionCountLabel, "-");
@@ -128,6 +129,7 @@ final class DashboardBidderSection {
                 return;
             }
             controller.setText(controller.availableBalanceLabel, "N/A");
+            controller.setText(controller.topbarBalanceLabel, "N/A");
             controller.setText(controller.lockedBalanceLabel, "N/A");
             controller.setText(controller.activeStakeCountLabel, "0");
             controller.setText(controller.leadingSessionCountLabel, "0");
@@ -151,6 +153,7 @@ final class DashboardBidderSection {
     // Đổ dữ liệu dashboard Bidder lên các thẻ thống kê và bảng.
     void renderDashboard(BidderDashboardData data) {
         controller.setText(controller.availableBalanceLabel, controller.formatMoney(data.availableBalance));
+        controller.setText(controller.topbarBalanceLabel, controller.formatMoney(data.availableBalance) + " đ");
         controller.setText(controller.lockedBalanceLabel, controller.formatMoney(data.lockedBalance));
         controller.setText(controller.activeStakeCountLabel, String.valueOf(data.lockedStakeCount));
         controller.setText(controller.leadingSessionCountLabel, String.valueOf(data.leadingSessionCount));

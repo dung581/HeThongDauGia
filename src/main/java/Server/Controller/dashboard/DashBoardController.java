@@ -62,6 +62,7 @@ import java.util.stream.Collectors;
 public class DashBoardController {
 
     @FXML Label availableBalanceLabel;
+    @FXML Label topbarBalanceLabel;
     @FXML Label lockedBalanceLabel;
     @FXML Label activeStakeCountLabel;
     @FXML Label leadingSessionCountLabel;
