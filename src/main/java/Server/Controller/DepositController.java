@@ -14,8 +14,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Button;
-import javafx.concurrent.Task;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -23,7 +21,6 @@ import java.io.IOException;
 public class DepositController {
 
     @FXML private TextField depositAmountField;
-    @FXML private Button btnConfirm;
     @FXML private Label lblBalance;
     @FXML private Label lblLocked;
     @FXML private Label lblAvailable;
@@ -113,49 +110,14 @@ public class DepositController {
             return;
         }
 
-        // Khóa giao diện để tránh người dùng click nhiều lần khi server nghẽn
-        if (btnConfirm != null) {
-            btnConfirm.setDisable(true);
-        }
-        if (depositAmountField != null) {
-            depositAmountField.setDisable(true);
-        }
-
-        // Chạy nghiệp vụ nạp tiền bất đồng bộ thông qua Task nền (Daemon Thread)
-        Task<Void> depositTask = new Task<>() {
-            @Override
-            protected Void call() throws Exception {
-                accountService.deposit(userId, amount);
-                return null;
-            }
-        };
-
-        depositTask.setOnSucceeded(event -> {
+        try {
+            accountService.deposit(userId, amount);
             refreshBalance();
-            if (depositAmountField != null) {
-                depositAmountField.clear();
-                depositAmountField.setDisable(false);
-            }
-            if (btnConfirm != null) {
-                btnConfirm.setDisable(false);
-            }
+            depositAmountField.clear();
             showInfo("Nạp thành công " + amount + " VND");
-        });
-
-        depositTask.setOnFailed(event -> {
-            Throwable ex = depositTask.getException();
-            if (depositAmountField != null) {
-                depositAmountField.setDisable(false);
-            }
-            if (btnConfirm != null) {
-                btnConfirm.setDisable(false);
-            }
-            showError("Nạp tiền thất bại: " + ex.getMessage());
-        });
-
-        Thread worker = new Thread(depositTask, "async-deposit-thread");
-        worker.setDaemon(true); // Đặt luồng Daemon để tắt app an toàn
-        worker.start();
+        } catch (Exception e) {
+            showError("Nạp tiền thất bại: " + e.getMessage());
+        }
     }
 
     // Quay về dashboard đúng với role hiện tại của user.

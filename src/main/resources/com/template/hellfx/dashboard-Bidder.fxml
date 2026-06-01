@@ -132,12 +132,15 @@
 
                     <VBox spacing="10.0" VBox.vgrow="ALWAYS">
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <Label styleClass="section-label" text="PHIÊN ĐANG CHẠY" />
+                            <Label styleClass="section-label" text="SẢN PHẨM CỦA TÔI" />
                             <HBox HBox.hgrow="ALWAYS" />
-                            <Label fx:id="liveSessionSummaryLabel" styleClass="page-subtitle" text="Đang tải dữ liệu..." />
-                            <Button mnemonicParsing="false" onAction="#Sandaugia" styleClass="secondary-button" text="Xem tất cả" />
+                            <Label fx:id="ownedProductSummaryLabel" styleClass="page-subtitle" text="Đang tải dữ liệu..." />
                         </HBox>
-                        <ListView fx:id="liveSessionTable" styleClass="data-list" VBox.vgrow="ALWAYS" />
+                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="260.0" styleClass="flat-scroll" VBox.vgrow="ALWAYS">
+                            <content>
+                                <VBox fx:id="ownedProductList" spacing="10.0" styleClass="product-list" />
+                            </content>
+                        </ScrollPane>
                     </VBox>
                 </VBox>
 
@@ -147,15 +150,12 @@
                     </padding>
                     <HBox alignment="CENTER_LEFT" spacing="8.0">
                         <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                            <Label styleClass="field-name" text="SẢN PHẨM CỦA TÔI" />
-                            <Label fx:id="ownedProductSummaryLabel" styleClass="page-subtitle" text="Đang tải dữ liệu..." />
+                            <Label styleClass="field-name" text="PHIÊN ĐANG CHẠY" />
+                            <Label fx:id="liveSessionSummaryLabel" styleClass="page-subtitle" text="Đang tải dữ liệu..." />
                         </VBox>
+                        <Button mnemonicParsing="false" onAction="#Sandaugia" styleClass="secondary-button" text="Xem tất cả" />
                     </HBox>
-                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="245.0" styleClass="flat-scroll" VBox.vgrow="ALWAYS">
-                        <content>
-                            <VBox fx:id="ownedProductList" spacing="10.0" styleClass="product-list" />
-                        </content>
-                    </ScrollPane>
+                    <ListView fx:id="liveSessionTable" styleClass="data-list" VBox.vgrow="ALWAYS" />
 
                     <VBox spacing="8.0">
                         <VBox spacing="4.0">

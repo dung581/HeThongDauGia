@@ -471,16 +471,15 @@
 .product-row {
     -fx-background-color: #151c25;
     -fx-background-radius: 8;
-    -fx-border-color: #465365;
+    -fx-border-color: #303844;
     -fx-border-radius: 8;
-    -fx-border-width: 1.2;
     -fx-cursor: hand;
 }
 
 .product-row:hover {
     -fx-background-color: #1a2330;
-    -fx-border-color: #5cff42;
-    -fx-effect: dropshadow(gaussian, rgba(101, 255, 76, 0.14), 14, 0.18, 0, 3);
+    -fx-border-color: #465365;
+    -fx-effect: dropshadow(gaussian, rgba(47, 134, 255, 0.16), 14, 0.18, 0, 3);
 }
 
 .product-empty {
@@ -492,8 +491,7 @@
 
 .product-title {
     -fx-text-fill: #f4f7fb;
-    -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 18px;
+    -fx-font-size: 16px;
     -fx-font-weight: bold;
 }
 
@@ -504,15 +502,13 @@
 
 .product-meta {
     -fx-text-fill: #7d8794;
-    -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 13px;
+    -fx-font-size: 12px;
     -fx-font-weight: bold;
 }
 
 .product-price {
     -fx-text-fill: #43c463;
-    -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 17px;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
 }
 
@@ -532,16 +528,15 @@
 .session-row {
     -fx-background-color: #151c25;
     -fx-background-radius: 8;
-    -fx-border-color: #465365;
+    -fx-border-color: #303844;
     -fx-border-radius: 8;
-    -fx-border-width: 1.2;
     -fx-cursor: hand;
 }
 
 .session-row:hover {
     -fx-background-color: #1a2330;
-    -fx-border-color: #5cff42;
-    -fx-effect: dropshadow(gaussian, rgba(101, 255, 76, 0.14), 14, 0.20, 0, 3);
+    -fx-border-color: #4b5a6c;
+    -fx-effect: dropshadow(gaussian, rgba(47, 134, 255, 0.18), 14, 0.20, 0, 3);
 }
 
 .session-status-pill {
@@ -569,208 +564,33 @@
 }
 
 .data-list .list-cell:filled:selected .data-row {
-    -fx-background-color: #18212b;
-    -fx-border-color: #6dff4f;
+    -fx-background-color: #17365f;
+    -fx-border-color: #4b86c8;
 }
 
 .data-list .list-cell:filled:hover .data-row {
     -fx-background-color: #1a2330;
-    -fx-border-color: #5cff42;
-    -fx-effect: dropshadow(gaussian, rgba(101, 255, 76, 0.14), 14, 0.20, 0, 3);
+    -fx-border-color: #4b5a6c;
+    -fx-effect: dropshadow(gaussian, rgba(47, 134, 255, 0.18), 14, 0.20, 0, 3);
 }
 
 .data-row {
     -fx-background-color: #151c25;
     -fx-background-radius: 8;
-    -fx-border-color: #465365;
-    -fx-border-radius: 8;
-    -fx-border-width: 1.2;
-    -fx-cursor: hand;
-}
-
-.data-list .list-cell:filled:selected .live-auction-card {
-    -fx-background-color: #18212b;
-    -fx-border-color: #6dff4f;
-}
-
-.data-list .list-cell:filled:selected .auction-card-muted {
-    -fx-background-color: #18212b;
-    -fx-border-color: #6dff4f;
-}
-
-.data-list .list-cell:filled:hover .live-auction-card {
-    -fx-background-color: #1a2330;
-    -fx-border-color: #81ff62;
-    -fx-effect: dropshadow(gaussian, rgba(101, 255, 76, 0.18), 14, 0.22, 0, 3);
-}
-
-.data-list .list-cell:filled:hover .auction-card-muted {
-    -fx-background-color: #1a2330;
-    -fx-border-color: #5cff42;
-    -fx-effect: dropshadow(gaussian, rgba(101, 255, 76, 0.14), 14, 0.20, 0, 3);
-}
-
-.live-auction-card {
-    -fx-background-color: #151c25;
-    -fx-background-radius: 8;
-    -fx-border-color: #5cff42;
-    -fx-border-radius: 8;
-    -fx-border-width: 1.4;
-    -fx-cursor: hand;
-}
-
-.auction-card-muted {
-    -fx-background-color: #151c25;
-    -fx-background-radius: 8;
     -fx-border-color: #303844;
     -fx-border-radius: 8;
-    -fx-border-width: 1.2;
     -fx-cursor: hand;
-}
-
-.live-auction-title {
-    -fx-text-fill: #f4f7fb;
-    -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 25px;
-    -fx-font-weight: bold;
-}
-
-.live-auction-meta {
-    -fx-text-fill: #68717d;
-    -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 16px;
-}
-
-.live-auction-live-pill {
-    -fx-background-color: #3a1512;
-    -fx-background-radius: 6;
-    -fx-text-fill: #ff6b63;
-    -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-padding: 6 18 6 18;
-}
-
-.auction-card-muted .live-auction-live-pill {
-    -fx-background-color: #37280d;
-    -fx-text-fill: #f5b629;
-}
-
-.live-auction-stat-label {
-    -fx-text-fill: #68717d;
-    -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 13px;
-    -fx-font-weight: bold;
-}
-
-.live-auction-start-price {
-    -fx-text-fill: #aab3c0;
-    -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 21px;
-    -fx-font-weight: bold;
-}
-
-.live-auction-current-price {
-    -fx-text-fill: #2f86ff;
-    -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 21px;
-    -fx-font-weight: bold;
-}
-
-.live-auction-total-bids {
-    -fx-text-fill: #f4f7fb;
-    -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 21px;
-    -fx-font-weight: bold;
-}
-
-.live-auction-join-button {
-    -fx-background-color: #2f86ff;
-    -fx-background-radius: 8;
-    -fx-text-fill: white;
-    -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 17px;
-    -fx-font-weight: bold;
-    -fx-padding: 11 30 11 30;
-}
-
-.live-auction-join-button:hover {
-    -fx-background-color: #4b97ff;
-}
-
-.live-auction-timer-box {
-    -fx-background-color: #3a1512;
-    -fx-background-radius: 8;
-    -fx-padding: 10 18 10 18;
-}
-
-.auction-card-muted .live-auction-timer-box {
-    -fx-background-color: #2f260f;
-}
-
-.live-auction-timer {
-    -fx-text-fill: #ff6b63;
-    -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 28px;
-    -fx-font-weight: bold;
-}
-
-.auction-card-status-text {
-    -fx-text-fill: #f5b629;
-    -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 19px;
-    -fx-font-weight: bold;
-}
-
-.market-card {
-    -fx-spacing: 6;
-    -fx-padding: 12 16 12 16;
-    -fx-border-width: 1.1;
-}
-
-.market-card .live-auction-title {
-    -fx-font-size: 17px;
-}
-
-.market-card .live-auction-meta {
-    -fx-font-size: 12px;
-}
-
-.market-card .product-description {
-    -fx-font-size: 12px;
-}
-
-.market-card .live-auction-live-pill {
-    -fx-font-size: 11px;
-    -fx-padding: 3 9 3 9;
-}
-
-.market-card .live-auction-stat-label {
-    -fx-font-size: 11px;
-}
-
-.market-card .live-auction-start-price,
-.market-card .live-auction-current-price,
-.market-card .live-auction-total-bids {
-    -fx-font-size: 14px;
-}
-
-.market-card .live-auction-join-button {
-    -fx-font-size: 12px;
-    -fx-padding: 6 14 6 14;
 }
 
 .data-title {
     -fx-text-fill: #f4f7fb;
-    -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 18px;
+    -fx-font-size: 16px;
     -fx-font-weight: bold;
 }
 
 .data-meta {
     -fx-text-fill: #7d8794;
-    -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 13px;
+    -fx-font-size: 12px;
     -fx-font-weight: bold;
 }
 
@@ -781,8 +601,7 @@
 
 .data-money {
     -fx-text-fill: #43c463;
-    -fx-font-family: "Consolas", "Monospaced";
-    -fx-font-size: 17px;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
 }
 

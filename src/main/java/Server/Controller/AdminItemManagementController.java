@@ -52,7 +52,6 @@ public class AdminItemManagementController {
 
     // Cấu hình danh sách item dạng card để thay bảng cứng.
     private void configureList() {
-        // Mỗi dòng item được render bằng card custom; ListCell rỗng phải dọn graphic cũ khi JavaFX tái sử dụng cell.
         table.setCellFactory(list -> new ListCell<>() {
             @Override
             protected void updateItem(Item item, boolean empty) {
@@ -163,7 +162,6 @@ public class AdminItemManagementController {
         if (loading) return;
         loading = true;
 
-        // Admin cần toàn bộ item nên việc đọc DB được đưa sang Task nền để không khóa giao diện.
         Task<List<Item>> task = new Task<>() {
             @Override
             // Hàm chạy trong background task: lấy toàn bộ item để lọc và cuộn trực tiếp.
@@ -175,14 +173,12 @@ public class AdminItemManagementController {
         task.setOnSucceeded(event -> {
             allItems.clear();
             allItems.addAll(task.getValue());
-            // Lọc lại theo trạng thái/search hiện tại sau khi dữ liệu mới về.
             applyFilters();
             loading = false;
         });
 
         task.setOnFailed(event -> {
             allItems.clear();
-            // Xóa bảng khi load lỗi để tránh Admin thao tác trên dữ liệu cũ.
             applyFilters();
             loading = false;
         });
@@ -199,7 +195,6 @@ public class AdminItemManagementController {
         String ownerQuery = normalize(ownerSearchField == null ? "" : ownerSearchField.getText());
         List<Item> rows = new ArrayList<>();
 
-        // Lọc theo thứ tự rẻ trước: trạng thái, owner id, rồi search nhiều field.
         for (Item item : allItems) {
             if (!matchesStatus(item, status)) {
                 continue;
@@ -236,7 +231,6 @@ public class AdminItemManagementController {
             return true;
         }
 
-        // Gom các field cần tìm vào một chuỗi chung để ô search tìm được cả ID, giá, trạng thái và ghi chú.
         String target = String.join(" ",
                 String.valueOf(item.getId()),
                 item.getFullname() == null ? "" : item.getFullname(),

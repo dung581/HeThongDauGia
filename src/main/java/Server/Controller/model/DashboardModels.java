@@ -30,44 +30,24 @@ public static class LiveSessionRow {
     private final String itemName;
     // Mô tả sản phẩm, hiển thị dưới tên item.
     private final String description;
-    // Người bán của item, hiển thị ở dòng meta của card live.
-    private final String seller;
-    // Giá khởi điểm của item.
-    private final String startPrice;
     // Giá hiện tại đã được format để hiển thị.
     private final String currentPrice;
     // Bước giá tối thiểu đã được format.
     private final String minIncrement;
     // Người đang dẫn phiên, dạng text hiển thị.
     private final String leader;
-    // Tổng số lượt bid hiện có trong phiên.
-    private final int totalBids;
     // Thời điểm kết thúc phiên, dùng để tính countdown.
     private final LocalDateTime endTime;
     // Text countdown thay đổi theo timer, ví dụ "05:30".
     private final SimpleStringProperty timeLeft = new SimpleStringProperty("-");
 
-    public LiveSessionRow(
-            long sessionId,
-            String itemName,
-            String description,
-            String seller,
-            String startPrice,
-            String currentPrice,
-            String minIncrement,
-            String leader,
-            int totalBids,
-            LocalDateTime endTime
-    ) {
+    public LiveSessionRow(long sessionId, String itemName, String description, String currentPrice, String minIncrement, String leader, LocalDateTime endTime) {
         this.sessionId = sessionId;
         this.itemName = itemName;
         this.description = description;
-        this.seller = seller;
-        this.startPrice = startPrice;
         this.currentPrice = currentPrice;
         this.minIncrement = minIncrement;
         this.leader = leader;
-        this.totalBids = totalBids;
         this.endTime = endTime;
     }
 
@@ -83,14 +63,6 @@ public static class LiveSessionRow {
         return description;
     }
 
-    public String getSeller() {
-        return seller;
-    }
-
-    public String getStartPrice() {
-        return startPrice;
-    }
-
     public String getCurrentPrice() {
         return currentPrice;
     }
@@ -101,10 +73,6 @@ public static class LiveSessionRow {
 
     public String getLeader() {
         return leader;
-    }
-
-    public int getTotalBids() {
-        return totalBids;
     }
 
     public String getTimeLeft() {

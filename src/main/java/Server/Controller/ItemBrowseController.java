@@ -75,12 +75,10 @@ public class    ItemBrowseController {
 
     // Cấu hình danh sách item theo dạng card mềm.
     private void configureList() {
-        // ListView chỉ biết có Item; cellFactory quyết định mỗi Item được vẽ thành card như thế nào.
         table.setCellFactory(list -> new ListCell<>() {
             @Override
             protected void updateItem(Item item, boolean empty) {
                 super.updateItem(item, empty);
-                // Cell rỗng cần xóa graphic vì JavaFX tái sử dụng cell khi cuộn danh sách.
                 if (empty || item == null) {
                     setText(null);
                     setGraphic(null);
@@ -166,7 +164,6 @@ public class    ItemBrowseController {
         try {
             String filter = (statusFilter == null || statusFilter.getValue() == null) ? ItemStatus.PENDING.name() : statusFilter.getValue();
             List<Item> data;
-            // ALL là filter tổng hợp; các trạng thái cụ thể đi qua service tương ứng để giữ rule tập trung.
             if (ALL.equals(filter)){
                 data = mergeAll();
             }
@@ -266,7 +263,6 @@ public class    ItemBrowseController {
         String reason = rejectReason == null ? "" :rejectReason.getText();
 
         try{
-            // ItemService kiểm tra item còn PENDING và repository lưu lý do vào cột mota.
             itemService.reject(selected.getId(), reason);
             showInfo("Đã từ chối sản phẩm ID "+selected.getId() + ".");
             if (rejectReason != null){

@@ -4,7 +4,7 @@ import Client.Controller.UILogin;
 import Common.DataBase.entities.User;
 import Common.Enum.UserRole;
 import Common.Model.user.UserAccount;
-import Client.service.AuthSocketService;
+import Server.service.AuthService;
 import Server.service.Exceptions.DataAccessException;
 import Server.service.Exceptions.PasswordIsBlankException;
 import Server.service.Exceptions.UserNotFoundException;
@@ -33,7 +33,7 @@ import java.io.IOException;
 public class UILoginController {
     private Parent root;
     private Stage stage;
-    private final AuthSocketService authService;
+    private final AuthService authService;
 
     @FXML private TextField name;
 
@@ -88,7 +88,7 @@ public class UILoginController {
 
     // Tạo controller và khởi tạo AuthService dùng cho đăng nhập/đăng ký.
     public UILoginController() {
-        authService = new AuthSocketService();
+        authService = new AuthService();
     }
 
     // Bật/tắt hiển thị mật khẩu ở màn đăng nhập.
@@ -245,7 +245,7 @@ public class UILoginController {
         }
 
         try {
-            authService.register(tenDK, mkhau, role);
+            authService.register(tenDK, mkhau, tenDK , role);
             showRegisterMessage("Đăng ký thành công");
 
             PauseTransition pause = new PauseTransition(Duration.seconds(1.5));
