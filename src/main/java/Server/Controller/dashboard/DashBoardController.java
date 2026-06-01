@@ -172,10 +172,10 @@ public class DashBoardController {
         navigation.switchScene(actionEvent, "/com/template/hellfx/Deposit.fxml");
     }
 
-    // Mở màn duyệt sản phẩm đang chờ cho Admin.
+    // Mở màn duyệt riêng cho item PENDING của Admin.
     @FXML
     public void duyetsp(ActionEvent actionEvent) throws IOException {
-        navigation.switchScene(actionEvent, "/com/template/hellfx/ApproveItem.fxml");
+        navigation.switchScene(actionEvent, "/com/template/hellfx/PendingItems.fxml");
     }
 
     // Mở màn quản lý toàn bộ vật phẩm cho Admin.

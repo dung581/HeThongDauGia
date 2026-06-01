@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="760.0" prefWidth="1220.0" styleClass="app-root" stylesheets="@bidnow-dark.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Server.Controller.ApproveController">
+<BorderPane prefHeight="760.0" prefWidth="1220.0" styleClass="app-root" stylesheets="@bidnow-dark.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Server.Controller.PendingItemController">
     <top>
         <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="topbar">
             <padding>
@@ -36,8 +36,8 @@
 
             <VBox spacing="12.0">
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
-                    <Button onAction="#onChapNhan" styleClass="primary-button" text="Chấp nhận" />
-                    <Button onAction="#onTuChoi" styleClass="danger-button" text="Từ chối" />
+                    <Button mnemonicParsing="false" onAction="#onChapNhan" styleClass="primary-button" text="Chấp nhận" />
+                    <Button mnemonicParsing="false" onAction="#onTuChoi" styleClass="danger-button" text="Từ chối" />
                 </HBox>
 
                 <VBox fx:id="approvePane" managed="false" spacing="12.0" styleClass="card" visible="false">
@@ -58,7 +58,7 @@
                         <Insets bottom="16.0" left="18.0" right="18.0" top="16.0" />
                     </padding>
                     <Label styleClass="section-label" text="LÝ DO TỪ CHỐI" />
-                    <TextField fx:id="rejectReason" promptText="Nhap ly do tra ve cho seller" styleClass="input" />
+                    <TextField fx:id="rejectReason" promptText="Nhập lý do trả về cho seller" styleClass="input" />
                 </VBox>
             </VBox>
         </VBox>
@@ -69,7 +69,7 @@
             <padding>
                 <Insets bottom="10.0" left="42.0" right="42.0" top="10.0" />
             </padding>
-            <Label styleClass="muted" text="BidNow Desktop | JavaFX 21 | Phê duyệt sản phẩm Admin" />
+            <Label styleClass="muted" text="BidNow Desktop | JavaFX 21 | Thẻ duyệt sản phẩm Admin" />
         </HBox>
     </bottom>
 </BorderPane>

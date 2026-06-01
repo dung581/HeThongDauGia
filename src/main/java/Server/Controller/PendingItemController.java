@@ -7,6 +7,8 @@ import Server.service.ItemService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -19,18 +21,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class ApproveController {
+public class PendingItemController {
 
     @FXML private ListView<Item> table;
-
     @FXML private VBox approvePane;
     @FXML private VBox rejectPane;
     @FXML private TextField startTime;
@@ -42,7 +41,7 @@ public class ApproveController {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private ActionMode actionMode = ActionMode.NONE;
 
-    // JavaFX tự gọi sau khi load FXML: cấu hình bảng, ẩn panel nhập liệu và tải item chờ duyệt.
+    // JavaFX tự gọi sau khi load FXML: dựng list pending, ẩn form phụ và tải item chờ duyệt.
     @FXML
     public void initialize() {
         configureList();
@@ -51,7 +50,7 @@ public class ApproveController {
         loadData();
     }
 
-    // Cấu hình danh sách item chờ duyệt theo dạng card mềm.
+    // Dạy ListView vẽ mỗi item PENDING thành một card giống màn dashboard mới.
     private void configureList() {
         table.setCellFactory(list -> new ListCell<>() {
             @Override
@@ -68,7 +67,7 @@ public class ApproveController {
         });
     }
 
-    // Tạo card item chờ duyệt để Admin nhìn nhanh tên, giá, mô tả và trạng thái.
+    // Card item chờ duyệt: trái là tên/mô tả, phải là giá và trạng thái.
     private Node createPendingItemCard(Item item) {
         HBox row = new HBox(14.0);
         row.setAlignment(Pos.CENTER_LEFT);
@@ -83,14 +82,15 @@ public class ApproveController {
         Label description = new Label(nullToText(item.getDescription(), "Không có thông tin"));
         description.getStyleClass().add("product-description");
         description.setWrapText(true);
+
         HBox meta = new HBox(10.0);
         Label id = new Label("ID #" + item.getId());
         id.getStyleClass().add("data-meta");
         Label minStep = new Label("Bước giá " + formatMoney(getEffectiveMinIncrement(item)));
         minStep.getStyleClass().add("data-meta");
-        Label detail = new Label(nullToText(item.getMota(), ""));
-        detail.getStyleClass().add("data-meta");
-        meta.getChildren().addAll(id, minStep, detail);
+        Label note = new Label(nullToText(item.getMota(), ""));
+        note.getStyleClass().add("data-meta");
+        meta.getChildren().addAll(id, minStep, note);
         main.getChildren().addAll(title, description, meta);
 
         Region spacer = new Region();
@@ -108,26 +108,12 @@ public class ApproveController {
         return row;
     }
 
-    // Trả chuỗi dự phòng khi dữ liệu null/rỗng.
-    private String nullToText(String value, String fallback) {
-        return value == null || value.isBlank() ? fallback : value;
-    }
-
-    // Item cũ có thể chưa có bước giá, fallback 1 để khớp BidService.
-    private long getEffectiveMinIncrement(Item item) {
-        return item == null || item.getMinIncrement() <= 0 ? 1L : item.getMinIncrement();
-    }
-
-    private String formatMoney(long amount) {
-        return String.format("%,d", amount);
-    }
-
-    // Tải danh sách item đang ở trạng thái chờ duyệt lên bảng.
+    // Chỉ tải item PENDING vì màn này dành riêng cho duyệt sản phẩm chờ.
     public void loadData() {
         table.getItems().setAll(itemService.listPending());
     }
 
-    // Xử lý nút chấp nhận: lần đầu mở form thời gian, lần tiếp theo thực hiện duyệt.
+    // Lần đầu bấm Chấp nhận thì mở form thời gian; lần sau mới thực hiện duyệt.
     @FXML
     public void onChapNhan() {
         if (actionMode != ActionMode.APPROVE) {
@@ -139,11 +125,11 @@ public class ApproveController {
             }
             return;
         }
-        duyetsp();
+        approveSelectedItem();
     }
 
-    // Duyệt item đã chọn, validate thời gian và tạo phiên đấu giá tương ứng.
-    private void duyetsp() {
+    // Duyệt item đã chọn và mở phiên đấu giá với thời gian kết thúc đã nhập.
+    private void approveSelectedItem() {
         Item selected = table.getSelectionModel().getSelectedItem();
         if (selected == null) {
             showWarning("Chưa chọn sản phẩm.");
@@ -157,17 +143,17 @@ public class ApproveController {
                 showWarning("Thời gian kết thúc phải sau thời gian bắt đầu.");
                 return;
             }
-            // Service xử lý trọn workflow duyệt sản phẩm và mở phiên đấu giá.
+
             auctionService.approveAndCreateSession(selected.getId(), end);
             showInfo("Đã chấp nhận sản phẩm ID: " + selected.getId());
-            if (endTime != null) endTime.clear();
+            resetActionForm();
             loadData();
         } catch (Exception e) {
             showWarning("Chấp nhận thất bại: " + e.getMessage());
         }
     }
 
-    // Xử lý nút từ chối: lần đầu mở form nhập lý do, lần tiếp theo thực hiện từ chối.
+    // Lần đầu bấm Từ chối thì mở form lý do; lần sau mới thực hiện từ chối.
     @FXML
     public void onTuChoi() {
         if (actionMode != ActionMode.REJECT) {
@@ -176,11 +162,11 @@ public class ApproveController {
             setPaneVisible(approvePane, false);
             return;
         }
-        tuchoi();
+        rejectSelectedItem();
     }
 
     // Từ chối item đã chọn và lưu lý do phản hồi cho seller.
-    private void tuchoi() {
+    private void rejectSelectedItem() {
         Item selected = table.getSelectionModel().getSelectedItem();
         if (selected == null) {
             showWarning("Chưa chọn sản phẩm.");
@@ -190,8 +176,8 @@ public class ApproveController {
         String reason = rejectReason == null ? "" : rejectReason.getText();
         try {
             itemService.reject(selected.getId(), reason);
-            showInfo("Đã từ chối. Seller sẽ nhận trạng thái CANCELED và lý do phản hồi.");
-            if (rejectReason != null) rejectReason.clear();
+            showInfo("Đã từ chối sản phẩm ID: " + selected.getId());
+            resetActionForm();
             loadData();
         } catch (Exception e) {
             showWarning("Từ chối thất bại: " + e.getMessage());
@@ -204,7 +190,15 @@ public class ApproveController {
         switchScene(actionEvent, "/com/template/hellfx/dashboard - Admin.fxml");
     }
 
-    // Thay root scene hiện tại bằng FXML mới và giữ kích thước chuẩn của ứng dụng.
+    // Reset panel phụ sau khi thao tác xong để quay về trạng thái giống màn ban đầu.
+    private void resetActionForm() {
+        actionMode = ActionMode.NONE;
+        setPaneVisible(approvePane, false);
+        setPaneVisible(rejectPane, false);
+        if (endTime != null) endTime.clear();
+        if (rejectReason != null) rejectReason.clear();
+    }
+
     private void switchScene(ActionEvent actionEvent, String fxmlPath) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
@@ -217,14 +211,25 @@ public class ApproveController {
         stage.show();
     }
 
-    // Ẩn/hiện panel nhập liệu và bỏ chiếm chỗ layout khi panel bị ẩn.
-    private void setPaneVisible(VBox pane, boolean visible) {
+    // Ẩn node khỏi layout hoàn toàn, không để lại khoảng trống.
+    private void setPaneVisible(Node pane, boolean visible) {
         if (pane == null) return;
         pane.setVisible(visible);
         pane.setManaged(visible);
     }
 
-    // Hiện popup cảnh báo cho lỗi validate hoặc lỗi service.
+    private String nullToText(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value;
+    }
+
+    private long getEffectiveMinIncrement(Item item) {
+        return item == null || item.getMinIncrement() <= 0 ? 1L : item.getMinIncrement();
+    }
+
+    private String formatMoney(long amount) {
+        return String.format("%,d", amount);
+    }
+
     private void showWarning(String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Thông báo");
@@ -233,7 +238,6 @@ public class ApproveController {
         alert.showAndWait();
     }
 
-    // Hiện popup thông tin khi duyệt hoặc từ chối thành công.
     private void showInfo(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Thông báo");

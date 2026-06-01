@@ -16,6 +16,7 @@ public class AuctionService{
     private AuctionRepository repo = new AuctionRepository();
     private StakeService stakeService = new StakeService();
     private ItemRepository itemRepo= new ItemRepository();
+    private ItemService itemService = new ItemService();
     private AccountService accountService = new AccountService();
 
     public Auction createSession(long itemId, LocalDateTime endTime) {
@@ -45,16 +46,8 @@ public class AuctionService{
 
     // Workflow Admin duyệt item PENDING và mở phiên đấu giá trong cùng một nghiệp vụ.
     public Auction approveAndCreateSession(long itemId, LocalDateTime endTime) {
-        Item item = itemRepo.getItemById(itemId);
-        if (item == null) throw new RuntimeException("Item not found");
-        if (item.getStatus() != ItemStatus.PENDING) {
-            throw new RuntimeException("Item must be PENDING to approve and start auction");
-        }
-
-        item.setStatus(ItemStatus.APPROVED);
-        item.setMota("Da duyet");
-        itemRepo.update(item);
-
+        // Dùng lại rule duyệt của ItemService để tránh lặp logic PENDING -> APPROVED.
+        itemService.approve(itemId);
         return createSession(itemId, endTime);
     }
 
@@ -116,7 +109,6 @@ public class AuctionService{
         // 🔥 update item
         itemRepo.update(item);
     }
-
     // Chỉ đóng phiên nếu thời gian kết thúc đã qua; controller dùng để không tự giữ rule hết hạn.
     public boolean closeIfExpired(long sessionId) {
         Auction auction = repo.getById(sessionId);
@@ -129,11 +121,9 @@ public class AuctionService{
         closeSession(sessionId);
         return true;
     }
-
     public UserAccount declareWinner(long sessionId) {
         Auction a = repo.getById(sessionId);
         if (a.getCurrent_user_id() == 0) return null;
-
         return new UserAccountRepository().getUserAccount(a.getCurrent_user_id());
     }
 }

@@ -11,6 +11,8 @@ import Server.service.AccountService;
 import Server.service.AuctionService;
 import Server.service.BidService;
 import Server.service.ItemService;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -53,6 +55,9 @@ public class DanhSachDauGiaController {
     @FXML private Label trangthaiLabel;
     @FXML private Label thongtinLabel;
     @FXML private Label accountSectionLabel;
+    @FXML private Label liveSessionsLabel;
+    @FXML private Label totalBidsLabel;
+    @FXML private Label leadingSessionsLabel;
 
     @FXML private Node browseItemsNav;
     @FXML private Node uploadItemNav;
@@ -70,6 +75,9 @@ public class DanhSachDauGiaController {
     private final Map<Long, String> itemNameById = new HashMap<>();
     private final Map<Long, Integer> bidCountBySession = new HashMap<>();
     private final Map<Long, String> sellerNameById = new HashMap<>();
+    private Timeline realtimeTimer;
+    private boolean loadingAuctions;
+    private int realtimeTicks;
 
     private static final String ALL_FILTER = "Tat ca";
 
@@ -81,6 +89,7 @@ public class DanhSachDauGiaController {
         configureSelection();
         configureFilters();
         loadAuctionDataAsync();
+        startRealtimeTimer();
     }
 
     // Ẩn/hiện các mục điều hướng theo role hiện tại của user.
@@ -274,6 +283,29 @@ public class DanhSachDauGiaController {
         return String.format("%02d:%02d", minutes, secs);
     }
 
+    // Cho countdown trong danh sách phiên chạy theo thời gian thật và thỉnh thoảng kéo lại dữ liệu DB.
+    private void startRealtimeTimer() {
+        stopRealtimeTimer();
+        realtimeTimer = new Timeline(new KeyFrame(javafx.util.Duration.seconds(1), event -> {
+            realtimeTicks++;
+            table.refresh();
+            updateSummary(table.getItems());
+            if (realtimeTicks % 5 == 0) {
+                loadAuctionDataAsync();
+            }
+        }));
+        realtimeTimer.setCycleCount(Timeline.INDEFINITE);
+        realtimeTimer.play();
+    }
+
+    // Dừng timer khi rời màn để không giữ thread/UI update thừa.
+    private void stopRealtimeTimer() {
+        if (realtimeTimer != null) {
+            realtimeTimer.stop();
+            realtimeTimer = null;
+        }
+    }
+
     // Thêm ký hiệu tiền giống mẫu thiết kế.
     private String formatCurrency(long amount) {
         return "D " + formatMoney(amount);
@@ -339,6 +371,11 @@ public class DanhSachDauGiaController {
     // Tải danh sách phiên và item trên background thread để không làm lag UI.
     @FXML
     private void loadAuctionDataAsync() {
+        if (loadingAuctions) {
+            return;
+        }
+        loadingAuctions = true;
+
         Task<LoadAuctionData> task = new Task<>() {
             @Override
             // Hàm chạy trong background task: lấy phiên active và map thông tin item liên quan.
@@ -393,6 +430,7 @@ public class DanhSachDauGiaController {
             sellerNameById.putAll(result.sellerNames);
 
             applyFilters();
+            loadingAuctions = false;
         });
 
         task.setOnFailed(event -> {
@@ -403,6 +441,7 @@ public class DanhSachDauGiaController {
             sellerNameById.clear();
             clearSelectedItem();
             applyFilters();
+            loadingAuctions = false;
         });
 
         Thread worker = new Thread(task, "auction-list-load");
@@ -428,11 +467,37 @@ public class DanhSachDauGiaController {
 
         table.getItems().setAll(rows);
         table.refresh();
+        updateSummary(rows);
 
         Auction selected = table.getSelectionModel().getSelectedItem();
         if (selected == null || !rows.contains(selected)) {
             table.getSelectionModel().clearSelection();
             clearSelectedItem();
+        }
+    }
+
+    // Cập nhật các số tổng ở đầu màn theo danh sách phiên đang hiển thị.
+    private void updateSummary(List<Auction> rows) {
+        if (rows == null) {
+            rows = List.of();
+        }
+
+        long liveCount = rows.stream().filter(this::isLiveAuction).count();
+        int totalBids = rows.stream()
+                .mapToInt(auction -> bidCountBySession.getOrDefault(auction.getId(), 0))
+                .sum();
+        long leadingCount = rows.stream()
+                .filter(auction -> auction.getCurrent_user_id() == UserAccount.getUserId())
+                .count();
+
+        if (liveSessionsLabel != null) {
+            liveSessionsLabel.setText(String.valueOf(liveCount));
+        }
+        if (totalBidsLabel != null) {
+            totalBidsLabel.setText(String.valueOf(totalBids));
+        }
+        if (leadingSessionsLabel != null) {
+            leadingSessionsLabel.setText(String.valueOf(leadingCount));
         }
     }
 
@@ -562,6 +627,7 @@ public class DanhSachDauGiaController {
 
     // Giữ nguyên Scene/Stage hiện tại, chỉ thay root để tránh chồng màn.
     private void replaceSceneRoot(Stage stage, Parent root) {
+        stopRealtimeTimer();
         Scene currentScene = stage.getScene();
         if (currentScene == null) {
             stage.setScene(new Scene(root, UILogin.APP_WIDTH, UILogin.APP_HEIGHT));
