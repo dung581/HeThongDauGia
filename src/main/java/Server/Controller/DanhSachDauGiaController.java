@@ -445,7 +445,21 @@ public class DanhSachDauGiaController {
         stage.show();
     }
 
+<<<<<<< HEAD
     private record LoadAuctionData(List<Auction> auctions, Map<Long, String> itemNames, Map<Long, Item> itemsById) {
         // Gói dữ liệu phiên + item trả về từ background task tải danh sách đấu giá.
+=======
+    private static class LoadAuctionData {
+        private final List<Auction> auctions;
+        private final Map<Long, String> itemNames;
+        private final Map<Long, Item> itemsById;
+
+        // Gói dữ liệu phiên + item trả về từ background task tải danh sách đấu giá.
+        private LoadAuctionData(List<Auction> auctions, Map<Long, String> itemNames, Map<Long, Item> itemsById) {
+            this.auctions = auctions;
+            this.itemNames = itemNames;
+            this.itemsById = itemsById;
+        }
+>>>>>>> parent of 4ed90c0 (hoan thien7 (#39))
     }
 }

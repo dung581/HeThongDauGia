@@ -13,8 +13,13 @@ import java.util.Optional;
 
 public class AutoBidService {
 
+<<<<<<< HEAD
     private final AutoBidRepository repo = new AutoBidRepository();
     private final AuctionRepository auctionRepo = new AuctionRepository();
+=======
+    private AutoBidRepository repo = new AutoBidRepository();
+    private AuctionRepository auctionRepo = new AuctionRepository();
+>>>>>>> parent of 4ed90c0 (hoan thien7 (#39))
 
     private void deactivate(long id) {
         repo.updateActive(id, false);
