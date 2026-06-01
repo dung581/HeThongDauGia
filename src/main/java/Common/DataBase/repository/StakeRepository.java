@@ -12,12 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StakeRepository {
-    private static final DbConnection db = new DbConnection();
+    private static DbConnection db = new DbConnection();
 
     public Stake getById(long id) {
         String sql = "SELECT * FROM stake WHERE id = ?";
 
-        try (Connection conn = DbConnection.getConnection();
+        try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, id);
@@ -50,7 +50,7 @@ public class StakeRepository {
     public void saveStake(Stake stake) {
         DbConnection db = new DbConnection(); // Biến db trong hàm
         String sql = "INSERT INTO Stake (auction_id, locked_item_id, user_id, amount, status) VALUES (?, ?, ?, ?, ?)";
-        try (Connection conn = DbConnection.getConnection();
+        try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, stake.getAution_id());
             ps.setLong(2, stake.getLocked_item_id());
@@ -66,7 +66,7 @@ public class StakeRepository {
     public void updateStatus(long stakeId, StakeStatus status) {
         String sql = "UPDATE stake SET status = ? WHERE id = ?";
 
-        try (Connection conn = DbConnection.getConnection();
+        try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, status.name());
@@ -83,7 +83,7 @@ public class StakeRepository {
 
         String sql = "SELECT * FROM stake WHERE user_id = ?";
 
-        try (Connection conn = DbConnection.getConnection();
+        try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, userId);
@@ -122,7 +122,7 @@ public class StakeRepository {
         LIMIT 1
     """;
 
-        try (Connection conn = DbConnection.getConnection();
+        try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, auctionId);

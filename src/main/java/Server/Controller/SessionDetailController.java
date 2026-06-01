@@ -686,7 +686,8 @@ final class SessionDetailTimerSection {
         }
 
         controller.autoRefreshTimer = new Timeline(
-                new KeyFrame(Duration.seconds(3), event -> controller.refreshLiveDataSilently())
+                // Mỗi nhịp vừa xử lý thêm một bước autobid nếu cần, vừa refresh lại dữ liệu phiên.
+                new KeyFrame(Duration.seconds(1), event -> controller.resumeAutoBidsSilently())
         );
         controller.autoRefreshTimer.setCycleCount(Timeline.INDEFINITE);
         controller.autoRefreshTimer.play();

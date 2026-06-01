@@ -8,8 +8,8 @@ import java.util.List;
 
 public class StakeService {
 
-    private final StakeRepository repo = new StakeRepository();
-    private final AccountService accountService = new AccountService();
+    private StakeRepository repo = new StakeRepository();
+    private AccountService accountService = new AccountService();
 
     // Tạo stake khi caller đã có auctionId, tránh query lại auction trong luồng đặt giá.
     public Stake createStakeForAuction(long auctionId, long userId, long itemId, long amount) {

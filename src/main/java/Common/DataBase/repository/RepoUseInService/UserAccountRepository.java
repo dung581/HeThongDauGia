@@ -24,7 +24,7 @@ public class UserAccountRepository {
         DbConnection db = new DbConnection();
 
         try (
-                Connection conn = DbConnection.getConnection();
+                Connection conn = db.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)
         ) {
 

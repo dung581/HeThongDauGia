@@ -12,8 +12,8 @@ import java.util.Map;
 
 public class AccountService {
 
-    private final AccountRepository repo = new AccountRepository();
-    private final UserRepository userRepository = new UserRepository();
+    private AccountRepository repo = new AccountRepository();
+    private UserRepository userRepository = new UserRepository();
 
     public Account getBalance(long userId) {
         return requireAccount(userId);
@@ -121,7 +121,45 @@ public class AccountService {
         return rows;
     }
 
-    public record ManagedAccount(Long userId, String username, String fullname, String role, Long balance,
-                                 Long lockedBalance) {
+    public static class ManagedAccount {
+        private final Long userId;
+        private final String username;
+        private final String fullname;
+        private final String role;
+        private final Long balance;
+        private final Long lockedBalance;
+
+        public ManagedAccount(Long userId, String username, String fullname, String role, Long balance, Long lockedBalance) {
+            this.userId = userId;
+            this.username = username;
+            this.fullname = fullname;
+            this.role = role;
+            this.balance = balance;
+            this.lockedBalance = lockedBalance;
+        }
+
+        public Long getUserId() {
+            return userId;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public String getFullname() {
+            return fullname;
+        }
+
+        public String getRole() {
+            return role;
+        }
+
+        public Long getBalance() {
+            return balance;
+        }
+
+        public Long getLockedBalance() {
+            return lockedBalance;
+        }
     }
 }

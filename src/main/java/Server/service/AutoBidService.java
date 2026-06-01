@@ -2,8 +2,10 @@ package Server.service;
 
 import Common.DataBase.entities.Auction;
 import Common.DataBase.entities.Autobid;
+import Common.DataBase.entities.Item;
 import Common.DataBase.repository.AuctionRepository;
 import Common.DataBase.repository.AutoBidRepository;
+import Common.DataBase.repository.ItemRepository;
 import Common.Enum.AuctionState;
 
 import java.util.Comparator;
@@ -13,13 +15,11 @@ import java.util.Optional;
 
 public class AutoBidService {
 
-<<<<<<< HEAD
-    private final AutoBidRepository repo = new AutoBidRepository();
-    private final AuctionRepository auctionRepo = new AuctionRepository();
-=======
+    private static final int MAX_AUTO_STEPS_PER_RESUME = 1;
+
     private AutoBidRepository repo = new AutoBidRepository();
     private AuctionRepository auctionRepo = new AuctionRepository();
->>>>>>> parent of 4ed90c0 (hoan thien7 (#39))
+    private ItemRepository itemRepo = new ItemRepository();
 
     private void deactivate(long id) {
         repo.updateActive(id, false);
@@ -92,8 +92,8 @@ public class AutoBidService {
     ) {
         boolean placedAnyBid = false;
 
-        // Resolve chuỗi autobid bằng các bước nhảy lớn, tránh ghi hàng trăm bid khi minIncrement nhỏ.
-        for (int guard = 0; guard < 10; guard++) {
+        // Mỗi lần resume chỉ xử lý một bước để giá leo dần theo minIncrement, không nhảy thẳng tới max autobid.
+        for (int guard = 0; guard < MAX_AUTO_STEPS_PER_RESUME; guard++) {
             Auction latestSession = auctionRepo.getById(sessionId);
             if (latestSession == null || latestSession.getState() != AuctionState.RUNNING) {
                 return placedAnyBid;
@@ -112,6 +112,32 @@ public class AutoBidService {
                 return placedAnyBid;
             }
             placedAnyBid = true;
+        }
+
+        return placedAnyBid;
+    }
+
+    // Quét toàn bộ phiên đang chạy để auto bid vẫn hoạt động khi người dùng không mở màn chi tiết phiên.
+    public boolean resumeAllRunningSessions() {
+        boolean placedAnyBid = false;
+
+        for (Auction session : auctionRepo.getActive()) {
+            if (session == null || session.getState() != AuctionState.RUNNING) {
+                continue;
+            }
+            if (session.getEndTime() == null || !session.getEndTime().isAfter(LocalDateTime.now())) {
+                continue;
+            }
+
+            Item item = itemRepo.getItemById(session.getItem_id());
+            long minIncrement = item == null || item.getMinIncrement() <= 0 ? 1L : item.getMinIncrement();
+            try {
+                if (resumeForSession(session.getId(), session.getItem_id(), minIncrement)) {
+                    placedAnyBid = true;
+                }
+            } catch (RuntimeException ignored) {
+                // Một phiên lỗi không được làm dừng auto bid của các phiên còn lại.
+            }
         }
 
         return placedAnyBid;
@@ -144,34 +170,13 @@ public class AutoBidService {
             return false;
         }
 
-        long strongestOpponentMax = currentPrice;
-        for (Autobid autobid : activeBids) {
-            if (autobid.getUser_id() != nextBidder.getUser_id()) {
-                strongestOpponentMax = Math.max(strongestOpponentMax, autobid.getMax_price());
-            }
-        }
-
-        long competitivePrice = addOrCap(Math.max(currentPrice, strongestOpponentMax), step);
-        long nextPrice = Math.min(nextBidder.getMax_price(), competitivePrice);
-        if (nextPrice < minNextPrice) {
-            return false;
-        }
-
         try {
-            bidService.placeBid(nextBidder.getUser_id(), itemId, nextPrice);
+            // Auto bid tăng đúng một bước giá tối thiểu mỗi lượt để người dùng thấy giá tăng từ từ.
+            bidService.placeBid(nextBidder.getUser_id(), itemId, minNextPrice);
             return true;
         } catch (RuntimeException e) {
             // Auto bid lỗi không được làm fail lệnh đặt giá thủ công vừa thành công.
             return false;
-        }
-    }
-
-    // Cộng có chặn tràn số để auto bid không làm vỡ luồng khi giá cực lớn.
-    private long addOrCap(long value, long increment) {
-        try {
-            return Math.addExact(value, increment);
-        } catch (ArithmeticException e) {
-            return Long.MAX_VALUE;
         }
     }
 
@@ -191,12 +196,28 @@ public class AutoBidService {
     }
 
     // Kết quả service trả về cho màn chi tiết phiên sau khi bật autobid.
-        public record AutoBidActionResult(Optional<Autobid> autobid, boolean immediateBidPlaced, String message) {
-            public AutoBidActionResult(Optional<Autobid> autobid, boolean immediateBidPlaced, String message) {
-                this.autobid = autobid == null ? Optional.empty() : autobid;
-                this.immediateBidPlaced = immediateBidPlaced;
-                this.message = message;
-            }
+    public static class AutoBidActionResult {
+        private final Optional<Autobid> autobid;
+        private final boolean immediateBidPlaced;
+        private final String message;
+
+        public AutoBidActionResult(Optional<Autobid> autobid, boolean immediateBidPlaced, String message) {
+            this.autobid = autobid == null ? Optional.empty() : autobid;
+            this.immediateBidPlaced = immediateBidPlaced;
+            this.message = message;
         }
+
+        public Optional<Autobid> getAutobid() {
+            return autobid;
+        }
+
+        public boolean isImmediateBidPlaced() {
+            return immediateBidPlaced;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+    }
 
 }
