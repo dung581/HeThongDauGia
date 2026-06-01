@@ -2,13 +2,10 @@ package Common.DataBase.repository;
 
 import Common.DataBase.DbConnection;
 import Common.DataBase.entities.Account;
-import Common.DataBase.entities.Auction;
-import Common.Enum.AuctionState;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +30,7 @@ public class AccountRepository {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Could not load accounts", e);
         }
 
         return accounts;
@@ -53,7 +50,7 @@ public class AccountRepository {
             ps.executeUpdate();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Could not create account", e);
         }
     }
 
@@ -81,7 +78,7 @@ public class AccountRepository {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Could not find account by user id", e);
         }
 
         return null;

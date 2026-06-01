@@ -35,15 +35,6 @@ final class AccountNavigation {
         switchScene(actionEvent, target);
     }
 
-    // Điều hướng sang màn duyệt/quản lý item, chỉ cho Admin.
-    void goToBrowseItems(ActionEvent actionEvent) throws IOException {
-        if (UserAccount.getCurrentRole() != UserRole.ADMIN) {
-            AlertUtil.showError("Chuc nang nay chi danh cho Admin.");
-            return;
-        }
-        switchScene(actionEvent, "/com/template/hellfx/ItemBrowse.fxml");
-    }
-
     // Điều hướng sang màn nạp tiền, chỉ cho Bidder.
     void goToDeposit(ActionEvent actionEvent) throws IOException {
         if (UserAccount.getCurrentRole() != UserRole.BIDDER) {

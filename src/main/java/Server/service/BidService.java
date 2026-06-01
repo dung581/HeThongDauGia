@@ -58,7 +58,7 @@ public class BidService {
         // Tạo stake mới bằng auctionId đã có để tránh query lại auction.
         stakeService.createStakeForAuction(auction.getId(), userId, itemId, price);
 
-        // 🔥 lưu bid
+        // Lưu lịch sử bid trước khi cập nhật giá hiện tại của phiên.
         Bid b = new Bid();
         b.setAuction_id(auction.getId());
         b.setItem_id(itemId);
@@ -67,7 +67,7 @@ public class BidService {
         b.setCreated_at(LocalDateTime.now());
         bidRepo.saveBid(b);
 
-        // 🔥 update auction
+        // Giá hiện tại và người đang dẫn đầu luôn nằm trên auction.
         auctionRepo.updateCurrentBid(auction.getId(), userId, price);
         auction.setCurrent_user_id(userId);
         auction.setCurrent_price(price);

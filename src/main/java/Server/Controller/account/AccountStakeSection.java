@@ -108,7 +108,9 @@ final class AccountStakeSection {
         });
 
         task.setOnFailed(event -> {
-            task.getException().printStackTrace();
+            if (controller.stakeTable != null) {
+                controller.stakeTable.setPlaceholder(new Label("Không tải được lịch sử đặt cọc."));
+            }
         });
 
         Thread worker = new Thread(task, "account-stake-load");

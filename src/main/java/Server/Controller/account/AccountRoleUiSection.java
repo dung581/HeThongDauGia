@@ -14,7 +14,6 @@ final class AccountRoleUiSection {
     // Ẩn/hiện các mục điều hướng theo role hiện tại của user.
     void configureRoleUi() {
         UserRole role = UserAccount.getCurrentRole();
-        controller.setVisibleManaged(controller.browseItemsNav, role == UserRole.ADMIN);
         controller.setVisibleManaged(controller.uploadItemNav, role == UserRole.SELLER);
         controller.setVisibleManaged(controller.depositNav, role == UserRole.BIDDER);
         controller.setVisibleManaged(controller.accountSection, role == UserRole.SELLER || role == UserRole.BIDDER);

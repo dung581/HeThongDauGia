@@ -59,7 +59,6 @@ public class DanhSachDauGiaController {
     @FXML private Label totalBidsLabel;
     @FXML private Label leadingSessionsLabel;
 
-    @FXML private Node browseItemsNav;
     @FXML private Node uploadItemNav;
     @FXML private Node depositNav;
     @FXML private Button accountNavButton;
@@ -95,7 +94,6 @@ public class DanhSachDauGiaController {
     // Ẩn/hiện các mục điều hướng theo role hiện tại của user.
     private void configureRoleUi() {
         UserRole role = UserAccount.getCurrentRole();
-        setVisibleManaged(browseItemsNav, role == UserRole.ADMIN);
         setVisibleManaged(uploadItemNav, role == UserRole.SELLER);
         setVisibleManaged(depositNav, role == UserRole.BIDDER);
         if (accountNavButton != null) {
@@ -567,16 +565,6 @@ public class DanhSachDauGiaController {
     @FXML
     public void goToSessions(ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/danhSachDauGia.fxml");
-    }
-
-    // Điều hướng tới màn duyệt/quản lý item, chỉ cho Admin.
-    @FXML
-    public void goToBrowseItems(ActionEvent actionEvent) throws IOException {
-        if (UserAccount.getCurrentRole() != UserRole.ADMIN) {
-            AlertUtil.showError("Chuc nang nay chi danh cho Admin.");
-            return;
-        }
-        switchScene(actionEvent, "/com/template/hellfx/ItemBrowse.fxml");
     }
 
     // Điều hướng tới màn tài khoản.
