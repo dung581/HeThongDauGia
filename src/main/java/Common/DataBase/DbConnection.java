@@ -36,11 +36,14 @@ public class DbConnection {
         config.setUsername(USER);
         config.setPassword(PASSWORD);
 
-        config.setMaximumPoolSize(10);
-        config.setMinimumIdle(2);
-        config.setIdleTimeout(30000); // 30 seconds
-        config.setConnectionTimeout(20000); // 20 seconds
-        config.setMaxLifetime(1800000); // 30 minutes
+        // Supabase session pooler đang giới hạn số client, nên app chỉ giữ ít connection DB.
+        config.setMaximumPoolSize(1);
+        config.setMinimumIdle(0);
+        config.setIdleTimeout(10000); // 10 seconds
+        config.setConnectionTimeout(10000); // 10 seconds
+        config.setMaxLifetime(300000); // 5 minutes
+        // Nếu DB đang kín session, không để FXMLLoader chết ngay khi dựng controller.
+        config.setInitializationFailTimeout(-1);
         config.setDriverClassName("org.postgresql.Driver");
 
         dataSource = new HikariDataSource(config);
@@ -48,5 +51,12 @@ public class DbConnection {
 
     public static Connection getConnection() throws Exception {
         return dataSource.getConnection();
+    }
+
+    // Đóng pool khi tắt app để trả connection về Supabase, tránh lần chạy sau bị đầy session.
+    public static void closePool() {
+        if (dataSource != null && !dataSource.isClosed()) {
+            dataSource.close();
+        }
     }
 }

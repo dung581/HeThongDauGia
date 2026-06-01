@@ -677,13 +677,15 @@ final class DashboardAdminSection {
 
         task.setOnSucceeded(event -> renderDashboard(task.getValue()));
         task.setOnFailed(event -> {
-            controller.setText(controller.adminActiveSessionsLabel, "0");
-            controller.setText(controller.adminPendingItemsLabel, "0");
-            controller.setText(controller.adminTotalItemsLabel, "0");
-            controller.setText(controller.adminTotalUsersLabel, "0");
-            controller.setText(controller.adminSidebarPendingLabel, "0");
-            controller.setText(controller.adminSessionSummaryLabel, "Khong tai duoc du lieu.");
-            controller.setText(controller.adminPendingSummaryLabel, "Khong tai duoc du lieu.");
+            // Không set về 0 khi lỗi DB, vì 0 làm người dùng hiểu nhầm là dữ liệu đã mất.
+            String message = "Khong tai duoc DB: " + rootMessage(task.getException());
+            controller.setText(controller.adminActiveSessionsLabel, "-");
+            controller.setText(controller.adminPendingItemsLabel, "-");
+            controller.setText(controller.adminTotalItemsLabel, "-");
+            controller.setText(controller.adminTotalUsersLabel, "-");
+            controller.setText(controller.adminSidebarPendingLabel, "-");
+            controller.setText(controller.adminSessionSummaryLabel, message);
+            controller.setText(controller.adminPendingSummaryLabel, message);
             renderSessionList(List.of());
             if (controller.adminPendingItemTable != null) {
                 controller.adminPendingItemTable.setItems(FXCollections.observableArrayList());
@@ -741,6 +743,18 @@ final class DashboardAdminSection {
         Thread worker = new Thread(task, threadName);
         worker.setDaemon(true);
         worker.start();
+    }
+
+    private String rootMessage(Throwable error) {
+        if (error == null) {
+            return "khong ro loi";
+        }
+        Throwable current = error;
+        while (current.getCause() != null) {
+            current = current.getCause();
+        }
+        String message = current.getMessage();
+        return message == null || message.isBlank() ? current.getClass().getSimpleName() : message;
     }
 }
 
