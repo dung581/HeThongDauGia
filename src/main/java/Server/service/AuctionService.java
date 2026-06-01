@@ -37,7 +37,7 @@ public class AuctionService{
 
         repo.save(a);
 
-        // 🔥 update item
+        // Item vào phiên thì không còn nằm trong danh sách chờ/đã duyệt nữa.
         item.setStatus(ItemStatus.IN_AUCTION);
         itemRepo.update(item);
 
@@ -106,7 +106,7 @@ public class AuctionService{
 
         repo.update(auction);
 
-        // 🔥 update item
+        // Đồng bộ lại trạng thái item sau khi phiên kết thúc.
         itemRepo.update(item);
     }
     // Chỉ đóng phiên nếu thời gian kết thúc đã qua; controller dùng để không tự giữ rule hết hạn.

@@ -62,7 +62,7 @@ public class ItemRepository {
                 items.add(map(rs));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Could not load items", e);
         }
         return items;
     }
@@ -101,7 +101,7 @@ public class ItemRepository {
                 return map(rs);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Could not find item by id", e);
         }
         return null;
     }
@@ -186,7 +186,7 @@ public class ItemRepository {
                 list.add(map(rs));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Could not load owner items", e);
         }
         return list;
     }

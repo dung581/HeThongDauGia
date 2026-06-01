@@ -27,7 +27,6 @@ public class DepositController {
     @FXML private Label lblBalance;
     @FXML private Label lblLocked;
     @FXML private Label lblAvailable;
-    @FXML private Node browseItemsNav;
     @FXML private Node uploadItemNav;
 
     private final AccountService accountService = new AccountService();
@@ -42,7 +41,6 @@ public class DepositController {
     // Ẩn/hiện các nút điều hướng theo quyền của tài khoản đang đăng nhập.
     private void configureRoleUi() {
         UserRole role = UserAccount.getCurrentRole();
-        setVisibleManaged(browseItemsNav, role == UserRole.ADMIN);
         setVisibleManaged(uploadItemNav, role == UserRole.SELLER);
     }
 
@@ -183,16 +181,6 @@ public class DepositController {
     @FXML
     public void goToSessions(ActionEvent actionEvent) throws IOException {
         switchScene(actionEvent, "/com/template/hellfx/danhSachDauGia.fxml");
-    }
-
-    // Điều hướng sang màn duyệt/quản lý item, chỉ cho Admin.
-    @FXML
-    public void goToBrowseItems(ActionEvent actionEvent) throws IOException {
-        if (UserAccount.getCurrentRole() != UserRole.ADMIN) {
-            AlertUtil.showError("Chuc nang nay chi danh cho Admin.");
-            return;
-        }
-        switchScene(actionEvent, "/com/template/hellfx/ItemBrowse.fxml");
     }
 
     // Điều hướng sang màn tài khoản.

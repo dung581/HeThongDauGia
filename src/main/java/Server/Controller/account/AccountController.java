@@ -45,9 +45,6 @@ public class AccountController {
     VBox stakePane;
     @FXML
     HBox accountSummaryPane;
-    @FXML
-    Node browseItemsNav;
-    @FXML
     Node uploadItemNav;
     @FXML
     Node depositNav;
@@ -234,12 +231,6 @@ public class AccountController {
     @FXML
     public void goToSessions(ActionEvent actionEvent) throws IOException {
         navigation.switchScene(actionEvent, "/com/template/hellfx/danhSachDauGia.fxml");
-    }
-
-    // Điều hướng sang màn duyệt/quản lý item, chỉ cho Admin.
-    @FXML
-    public void goToBrowseItems(ActionEvent actionEvent) throws IOException {
-        navigation.goToBrowseItems(actionEvent);
     }
 
     // Điều hướng sang chính màn tài khoản.

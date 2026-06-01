@@ -55,7 +55,7 @@ public class StakeService {
         return repo.getByUserId(userId);
     }
 
-    // 🔥 helper cực quan trọng
+    // Lấy stake đang khóa của user trong một phiên để hoàn/đánh dấu kết quả.
     public Stake getActiveStake(long auctionId, long userId) {
         return repo.getByAuctionIdAndUserIdAndStatus(
                 auctionId, userId, StakeStatus.LOCKED

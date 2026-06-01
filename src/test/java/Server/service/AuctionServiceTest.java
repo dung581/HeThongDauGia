@@ -31,6 +31,7 @@ class AuctionServiceTest {
     private FakeItemRepository itemRepo;
     private FakeStakeService stakeService;
     private FakeAccountService accountService;
+    private ItemService itemService;
 
     @BeforeEach
     void setUp() {
@@ -39,8 +40,11 @@ class AuctionServiceTest {
         itemRepo = new FakeItemRepository();
         stakeService = new FakeStakeService();
         accountService = new FakeAccountService();
+        itemService = new ItemService();
+        TestReflection.setField(itemService, "repo", itemRepo);
         TestReflection.setField(auctionService, "repo", repo);
         TestReflection.setField(auctionService, "itemRepo", itemRepo);
+        TestReflection.setField(auctionService, "itemService", itemService);
         TestReflection.setField(auctionService, "stakeService", stakeService);
         TestReflection.setField(auctionService, "accountService", accountService);
     }

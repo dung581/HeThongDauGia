@@ -201,7 +201,6 @@ public class UILoginController {
         } catch (DataAccessException e) {
             JOptionPane.showMessageDialog(null, "Không thể kết nối database hoặc cấu hình DB chưa đúng.", "Thông báo", JOptionPane.ERROR_MESSAGE);
         } catch (IOException e) {
-            e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Không mở được màn hình sau đăng nhập.\nChi tiết: " + e.getMessage(), "Thông báo", JOptionPane.ERROR_MESSAGE);
         }
     }

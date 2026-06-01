@@ -25,7 +25,6 @@
                 <Label styleClass="section-label" text="ĐIỀU HƯỚNG" />
                 <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goHome" styleClass="nav-item" text="Home" />
                 <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goToSessions" styleClass="nav-item" text="Sessions" />
-                <Button fx:id="browseItemsNav" maxWidth="Infinity" mnemonicParsing="false" onAction="#goToBrowseItems" styleClass="nav-item" text="Browse Items" />
                 <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#goToAccount" styleClass="nav-item" text="My Account" />
             </VBox>
 
