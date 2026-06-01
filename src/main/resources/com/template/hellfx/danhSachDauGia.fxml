@@ -50,30 +50,30 @@
             </padding>
 
             <VBox spacing="6.0">
-                <Label styleClass="page-title" text="Bid Sessions" />
-                <Label styleClass="page-subtitle" text="Live auction sessions currently available" />
+                <Label styleClass="page-title" text="Danh sách phiên đấu giá" />
+                <Label styleClass="page-subtitle" text="Theo dõi phiên đang chạy, giá hiện tại và thời gian còn lại theo thời gian thực." />
             </VBox>
 
             <HBox spacing="14.0">
                 <VBox prefHeight="70.0" prefWidth="180.0" spacing="6.0" styleClass="card">
                     <padding><Insets bottom="12.0" left="18.0" right="18.0" top="12.0" /></padding>
-                    <Label styleClass="field-name" text="LIVE SESSIONS" />
-                    <Label styleClass="danger-value" text="0" />
+                    <Label styleClass="field-name" text="PHIÊN ĐANG CHẠY" />
+                    <Label fx:id="liveSessionsLabel" styleClass="danger-value" text="0" />
                 </VBox>
                 <VBox prefHeight="70.0" prefWidth="180.0" spacing="6.0" styleClass="card">
                     <padding><Insets bottom="12.0" left="18.0" right="18.0" top="12.0" /></padding>
-                    <Label styleClass="field-name" text="BIDS TODAY" />
-                    <Label styleClass="accent-value" text="0" />
+                    <Label styleClass="field-name" text="TỔNG LƯỢT BID" />
+                    <Label fx:id="totalBidsLabel" styleClass="accent-value" text="0" />
                 </VBox>
                 <VBox prefHeight="70.0" prefWidth="180.0" spacing="6.0" styleClass="card">
                     <padding><Insets bottom="12.0" left="18.0" right="18.0" top="12.0" /></padding>
-                    <Label styleClass="field-name" text="YOUR ACTIVE" />
-                    <Label styleClass="success-value" text="0" />
+                    <Label styleClass="field-name" text="ĐANG DẪN" />
+                    <Label fx:id="leadingSessionsLabel" styleClass="success-value" text="0" />
                 </VBox>
             </HBox>
 
             <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="filter-bar">
-                <TextField fx:id="searchField" prefWidth="280.0" promptText="Tim theo ten, ID item, leader" styleClass="input" />
+                <TextField fx:id="searchField" prefWidth="280.0" promptText="Tìm theo tên, ID item, leader" styleClass="input" />
                 <ChoiceBox fx:id="stateFilter" prefWidth="160.0" />
                 <Button mnemonicParsing="false" onAction="#loadData" styleClass="secondary-button" text="Tải lại" />
                 <HBox HBox.hgrow="ALWAYS" />

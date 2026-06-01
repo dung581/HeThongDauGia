@@ -33,15 +33,15 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class    ItemBrowseController {
+public class ItemBrowseController {
     @FXML private ListView<Item> table;
     @FXML private ChoiceBox<String> statusFilter;
     @FXML private TextField rejectReason;
     @FXML private TextField endTime;
     @FXML private Label lblRole;
     @FXML private Label lblTotal;
-    @FXML private HBox adminInputBox;
-    @FXML private HBox adminActionBox;
+    @FXML private Node adminInputBox;
+    @FXML private Node adminActionBox;
 
     private final ItemService itemService = new ItemService();
     private final AuctionService auctionService = new AuctionService();
@@ -184,7 +184,7 @@ public class    ItemBrowseController {
 
             table.getItems().setAll(data);
 
-            if (lblRole != null) {
+            if (lblTotal != null) {
                 lblTotal.setText("Tổng: " + data.size() + " sản phẩm");
             }
         }catch (Exception e){

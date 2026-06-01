@@ -51,9 +51,9 @@ public class SellerProductController {
     // JavaFX tự gọi sau khi load FXML: cấu hình cột bảng và tải danh sách item của seller.
     @FXML
     public void initialize() {
-        configureList(); //dágfda
-        configureFilters();
-        loadMyItems();
+        configureList(); //cấu hình danh sách
+        configureFilters();// thanh tìm kiếm
+        loadMyItems();// tải dữ liệu sản phẩm
     }
 
     // Cấu hình danh sách sản phẩm của seller theo dạng card mềm.

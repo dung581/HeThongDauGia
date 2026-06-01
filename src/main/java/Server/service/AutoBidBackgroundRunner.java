@@ -12,7 +12,6 @@ public final class AutoBidBackgroundRunner {
 
     private AutoBidBackgroundRunner() {
     }
-
     // Khởi động một runner nền cho toàn app để auto bid không phụ thuộc màn chi tiết phiên.
     public static void start() {
         if (!started.compareAndSet(false, true)) {

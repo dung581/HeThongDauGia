@@ -192,7 +192,6 @@ public class UILoginController {
             } else {
                 JOptionPane.showMessageDialog(null, "Vai trò không hợp lệ.", "Thông báo", JOptionPane.ERROR_MESSAGE);
             }
-
         } catch (UsernameIsBlankException e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Thông báo", JOptionPane.WARNING_MESSAGE);
         } catch (UserNotFoundException e) {
@@ -206,7 +205,6 @@ public class UILoginController {
             JOptionPane.showMessageDialog(null, "Không mở được màn hình sau đăng nhập.\nChi tiết: " + e.getMessage(), "Thông báo", JOptionPane.ERROR_MESSAGE);
         }
     }
-
     // Chuyển từ màn đăng nhập sang màn đăng ký.
     @FXML
     public void Register(ActionEvent actionEvent) throws IOException {
