@@ -213,15 +213,6 @@ public class DashBoardController {
         adminSection.loadDashboardAsync();
     }
 
-    // Đổ dữ liệu đã tải lên các thẻ thống kê và bảng của Admin.
-    void renderAdminDashboard(AdminDashboardData data) {
-        adminSection.renderDashboard(data);
-    }
-
-    // Render phiên gần đây của Admin thành từng thanh mềm, có thể bấm để xem hoạt động phiên.
-    void renderAdminSessionList(List<SessionOverviewRow> rows) {
-        adminSection.renderSessionList(rows);
-    }
 
     // Tạo một thanh phiên đấu giá gồm tên item, id phiên, giá, leader và trạng thái.
     Node createAdminSessionNode(SessionOverviewRow row) {
@@ -253,10 +244,6 @@ public class DashBoardController {
         sellerSection.loadDashboardAsync();
     }
 
-    // Đổ dữ liệu đã tải lên các thẻ thống kê và bảng của Seller.
-    void renderSellerDashboard(SellerDashboardData data) {
-        sellerSection.renderDashboard(data);
-    }
 
     // Helper cho dashboard: phiên live là RUNNING và chưa quá end_time.
     boolean isLiveSession(Auction session) {
@@ -338,15 +325,6 @@ public class DashBoardController {
         bidderSection.refreshDashboardSilently();
     }
 
-    // Đổ dữ liệu dashboard Bidder lên các thẻ thống kê và bảng.
-    void renderBidderDashboard(BidderDashboardData data) {
-        bidderSection.renderDashboard(data);
-    }
-
-    // Render danh sách sản phẩm đã thắng theo dạng từng thanh sản phẩm, không dùng bảng cứng.
-    void renderOwnedProducts(List<OwnedProductRow> products) {
-        bidderSection.renderOwnedProducts(products);
-    }
 
     // Tạo một thanh sản phẩm gồm tên, mô tả, id phiên/item, giá thắng và trạng thái.
     Node createOwnedProductNode(OwnedProductRow row) {

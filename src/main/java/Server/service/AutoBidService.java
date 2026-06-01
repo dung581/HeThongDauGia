@@ -211,10 +211,6 @@ public class AutoBidService {
             return autobid;
         }
 
-        public boolean isImmediateBidPlaced() {
-            return immediateBidPlaced;
-        }
-
         public String getMessage() {
             return message;
         }
