@@ -9,17 +9,17 @@ import static org.junit.jupiter.api.Assertions.*;
  * GIAI ĐOẠN 7 — TIỆN ÍCH (PasswordUtil)
  *
  * Test thuần, không cần fake (không đụng database).
- * Bản mới chỉ còn PasswordUtil (hash / verify / isBCryptHash).
+ * Bản mới không sử dụng mã hóa mật khẩu.
  */
 @DisplayName("Giai đoạn 7: Tiện ích (PasswordUtil)")
 class UtilTest {
 
     @Test
-    @DisplayName("Mật khẩu băm khác mật khẩu gốc và có tiền tố BCrypt")
-    void hash_producesBcrypt() {
+    @DisplayName("Mật khẩu không mã hóa được giữ nguyên")
+    void hash_keepsPlainText() {
         String hashed = PasswordUtil.hash("matkhau");
-        assertNotEquals("matkhau", hashed);
-        assertTrue(PasswordUtil.isBCryptHash(hashed));
+        assertEquals("matkhau", hashed);
+        assertFalse(PasswordUtil.isBCryptHash(hashed));
     }
 
     @Test
@@ -37,11 +37,11 @@ class UtilTest {
     }
 
     @Test
-    @DisplayName("Hai lần băm cùng mật khẩu cho chuỗi khác nhau (salt ngẫu nhiên) nhưng đều verify đúng")
-    void hash_usesRandomSalt() {
+    @DisplayName("Hai lần băm cùng mật khẩu cho chuỗi bằng nhau và verify đúng")
+    void hash_returnsSameString() {
         String h1 = PasswordUtil.hash("abc123");
         String h2 = PasswordUtil.hash("abc123");
-        assertNotEquals(h1, h2);
+        assertEquals(h1, h2);
         assertTrue(PasswordUtil.verify("abc123", h1));
         assertTrue(PasswordUtil.verify("abc123", h2));
     }
@@ -54,16 +54,8 @@ class UtilTest {
     }
 
     @Test
-    @DisplayName("verify so sánh plaintext khi hash chưa phải BCrypt (tương thích dữ liệu cũ)")
-    void verify_plaintextFallback() {
-        assertTrue(PasswordUtil.verify("plain123", "plain123"));
-        assertFalse(PasswordUtil.verify("plain123", "khac"));
-    }
-
-    @Test
-    @DisplayName("isBCryptHash nhận diện đúng định dạng băm")
-    void isBCryptHash_detects() {
-        assertTrue(PasswordUtil.isBCryptHash(PasswordUtil.hash("x")));
+    @DisplayName("isBCryptHash luôn trả về false")
+    void isBCryptHash_alwaysFalse() {
         assertFalse(PasswordUtil.isBCryptHash("plaintext"));
         assertFalse(PasswordUtil.isBCryptHash(null));
     }
