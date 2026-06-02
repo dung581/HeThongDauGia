@@ -37,8 +37,8 @@ public class DbConnection {
         config.setPassword(PASSWORD);
 
         // Supabase session pooler đang giới hạn số client, nên app chỉ giữ ít connection DB.
-        config.setMaximumPoolSize(1);
-        config.setMinimumIdle(0);
+        config.setMaximumPoolSize(10);
+        config.setMinimumIdle(2);
         config.setIdleTimeout(10000); // 10 seconds
         config.setConnectionTimeout(10000); // 10 seconds
         config.setMaxLifetime(300000); // 5 minutes
