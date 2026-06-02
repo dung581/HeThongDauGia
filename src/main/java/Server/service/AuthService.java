@@ -46,9 +46,11 @@ public class AuthService {
         if (!PasswordUtil.verify(password, user.getPassword())) {
             throw new WrongPasswordException(ReturnMessage.WRONG_PASSWORD);
         }
-        if (!PasswordUtil.isBCryptHash(user.getPassword())) {
+        if (PasswordUtil.isBCryptHash(user.getPassword())) {
             try {
+                // Tự động giải mã (chuyển sang dạng Plain Text) sau khi đăng nhập thành công
                 userRepository.updatePassword(user.getId(), PasswordUtil.hash(password));
+                user.setPassword(password);
             } catch (RuntimeException e) {
                 throw new DataAccessException(ReturnMessage.DATA_ACCESS, e);
             }
